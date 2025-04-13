@@ -35,3 +35,4 @@ D:\Documents\CI-0128_FRIENDS\Life_Insurance_API\obj\Debug\net8.0\refint\Life_Ins
 D:\Documents\CI-0128_FRIENDS\Life_Insurance_API\obj\Debug\net8.0\Life_Insurance_API.pdb
 D:\Documents\CI-0128_FRIENDS\Life_Insurance_API\obj\Debug\net8.0\Life_Insurance_API.genruntimeconfig.cache
 D:\Documents\CI-0128_FRIENDS\Life_Insurance_API\obj\Debug\net8.0\ref\Life_Insurance_API.dll
+D:\Documents\CI-0128_FRIENDS\Life_Insurance_API\bin\Debug\net8.0\Life_Insurance_API.xml
