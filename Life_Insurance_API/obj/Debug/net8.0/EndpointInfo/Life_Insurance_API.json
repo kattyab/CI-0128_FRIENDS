@@ -15,16 +15,15 @@
           {
             "name": "dob",
             "in": "query",
-            "description": "The date of birth in the format yyyy-MM-dd.",
+            "description": "The date of birth in the format YYYY-MM-DD.",
             "schema": {
-              "type": "string",
-              "format": "date-time"
+              "type": "string"
             }
           },
           {
             "name": "sex",
             "in": "query",
-            "description": "The sex of the individual, either 'male' or 'female'.",
+            "description": "The sex of the employee, 'male' or 'female'.",
             "schema": {
               "type": "string"
             }
@@ -51,8 +50,8 @@
     "securitySchemes": {
       "ApiKey": {
         "type": "apiKey",
-        "description": "API Token needed to access the endpoints. Type \"thePowerOfFRIENDSHIP\"",
-        "name": "X-API-TOKEN",
+        "description": "API Token needed to access the endpoints. Type \"1D0B194488C091852597B9AF7D1AA8F23D55C9784815489CF0A488B6F2C6D5C4C569AD51231FACB9920E5A763FE388247E03131D1601AC234E86BC0D266EB6A7\"",
+        "name": "FRIENDS-API-TOKEN",
         "in": "header"
       }
     }

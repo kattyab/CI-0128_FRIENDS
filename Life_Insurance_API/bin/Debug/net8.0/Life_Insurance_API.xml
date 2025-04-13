@@ -4,17 +4,50 @@
         <name>Life_Insurance_API</name>
     </assembly>
     <members>
-        <member name="M:LifeInsuranceApi.Controllers.LifeInsuranceController.Get(System.Nullable{System.DateTime},System.String)">
+        <member name="T:LifeInsuranceApi.Controllers.LifeInsuranceController">
+            <summary>
+            Controller that provides life insurance quotes based on user demographics.
+            </summary>
+        </member>
+        <member name="M:LifeInsuranceApi.Controllers.LifeInsuranceController.Get(System.String,System.String)">
             <summary>
             Get the life insurance quote based on the date of birth and sex.
             </summary>
-            <param name="dob">The date of birth in the format yyyy-MM-dd.</param>
-            <param name="sex">The sex of the individual, either 'male' or 'female'.</param>
+            <param name="dobString">The date of birth in the format YYYY-MM-DD.</param>
+            <param name="sex">The sex of the employee, 'male' or 'female'.</param>
             <returns>A life insurance quote based on the provided information.</returns>
             <response code="200">Returns the life insurance quote.</response>
             <response code="400">Bad Request, missing or invalid parameters.</response>
             <response code="403">Forbidden, invalid or missing API token.</response>
             <response code="500">Internal Server Error if an unexpected error occurs.</response>
+        </member>
+        <member name="T:LifeInsuranceApi.Models.LifeInsuranceRequest">
+            <summary>
+            Represents a request for a life insurance quote calculation.
+            </summary>
+        </member>
+        <member name="P:LifeInsuranceApi.Models.LifeInsuranceRequest.DateOfBirth">
+            <summary>
+            The date of birth of the person requesting insurance.
+            Used to calculate age-based premium factors.
+            </summary>
+        </member>
+        <member name="P:LifeInsuranceApi.Models.LifeInsuranceRequest.Sex">
+            <summary>
+            The biological sex of the person requesting insurance.
+            Must be either "male" or "female".
+            </summary>
+        </member>
+        <member name="T:LifeInsuranceApi.Models.LifeInsuranceResponse">
+            <summary>
+            Represents the response containing life insurance quote information.
+            </summary>
+        </member>
+        <member name="P:LifeInsuranceApi.Models.LifeInsuranceResponse.MonthlyCost">
+            <summary>
+            The calculated monthly premium cost for the life insurance policy.
+            Value is in colones.
+            </summary>
         </member>
     </members>
 </doc>

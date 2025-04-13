@@ -15,16 +15,17 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
+    // Include the XML comments from the generated file
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 
-    // Token config
+    // Token config...
     options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-        Description = "API Token needed to access the endpoints. Type \"thePowerOfFRIENDSHIP\"",
+        Description = "API Token needed to access the endpoints. Type \"1D0B194488C091852597B9AF7D1AA8F23D55C9784815489CF0A488B6F2C6D5C4C569AD51231FACB9920E5A763FE388247E03131D1601AC234E86BC0D266EB6A7\"",
         In = ParameterLocation.Header,
-        Name = "X-API-TOKEN",
+        Name = "FRIENDS-API-TOKEN",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "ApiKeyScheme"
     });
