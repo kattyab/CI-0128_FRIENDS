@@ -1,0 +1,23 @@
+[
+  {
+    "ContainingType": "LifeInsuranceApi.Controllers.LifeInsuranceController",
+    "Method": "Get",
+    "RelativePath": "api/LifeInsurance",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dob",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "sex",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
