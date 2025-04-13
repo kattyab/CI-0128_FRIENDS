@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\controllers\\lifeinsurancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:controllers\\lifeinsurancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\controllers\\lifeinsurancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:controllers\\lifeinsurancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\handlers\\lifeinsurancehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:handlers\\lifeinsurancehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\models\\lifeinsurancemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:models\\lifeinsurancemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\handlers\\lifeinsurancehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:handlers\\lifeinsurancehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|d:\\documents\\ci-0128_friends\\life_insurance_api\\life_insurance_api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{B5509AC9-C5B8-4F02-973C-2B474159F6B9}|Life_Insurance_API.csproj|solutionrelative:life_insurance_api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,58 +30,70 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-13T13:18:33.508Z",
+              "DocumentIndex": 4,
+              "Title": "Life_Insurance_API",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Life_Insurance_API.csproj",
+              "RelativeDocumentMoniker": "Life_Insurance_API.csproj",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Life_Insurance_API.csproj",
+              "RelativeToolTip": "Life_Insurance_API.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-04-13T15:27:25.286Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "LifeInsuranceController.cs",
-              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Controllers\\LifeInsuranceController.cs",
-              "RelativeDocumentMoniker": "Controllers\\LifeInsuranceController.cs",
-              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Controllers\\LifeInsuranceController.cs",
-              "RelativeToolTip": "Controllers\\LifeInsuranceController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA9AAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAkwCkAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-13T13:17:58.038Z",
+              "WhenOpened": "2025-04-13T15:19:49.115Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "LifeInsuranceHandler.cs",
-              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Handlers\\LifeInsuranceHandler.cs",
-              "RelativeDocumentMoniker": "Handlers\\LifeInsuranceHandler.cs",
-              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Handlers\\LifeInsuranceHandler.cs",
-              "RelativeToolTip": "Handlers\\LifeInsuranceHandler.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-13T13:16:33.747Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "LifeInsuranceModel.cs",
               "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Models\\LifeInsuranceModel.cs",
               "RelativeDocumentMoniker": "Models\\LifeInsuranceModel.cs",
               "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Models\\LifeInsuranceModel.cs",
               "RelativeToolTip": "Models\\LifeInsuranceModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-13T13:16:12.659Z",
+              "WhenOpened": "2025-04-13T15:19:48.23Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "LifeInsuranceHandler.cs",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Handlers\\LifeInsuranceHandler.cs",
+              "RelativeDocumentMoniker": "Handlers\\LifeInsuranceHandler.cs",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Handlers\\LifeInsuranceHandler.cs",
+              "RelativeToolTip": "Handlers\\LifeInsuranceHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-13T15:19:47.147Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "LifeInsuranceController.cs",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Controllers\\LifeInsuranceController.cs",
+              "RelativeDocumentMoniker": "Controllers\\LifeInsuranceController.cs",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Life_Insurance_API\\Controllers\\LifeInsuranceController.cs",
+              "RelativeToolTip": "Controllers\\LifeInsuranceController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABcAAABVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-13T15:19:45.81Z",
               "EditorCaption": ""
             }
           ]

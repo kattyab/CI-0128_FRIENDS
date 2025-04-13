@@ -3,7 +3,9 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddXmlSerializerFormatters();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -13,12 +15,16 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
-    // Add API token support for Swagger UI
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+
+    // Token config
     options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-        Description = "API Token needed to access the endpoints. Type \"thePowerOfFRIENDSHIP",
+        Description = "API Token needed to access the endpoints. Type \"thePowerOfFRIENDSHIP\"",
         In = ParameterLocation.Header,
-        Name = "FRIENDS-API-TOKEN",
+        Name = "X-API-TOKEN",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "ApiKeyScheme"
     });
@@ -41,7 +47,6 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -57,42 +62,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
-
-
-// This seems to work, but I want to test on swagger.
-/*using Microsoft.OpenApi.Models;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Life Insurance API",
-        Version = "v1"
-    });
-});
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Life Insurance API V1");
-    });
-}
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();*/
