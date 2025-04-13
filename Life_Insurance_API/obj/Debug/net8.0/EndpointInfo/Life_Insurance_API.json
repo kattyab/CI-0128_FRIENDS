@@ -1,0 +1,53 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Life Insurance API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/LifeInsurance": {
+      "get": {
+        "tags": [
+          "LifeInsurance"
+        ],
+        "parameters": [
+          {
+            "name": "dob",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "sex",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "description": "API Token needed to access the endpoints. Type \"thePowerOfFRIENDSHIP",
+        "name": "FRIENDS-API-TOKEN",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKey": [ ]
+    }
+  ]
+}
