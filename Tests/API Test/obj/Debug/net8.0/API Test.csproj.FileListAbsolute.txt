@@ -1,0 +1,14 @@
+D:\Documents\tests\API Test\bin\Debug\net8.0\API Test.exe
+D:\Documents\tests\API Test\bin\Debug\net8.0\API Test.deps.json
+D:\Documents\tests\API Test\bin\Debug\net8.0\API Test.runtimeconfig.json
+D:\Documents\tests\API Test\bin\Debug\net8.0\API Test.dll
+D:\Documents\tests\API Test\bin\Debug\net8.0\API Test.pdb
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.GeneratedMSBuildEditorConfig.editorconfig
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.AssemblyInfoInputs.cache
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.AssemblyInfo.cs
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.csproj.CoreCompileInputs.cache
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.dll
+D:\Documents\tests\API Test\obj\Debug\net8.0\refint\API Test.dll
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.pdb
+D:\Documents\tests\API Test\obj\Debug\net8.0\API Test.genruntimeconfig.cache
+D:\Documents\tests\API Test\obj\Debug\net8.0\ref\API Test.dll
