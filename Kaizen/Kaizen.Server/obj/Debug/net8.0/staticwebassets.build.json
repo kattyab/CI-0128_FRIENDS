@@ -1,0 +1,24 @@
+{
+  "Version": 1,
+  "Hash": "Ews5tB97ZTM/rYSqfXZhu/ENer0qt0ZaZzZwQekrxFs=",
+  "Source": "Kaizen.Server",
+  "BasePath": "_content/Kaizen.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\kaizen.client\\kaizen.client.esproj",
+      "Version": 2,
+      "Source": "kaizen.client",
+      "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

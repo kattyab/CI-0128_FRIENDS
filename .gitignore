@@ -1,0 +1,18 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Kaizen/.vs/Kaizen/config/applicationhost.config
+/Kaizen/.vs/Kaizen/CopilotIndices/17.13.439.2385/CodeChunks.db-shm
+/Kaizen/.vs/Kaizen/CopilotIndices/17.13.439.2385/CodeChunks.db-wal
+/Kaizen/.vs/Kaizen/CopilotIndices/17.13.439.2385/SemanticSymbols.db-shm
+/Kaizen/.vs/Kaizen/CopilotIndices/17.13.439.2385/SemanticSymbols.db-wal
+/Kaizen/.vs/Kaizen/FileContentIndex/6c9fcfdb-1353-4a01-88ae-a409ef38473d.vsidx
+/Kaizen/.vs/Kaizen/FileContentIndex/9ad69531-602a-467e-bce0-032616e50b19.vsidx
+/Kaizen/.vs/Kaizen/FileContentIndex/f42459e5-c445-420b-95ce-90ee0e35a934.vsidx
+/Kaizen/.vs/Kaizen/v17/.suo
+*.vsidx
+/Kaizen/Kaizen.Server/bin/Debug/net8.0
+/Kaizen/Kaizen.Server/obj/Debug/net8.0/ref
+/Kaizen/Kaizen.Server/obj/Debug/net8.0/refint
+/Kaizen/Kaizen.Server/obj/Debug/net8.0/staticwebassets

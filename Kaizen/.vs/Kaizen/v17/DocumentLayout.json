@@ -1,12 +1,139 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.server\\handlers\\empleadohandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|solutionrelative:kaizen.server\\handlers\\empleadohandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.server\\controllers\\empleadocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|solutionrelative:kaizen.server\\controllers\\empleadocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{86CF845E-01F0-4CBB-4DC3-47D392FFBDA3}|kaizen.client\\kaizen.client.esproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.client\\src\\components\\employeedetail.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{86CF845E-01F0-4CBB-4DC3-47D392FFBDA3}|kaizen.client\\kaizen.client.esproj|solutionrelative:kaizen.client\\src\\components\\employeedetail.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|solutionrelative:kaizen.server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.server\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|solutionrelative:kaizen.server\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}|Kaizen.Server\\Kaizen.Server.csproj|solutionrelative:kaizen.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{86CF845E-01F0-4CBB-4DC3-47D392FFBDA3}|kaizen.client\\kaizen.client.esproj|d:\\documents\\ci-0128_friends\\kaizen\\kaizen.client\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{86CF845E-01F0-4CBB-4DC3-47D392FFBDA3}|kaizen.client\\kaizen.client.esproj|solutionrelative:kaizen.client\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EmpleadoController.cs",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Controllers\\EmpleadoController.cs",
+              "RelativeDocumentMoniker": "Kaizen.Server\\Controllers\\EmpleadoController.cs",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Controllers\\EmpleadoController.cs",
+              "RelativeToolTip": "Kaizen.Server\\Controllers\\EmpleadoController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-14T23:43:57.699Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\appsettings.json",
+              "RelativeDocumentMoniker": "Kaizen.Server\\appsettings.json",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\appsettings.json",
+              "RelativeToolTip": "Kaizen.Server\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-04-14T23:43:35.765Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EmployeeDetail.vue",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\kaizen.client\\src\\components\\EmployeeDetail.vue",
+              "RelativeDocumentMoniker": "kaizen.client\\src\\components\\EmployeeDetail.vue",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\kaizen.client\\src\\components\\EmployeeDetail.vue",
+              "RelativeToolTip": "kaizen.client\\src\\components\\EmployeeDetail.vue",
+              "ViewState": "AgIAAF8AAAAAAAAAAAAIwAsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003491|",
+              "WhenOpened": "2025-04-14T23:40:50.217Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Program.cs",
+              "RelativeDocumentMoniker": "Kaizen.Server\\Program.cs",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Program.cs",
+              "RelativeToolTip": "Kaizen.Server\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-14T23:40:40.732Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EmpleadoHandler.cs",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Handlers\\EmpleadoHandler.cs",
+              "RelativeDocumentMoniker": "Kaizen.Server\\Handlers\\EmpleadoHandler.cs",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Handlers\\EmpleadoHandler.cs",
+              "RelativeToolTip": "Kaizen.Server\\Handlers\\EmpleadoHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-14T23:39:06.284Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Kaizen.Server\\Properties\\launchSettings.json",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\Kaizen.Server\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Kaizen.Server\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-04-14T23:38:29.639Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": ".gitignore",
+              "DocumentMoniker": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\kaizen.client\\.gitignore",
+              "RelativeDocumentMoniker": "kaizen.client\\.gitignore",
+              "ToolTip": "D:\\Documents\\CI-0128_FRIENDS\\Kaizen\\kaizen.client\\.gitignore",
+              "RelativeToolTip": "kaizen.client\\.gitignore",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-04-14T18:29:11.953Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

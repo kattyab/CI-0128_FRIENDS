@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Kaizen.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dae558eb4856b74a178868728ca94c79fc2f47ae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06c737dbcba6ffac5d55a40053098ce3931c15c7")]
 [assembly: System.Reflection.AssemblyProductAttribute("Kaizen.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Kaizen.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
