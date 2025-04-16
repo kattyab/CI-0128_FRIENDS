@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 var builder = WebApplication.CreateBuilder(args);
 
 // Register the Handler
-builder.Services.AddScoped<EmpleadoHandler>();
+builder.Services.AddScoped<EmployeeHandler>();
 
 // Register controllers
 builder.Services.AddControllers();
@@ -30,6 +30,7 @@ var app = builder.Build();
 // Configure the HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
+    Console.WriteLine("Swagger is being configured...");
     app.UseSwagger();
     app.UseSwaggerUI();
 }

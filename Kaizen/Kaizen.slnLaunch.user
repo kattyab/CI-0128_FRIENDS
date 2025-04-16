@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "kaizen.client\\kaizen.client.esproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Kaizen.Server\\Kaizen.Server.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

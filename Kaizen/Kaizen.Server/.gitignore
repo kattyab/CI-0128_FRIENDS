@@ -30,5 +30,6 @@ coverage
 bin/
 build/
 debug/
+Queries/
 
 *.tsbuildinfo

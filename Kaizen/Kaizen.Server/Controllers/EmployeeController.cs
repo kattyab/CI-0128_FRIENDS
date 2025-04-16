@@ -5,20 +5,20 @@ namespace KaizenProto.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmpleadoController : ControllerBase
+    public class EmployeeController : ControllerBase
     {
-        private readonly EmpleadoHandler _empleadoHandler;
+        private readonly EmployeeHandler _employeeHandler;
 
         // Constructor: ASP.NET Core inyecta el servicio EmpleadoHandler
-        public EmpleadoController(EmpleadoHandler empleadoHandler)
+        public EmployeeController(EmployeeHandler employeeHandler)
         {
-            _empleadoHandler = empleadoHandler;
+            _employeeHandler = employeeHandler;
         }
 
-        [HttpGet("{cedula}")]
-        public IActionResult GetEmpleadoInfo(string cedula)
+        [HttpGet("{email}")]
+        public IActionResult GetEmpleadoInfo(string email)
         {
-            var empleado = _empleadoHandler.ObtenerEmpleadoInfo(cedula);
+            var empleado = _employeeHandler.ObtainEmployeeData(email);
             if (empleado == null)
             {
                 return NotFound(new { message = "Empleado no encontrado." });

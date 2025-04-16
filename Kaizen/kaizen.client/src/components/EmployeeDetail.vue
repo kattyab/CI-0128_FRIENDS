@@ -117,7 +117,7 @@
 <script setup>
   import { reactive, ref } from 'vue';
 
-  let cedula = '987654321';
+  let email = "carlos.ramirez@example.com";
 
   // Make the empleado object reactive
   const empleado = reactive({
@@ -145,7 +145,7 @@
   // Fetch employee data from the API based on the cedula
   async function fetchEmpleadoData() {
     try {
-      const response = await fetch(`https://localhost:7058/api/Empleado/${cedula}`);
+      const response = await fetch(`https://localhost:7058/api/Employee/${email}`);
       const data = await response.json();
 
       // Check if data is returned and populate the empleado object
