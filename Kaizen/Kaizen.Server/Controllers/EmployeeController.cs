@@ -1,7 +1,7 @@
-﻿using KaizenProto.Server.Handlers;
+﻿using Kaizen.Server.Handlers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KaizenProto.Server.Controllers
+namespace Kaizen.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

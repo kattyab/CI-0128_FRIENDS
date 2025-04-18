@@ -1,4 +1,4 @@
-﻿namespace KaizenProto.Server.Models
+﻿namespace Kaizen.Server.Models
 {
     public class Persons
     {

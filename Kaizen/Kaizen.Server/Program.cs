@@ -1,4 +1,4 @@
-using KaizenProto.Server.Handlers;
+using Kaizen.Server.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

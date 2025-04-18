@@ -1,7 +1,9 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
 
-namespace KaizenProto.Server.Handlers
+using Kaizen.Server.Models;
+
+namespace Kaizen.Server.Handlers
 {
     public class EmployeeHandler
     {

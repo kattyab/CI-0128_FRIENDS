@@ -1,6 +1,4 @@
-﻿using KaizenProto.Server.Handlers;
-
-namespace KaizenProto.Server.Models
+﻿namespace Kaizen.Server.Models
 {
     public class ChosenBenefits
     {
