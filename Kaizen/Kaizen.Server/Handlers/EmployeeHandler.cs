@@ -40,7 +40,7 @@ namespace Kaizen.Server.Handlers
                 p.BirthDate AS fecha_nacimiento, p.Province AS provincia, p.Canton AS canton, p.OtherSigns AS otras_senas,
                 t.Number AS telefono, 
                 e.BruteSalary AS salario_bruto, e.ContractType AS tipo_contrato, e.StartDate AS fecha_ingreso, 
-                e.PayCycleType AS periodicidad, e.EmployeeNumber AS puesto, u.Role AS rol, u.Active AS estado,
+                e.PayCycleType AS periodicidad, e.JobPosition AS puesto, u.Role AS rol, u.Active AS estado,
                 cb.BenefitName AS beneficio,
                 u.Email AS correo
             FROM Users u
