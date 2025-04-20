@@ -1,61 +1,61 @@
-
 <template>
   <div class="vh-100 d-flex justify-content-center align-items-center bg-white">
-    <div
-      class="card shadow border-0 p-4 d-flex flex-column align-items-stretch gap-3"
-      style="width:420px;border-radius:18px;"
-    >
-      <!-- Company logo -->
+    <div class="card shadow border-0 p-4 d-flex flex-column align-items-stretch gap-3"
+         style="width:420px;border-radius:18px;">
+      <!-- Logo -->
       <div class="text-center mb-1">
         <img src="/logo.png" alt="Kaizen Logo" width="250" />
       </div>
 
-      <!-- Login form container -->
+      <!-- Mensaje de éxito -->
+      <div v-if="success"
+           class="text-success small text-center mb-2">
+        {{ success }}
+      </div>
+
+      <!-- Mensaje de error -->
+      <div v-if="error"
+           class="text-danger small text-center mb-2">
+        {{ error }}
+      </div>
+
+      <!-- Login form -->
       <form class="d-flex flex-column gap-4" @submit.prevent="login">
-        <!-- Username input group -->
+        <!-- Usuario -->
         <div>
           <label for="username" class="form-label kaizen mb-1">Usuario</label>
-          <input
-            v-model="username"
-            id="username"
-            type="text"
-            required
-            class="form-control campo rounded-3 shadow-sm"
-          />
+          <input v-model="username"
+                 id="username"
+                 type="text"
+                 required
+                 class="form-control campo rounded-3 shadow-sm" />
         </div>
 
-        <!-- Password input group with visibility toggle -->
+        <!-- Contraseña -->
         <div>
           <label for="password" class="form-label kaizen mb-1">Contraseña</label>
           <div class="input-group">
-            <input
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              id="password"
-              required
-              class="form-control campo rounded-3 shadow-sm"
-            />
-            <button
-              type="button"
-              class="btn btn-outline-light text-dark border"
-              @click="togglePasswordVisibility"
-              tabindex="-1"
-            >
-              <!-- Toggle icon switches based on visibility -->
+            <input v-model="password"
+                   :type="showPassword ? 'text' : 'password'"
+                   id="password"
+                   required
+                   class="form-control campo rounded-3 shadow-sm" />
+            <button type="button"
+                    class="btn btn-outline-light text-dark border"
+                    @click="togglePasswordVisibility"
+                    tabindex="-1">
               <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
             </button>
           </div>
         </div>
 
-        <!-- Submit button -->
-        <button
-          type="submit"
-          class="btn login-btn fw-semibold text-white rounded-3 py-2 fs-6 shadow-sm"
-        >
+        <!-- Botón de envío -->
+        <button type="submit"
+                class="btn login-btn fw-semibold text-white rounded-3 py-2 fs-6 shadow-sm">
           INICIAR SESIÓN
         </button>
 
-        <!-- Secondary action links -->
+        <!-- Links secundarios -->
         <div class="text-center small">
           <a href="#" class="me-3 text-decoration-none kaizen">Registrarse</a>
           <a href="#" class="text-decoration-none kaizen">¿Olvidaste tu contraseña?</a>
@@ -66,70 +66,69 @@
 </template>
 
 <script>
-export default {
-  name: 'LoginComponent', // Component name
+  import axios from 'axios';
 
-  data() {
-    return {
-      /**
-       * Holds the username entered by the user.
-       * @type {string}
-       */
-      username: '',
-
-      /**
-       * Holds the password entered by the user.
-       * @type {string}
-       */
-      password: '',
-
-      /**
-       * Controls whether the password is shown as plain text.
-       * @type {boolean}
-       */
-      showPassword: false
-    };
-  },
-
-  methods: {
-    /**
-     * Toggle the password visibility between masked and plain text.
-     */
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
+  export default {
+    name: 'LoginComponent',
+    data() {
+      return {
+        username: '',
+        password: '',
+        showPassword: false,
+        error: '',
+        success: ''
+      };
     },
-
-    /**
-     * Handle the login form submission.
-     * Currently logs credentials to the console; replace with real auth logic.
-     */
-    login() {
-      console.log(`Username: ${this.username}\nPassword: ${this.password}`);
-      // TODO: Replace with actual authentication API call and error handling
+    methods: {
+      togglePasswordVisibility() {
+        this.showPassword = !this.showPassword;
+      },
+      async login() {
+        this.error = '';
+        this.success = '';
+        try {
+          await axios.post('/api/credenciales/login', {
+            email: this.username,
+            password: this.password
+          });
+          this.success = 'Inicio de sesión correcto. ¡Bienvenido!';
+        }
+        catch (err) {
+          if (!err.response) {
+            this.error = 'No hay respuesta del servidor.';
+          }
+          else if (err.response.status === 404) {
+            this.error = 'Usuario no encontrado.';
+          }
+          else if (err.response.status === 401) {
+            this.error = 'Correo o contraseña incorrectos.';
+          }
+          else {
+            this.error = 'Error inesperado. Intente de nuevo.';
+          }
+        }
+      }
     }
-  }
-};
+  };
 </script>
 
 <style scoped>
-/* Kaizen corporate color */
-.kaizen {
-  color: #003C63;
-}
+  .kaizen {
+    color: #003C63;
+  }
 
-/* Light gray background for input fields, no border */
-.campo {
-  background: #f2f2f2;
-  border: 0;
-}
+  .campo {
+    background: #f2f2f2;
+    border: 0;
+  }
 
-/* Primary login button styling and hover effect */
-.login-btn {
-  background: #003C63;
-  transition: background 0.25s ease, transform 0.25s ease;
-}
-.login-btn:hover {
-  background: #004c83;
-  transform: translateY(-2px);
-}
+  .login-btn {
+    background: #003C63;
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+
+    .login-btn:hover {
+      background: #004c83;
+      transform: translateY(-2px);
+    }
 </style>
