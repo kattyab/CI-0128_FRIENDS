@@ -15,7 +15,7 @@
         /// The biological sex of the person requesting insurance.
         /// Must be either "male" or "female".
         /// </summary>
-        public string Sex { get; set; } 
+        public required string Sex { get; set; }
     }
 
     /// <summary>
@@ -28,5 +28,29 @@
         /// Value is in colones.
         /// </summary>
         public decimal MonthlyCost { get; set; }
+    }
+
+    /// <summary>
+    /// Represents the result of validating input parameters for a life insurance request.
+    /// </summary>
+    public class ValidationResult
+    {
+        /// <summary>
+        /// Indicates whether the validation was successful.
+        /// Defaults to <c>true</c>.
+        /// </summary>
+        public bool IsValid { get; set; } = true;
+
+        /// <summary>
+        /// The parsed date of birth if validation was successful.
+        /// Otherwise, <c>null</c>.
+        /// </summary>
+        public DateTime? DateOfBirth { get; set; }
+
+        /// <summary>
+        /// The error message describing why validation failed.
+        /// Populated only if <see cref="IsValid"/> is <c>false</c>.
+        /// </summary>
+        public string? ErrorMessage { get; set; }
     }
 }
