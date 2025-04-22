@@ -1,3 +1,8 @@
 ﻿.vs/
 bin/
 build/
+/Tests/API Test/obj/API Test.csproj.nuget.dgspec.json
+/Tests/API Test/obj/Debug/net8.0/API Test.AssemblyInfo.cs
+/Tests/API Test/obj/Debug/net8.0/API Test.AssemblyInfoInputs.cache
+/Tests/API Test/obj/project.assets.json
+/Tests/API Test/obj/project.nuget.cache
