@@ -1,13 +1,12 @@
+<script setup>
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
+</script>
+
 <template>
-  <h1>Hello App!</h1>
-  <p>
-    <strong>Current route path:</strong> {{ $route.fullPath }}
-  </p>
-  <nav>
-    <RouterLink to="/">Go to Home</RouterLink>
-    <RouterLink to="/about">Go to About</RouterLink>
-  </nav>
+  <Header v-if="$route.meta.hide_header !== true"></Header>
   <main>
     <RouterView />
   </main>
+  <Footer v-if="$route.meta.hide_footer !== true"></Footer>
 </template>
