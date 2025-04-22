@@ -2,18 +2,29 @@
 
 namespace LifeInsuranceApi.Handlers
 {
+    /// <summary>
+    /// Handles life insurance calculations based on user-provided data.
+    /// </summary>
     public class LifeInsuranceHandler
     {
+        /// <summary>
+        /// Calculates the monthly cost of life insurance based on the request details.
+        /// </summary>
+        /// <param name="request">The life insurance request containing the date of birth and sex of the applicant.</param>
+        /// <returns>A <see cref="LifeInsuranceResponse"/> containing the calculated monthly cost.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="request"/> is null.</exception>
         public LifeInsuranceResponse Calculate(LifeInsuranceRequest request)
         {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
             int age = DateTime.Today.Year - request.DateOfBirth.Year;
             if (request.DateOfBirth.Date > DateTime.Today.AddYears(-age)) age--;
 
             decimal cost = 0;
             string sex = request.Sex.ToLower();
 
-            // cost calculation up to specs
-            if (sex == "male")
+            if (sex == "male" || sex == "hombre")
             {
                 if (age < 30)
                     cost = 15000;
@@ -22,7 +33,7 @@ namespace LifeInsuranceApi.Handlers
                 else
                     cost = 35000;
             }
-            else if (sex == "female")
+            else if (sex == "female" || sex == "mujer")
             {
                 if (age < 30)
                     cost = 20000;
