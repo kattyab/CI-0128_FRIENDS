@@ -87,7 +87,7 @@
         this.error = '';
         this.success = '';
         try {
-          await axios.post('/api/credenciales/login', {
+          await axios.post('/api/login/login', {
             email: this.username,
             password: this.password
 

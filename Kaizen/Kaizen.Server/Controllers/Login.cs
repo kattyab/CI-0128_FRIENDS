@@ -1,6 +1,6 @@
-﻿// Controllers/CredencialesController.cs
-using Kaizen.Server.Handlers;
+﻿using Kaizen.Server.Handlers;
 using Kaizen.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +8,11 @@ namespace KaizenProto.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CredencialesController : ControllerBase
+    public class LoginController : ControllerBase
     {
-        private readonly CredencialesH _handler;
+        private readonly Login _handler;
 
-        public CredencialesController(CredencialesH handler)
+        public LoginController(Login handler)
             => _handler = handler;
 
         [HttpPost("login")]
@@ -26,7 +26,13 @@ namespace KaizenProto.Server.Controllers
             // Aquí `user` es un objeto anónimo con .Password
             var storedPwd = (string)user.GetType().GetProperty("Password")!.GetValue(user)!;
 
-            if (storedPwd != dto.Password)
+            var hasher = new PasswordHasher<string>();
+
+            // Así se hashean las passwords: string hashPrueba = hasher.HashPassword(null, "Diosishere");
+
+            var resultado = hasher.VerifyHashedPassword(null, storedPwd, dto.Password);
+
+            if (resultado == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Contraseña incorrecta." });
 
             // TODO: Aquí se puede establecer una cookie de sesión o un token JWT
