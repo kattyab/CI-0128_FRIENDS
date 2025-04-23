@@ -1,13 +1,14 @@
 ﻿using System.Data;
 using Microsoft.Data.SqlClient;
 
+
 namespace Kaizen.Server.Handlers   //  coincide con la carpeta /Handlers
 {
-    public class CredencialesH
+    public class Login
     {
         private readonly string _connectionString; 
 
-        public CredencialesH(IConfiguration configuration)
+        public Login(IConfiguration configuration)
         {
             // Si la clave no existe arroja una excepción clara
             _connectionString = configuration.GetConnectionString("EmployeeDetails")

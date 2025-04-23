@@ -2,7 +2,7 @@ using Kaizen.Server.Handlers;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddScoped<CredencialesH>();
+builder.Services.AddScoped<Login>();
 
 builder.Services.AddCors(options =>
 {
