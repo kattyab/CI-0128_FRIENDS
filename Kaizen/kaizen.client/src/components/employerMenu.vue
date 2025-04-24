@@ -97,7 +97,7 @@
 
         &:hover {
           .material-icons {
-            color: #003C63;
+            color: #00C3B6;
             transform: translateX(0.5rem)
           }
         }
@@ -144,12 +144,12 @@
           background-color: var(--light-alt);
 
           .material-icons, .text {
-            color: #003C63;
+            color: #00C3B6;
           }
         }
 
         &.router-link-exact-active {
-          border-right: 5px solid #003C63;
+          border-right: 5px solid #00C3B6;
         }
       }
     }
