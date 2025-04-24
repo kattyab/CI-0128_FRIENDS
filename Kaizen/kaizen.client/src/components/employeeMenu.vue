@@ -1,15 +1,28 @@
 <template>
   <aside :class="`${is_expanded && 'is_expanded'}`">
 
-    <div class="logo">
-      <img src="../assets/logo.svg" alt="Vue">
-    </div>
 
     <div class="menu-toggle-wrap">
       <button class="menu-toggle" @click="ToggleMenu">
-        <span class="material-icons">double_arrow</span>
+        <span class="material-icons">menu</span>
       </button>
     </div>
+    <!--
+    This is the main menu section.
+
+    To add a new button:
+    - Use <router-link class="button" to="/your-route"> ... </router-link>
+    - Inside the router-link, use two <span> tags:
+        1. One with class "material-icons" for the icon.
+           You can find available icon names here: https://fonts.google.com/icons
+        2. One with class "text" for the label of the button.
+
+    Example:
+    <router-link class="button" to="/example">
+      <span class="material-icons">your_icon_name</span>
+      <span class="text">Your Label</span>
+    </router-link>
+  -->
 
     <h3>Menu</h3>
     <div class="menu">
@@ -25,17 +38,19 @@
         <span class="material-icons">account_circle</span>
         <span class="text">Login</span>
       </router-link>
-</div>
+    </div>
   </aside>
 </template>
 
 <script setup>
   import { ref } from 'vue'
 
-  const is_expanded = ref(false)
+  const is_expanded = ref(localStorage.getItem("is_expanded")=== "true")
 
   const ToggleMenu = () => {
     is_expanded.value = !is_expanded.value
+
+    localStorage.setItem("is_expanded", is_expanded.value)
   }
 
 </script>
@@ -51,7 +66,7 @@
     overflow: hidden;
     padding: 1rem;
     min-height: 100vh;
-    background-color: var(--dark);
+    background-color: var(--light);
     color: var(--light);
     transition: 0.2s ease-out;
 
@@ -65,7 +80,7 @@
 
     .menu-toggle-wrap {
       display: flex;
-      justify-content: flex-end;
+
       margin-bottom: 1rem;
       position: relative;
       top: 0;
@@ -76,13 +91,13 @@
 
         .material-icons {
           font-size: 2rem;
-          color: var(--light);
+          color: #5C5F62;
           transition: 0.2s ease-out;
         }
 
         &:hover {
           .material-icons {
-            color: var(--primary);
+            color: #003C63;
             transform: translateX(0.5rem)
           }
         }
@@ -96,7 +111,7 @@
     }
 
     h3 {
-      color: var(--grey);
+      color: #5C5F62;
       font-size: 0.875rem;
       margin-bottom: 0.5rem;
       text-transform: uppercase;
@@ -114,27 +129,27 @@
 
         .material-icons {
           font-size: 2rem;
-          color: var(--light);
+          color: #5C5F62;
           transition: 0.2s ease-out;
           margin-right: 1rem;
         }
 
         .text {
-          color: var(--light);
+          color: #5C5F62;
           transition: 0.2s ease-out;
           padding: 0.5rem;
         }
 
-        &.hover, &.router-link-exact-active{
-          background-color: var(--dark-alt);
+        &.hover, &.router-link-exact-active {
+          background-color: var(--light-alt);
 
-          .material-icons, .text{
-            color: var(--primary);
-
+          .material-icons, .text {
+            color: #003C63;
           }
         }
-        &.router-link-exact-active{
-          border-right: 5px solid var(--primary);
+
+        &.router-link-exact-active {
+          border-right: 5px solid #003C63;
         }
       }
     }
@@ -143,7 +158,7 @@
       width: var(--sidebar-width);
 
       .menu-toggle-wrap {
-        top: -3rem;
+
 
         .menu-toggle {
           transform: rotate(180deg);
@@ -154,8 +169,8 @@
         opacity: 1;
       }
 
-      .button{
-        .material-icons{
+      .button {
+        .material-icons {
           margin-right: 1rem;
         }
       }
