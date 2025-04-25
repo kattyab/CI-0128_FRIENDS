@@ -2,17 +2,8 @@
 
 namespace LifeInsuranceApi.Handlers
 {
-    /// <summary>
-    /// Handles life insurance calculations based on user-provided data.
-    /// </summary>
     public class LifeInsuranceHandler
     {
-        /// <summary>
-        /// Calculates the monthly cost of life insurance based on the request details.
-        /// </summary>
-        /// <param name="request">The life insurance request containing the date of birth and sex of the applicant.</param>
-        /// <returns>A <see cref="LifeInsuranceResponse"/> containing the calculated monthly cost.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="request"/> is null.</exception>
         public LifeInsuranceResponse Calculate(LifeInsuranceRequest request)
         {
             if (request == null)
