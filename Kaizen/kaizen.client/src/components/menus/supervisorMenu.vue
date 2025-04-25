@@ -24,7 +24,7 @@
     </router-link>
   -->
 
-    <h3>Menu</h3>
+    <h3>Supervisor</h3>
     <div class="menu">
       <router-link class="button" to="/">
         <span class="material-icons">home</span>
@@ -32,7 +32,7 @@
       </router-link>
       <router-link class="button" to="/about">
         <span class="material-icons">group</span>
-        <span class="text">Team</span>
+        <span class="text">Empleados</span>
       </router-link>
       <router-link class="button" to="/login">
         <span class="material-icons">account_circle</span>
@@ -97,7 +97,7 @@
 
         &:hover {
           .material-icons {
-            color: #00C3B6;
+            color: #5AB779;
             transform: translateX(0.5rem)
           }
         }
@@ -144,12 +144,12 @@
           background-color: var(--light-alt);
 
           .material-icons, .text {
-            color: #00C3B6;
+            color: #5AB779;
           }
         }
 
         &.router-link-exact-active {
-          border-right: 5px solid #00C3B6;
+          border-right: 5px solid #5AB779;
         }
       }
     }
