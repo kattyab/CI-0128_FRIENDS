@@ -11,3 +11,4 @@ build/
 /Life_Insurance_API/obj/Debug/net8.0/refint/Life_Insurance_API.dll
 /Life_Insurance_API/obj/Debug/net8.0/Life_Insurance_API.AssemblyInfo.cs
 /Life_Insurance_API/obj/Debug/net8.0/Life_Insurance_API.AssemblyInfoInputs.cache
+/Tests/API Test/obj

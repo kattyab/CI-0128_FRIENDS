@@ -1,6 +1,6 @@
 [
   {
-    "ContainingType": "LifeInsuranceApi.Controllers.LifeInsuranceController",
+    "ContainingType": "LifeInsuranceApi.Controllers.LifeInsuranceRepository",
     "Method": "Get",
     "RelativePath": "api/LifeInsurance",
     "HttpMethod": "GET",

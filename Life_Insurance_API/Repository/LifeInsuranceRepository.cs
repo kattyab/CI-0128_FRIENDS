@@ -4,27 +4,15 @@ using LifeInsuranceApi.Handlers;
 
 namespace LifeInsuranceApi.Controllers
 {
-    /// <summary>
-    /// Controller that provides life insurance quotes based on user demographics.
-    /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    public class LifeInsuranceController : ControllerBase
+    [Route("api/LifeInsurance")]
+    public class LifeInsuranceRepository : ControllerBase
     {
-        /// <summary>
-        /// The API token used for authentication, educational, not real, don't flag.
-        /// </summary>
         private const string _ApiToken = "1D0B194488C091852597B9AF7D1AA8F23D55C9784815489CF0A488B6F2C6D5C4C569AD51231FACB9920E5A763FE388247E03131D1601AC234E86BC0D266EB6A7";
 
-        /// <summary>
-        /// The handler responsible for processing life insurance requests.
-        /// </summary>
         private readonly LifeInsuranceHandler _handler;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LifeInsuranceController"/> class.
-        /// </summary>
-        public LifeInsuranceController()
+        public LifeInsuranceRepository()
         {
             _handler = new LifeInsuranceHandler();
         }
@@ -71,25 +59,14 @@ namespace LifeInsuranceApi.Controllers
             }
         }
 
-        /// <summary>
-        /// Validates the API token provided in the request headers.
-        /// </summary>
-        /// <returns><c>true</c> if the token is valid; otherwise, <c>false</c>.</returns>
         private bool IsValidToken() =>
             Request.Headers.TryGetValue("FRIENDS-API-TOKEN", out var token) && token == _ApiToken;
 
-        /// <summary>
-        /// Validates the input parameters for the life insurance quote request.
-        /// </summary>
-        /// <param name="dateOfBirthString">The date of birth as a string.</param>
-        /// <param name="sex">The sex of the person requesting insurance.</param>
-        /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
         private ValidationResult ValidateParameters(string dateOfBirthString, string sex)
         {
             var result = new ValidationResult();
             var errors = new List<string>();
 
-            // Validate date of birth
             if (string.IsNullOrWhiteSpace(dateOfBirthString))
             {
                 errors.Add("Missing date of birth parameter.");
@@ -103,7 +80,6 @@ namespace LifeInsuranceApi.Controllers
                 result.DateOfBirth = parsedDate;
             }
 
-            // Validate sex
             if (string.IsNullOrWhiteSpace(sex))
             {
                 errors.Add("Missing 'sex' parameter. Must be 'male', 'female', 'hombre', or 'mujer'.");
