@@ -16,7 +16,7 @@ const role = ref(localStorage.getItem('role') || 'Empleado')
 
 <template>
   <Header v-if="$route.meta.hide_header !== true"></Header>
-  <div class="d-flex flex-shrink-0" :class="{ 'main-content': $route.meta.hide_header !== true }">
+  <div class="d-flex flex-grow-1" :class="{ 'main-content': $route.meta.hide_header !== true }">
     <div class="me-2">
       <empleadoMenu v-if="role === 'Empleado'" />
       <duenoMenu v-else-if="role === 'Dueño'" />
