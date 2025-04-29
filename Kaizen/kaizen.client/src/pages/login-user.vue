@@ -7,21 +7,19 @@
         <img src="/logo.png" alt="Kaizen Logo" width="250" />
       </div>
 
-      <!-- Mensaje de éxito -->
-      <div v-if="success"
-           class="text-success small text-center mb-2">
+      <!-- Success message -->
+      <div v-if="success" class="text-success small text-center mb-2">
         {{ success }}
       </div>
 
-      <!-- Mensaje de error -->
-      <div v-if="error"
-           class="text-danger small text-center mb-2">
+      <!-- Error message -->
+      <div v-if="error" class="text-danger small text-center mb-2">
         {{ error }}
       </div>
 
       <!-- Login form -->
       <form class="d-flex flex-column gap-4" @submit.prevent="login">
-        <!-- Usuario -->
+        <!-- Username -->
         <div>
           <label for="username" class="form-label kaizen mb-1">Usuario</label>
           <input v-model="username"
@@ -31,7 +29,7 @@
                  class="form-control campo rounded-3 shadow-sm" />
         </div>
 
-        <!-- Contraseña -->
+        <!-- Password -->
         <div>
           <label for="password" class="form-label kaizen mb-1">Contraseña</label>
           <div class="input-group">
@@ -49,15 +47,15 @@
           </div>
         </div>
 
-        <!-- Botón de envío -->
+        <!-- Submit button -->
         <button type="submit"
                 class="btn login-btn fw-semibold text-white rounded-3 py-2 fs-6 shadow-sm">
           INICIAR SESIÓN
         </button>
 
-        <!-- Links secundarios -->
+        <!-- secondary links -->
         <div class="text-center small">
-          <a href="#" class="me-3 text-decoration-none kaizen">Registrarse</a>
+          <a href="#" class="me-3 text-decoration-none kaizen">Registrar empresa</a>
           <a href="#" class="text-decoration-none kaizen">¿Olvidaste tu contraseña?</a>
         </div>
       </form>
@@ -94,8 +92,7 @@
           });
           this.success = 'Inicio de sesión correcto. ¡Bienvenido!';
 
-          //TODO: Add the route of homepage
-        }
+          // TODO: Add the homepage route here
         catch (err) {
           if (!err.response) {
             this.error = err.response.data.message;

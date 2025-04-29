@@ -1,43 +1,38 @@
-﻿using Kaizen.Server.Handlers;
+﻿using Kaizen.Server.Repository;
 using Kaizen.Server.Models;
 using Microsoft.AspNetCore.Identity;
-
 using Microsoft.AspNetCore.Mvc;
 
-namespace KaizenProto.Server.Controllers
+namespace Kaizen.Server.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
-    public class LoginController : ControllerBase
+    public class LoginController(Login handler) : ControllerBase
     {
-        private readonly Login _handler;
-
-        public LoginController(Login handler)
-            => _handler = handler;
+        private readonly Login _handler = handler;
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto dto)
+        public IActionResult Login([FromBody] LoginDto credentials)
         {
-            // Obtiene los datos del usuario (incluye Password en texto plano)
-            var user = _handler.ObtainUserData(dto.Email);
+            var user = _handler.ObtainUserData(credentials.Email);
             if (user is null)
                 return NotFound(new { message = "Usuario no encontrado." });
 
-            // Aquí `user` es un objeto anónimo con .Password
             var storedPwd = (string)user.GetType().GetProperty("Password")!.GetValue(user)!;
 
             var hasher = new PasswordHasher<string>();
+            // This is how you hash passwords:
+            // string sampleHash = hasher.HashPassword(null, "Diosishere");
+            var result = hasher.VerifyHashedPassword(
+                            credentials.Email,
+                            storedPwd,
+                            credentials.Password);
 
-            // Así se hashean las passwords: string hashPrueba = hasher.HashPassword(null, "Diosishere");
-
-            var resultado = hasher.VerifyHashedPassword(null, storedPwd, dto.Password);
-
-            if (resultado == PasswordVerificationResult.Failed)
+            if (result == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Contraseña incorrecta." });
-
-            // TODO: Aquí se puede establecer una cookie de sesión o un token JWT
-
-            return Ok(new { message = "Sesión iniciada", user = dto.Email });
+            // TODO: Here you can set a session cookie or generate a JWT token
+            return Ok(new { message = "Sesión iniciada", user = credentials.Email });
         }
     }
 }

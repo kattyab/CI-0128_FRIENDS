@@ -1,5 +1,4 @@
-// Models/LoginDto.cs
-namespace Kaizen.Server.Models
+﻿namespace Kaizen.Server.Models
 {
     public class LoginDto
     {
