@@ -7,7 +7,7 @@ import LoginPage from "./pages/login.vue";
 const routes = [
   { path: "/", component: HomePage },
   { path: "/about", component: AboutPage },
-  { path: "/login", component: LoginPage, meta: { hide_header: true, hide_footer: true } },
+  { path: "/login", component: LoginPage, meta: { hide_header: true, hide_footer: true, hide_menu: true } },
 ];
 
 const router = createRouter({
