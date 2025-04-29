@@ -55,9 +55,13 @@
 
         <!-- secondary links -->
         <div class="text-center small">
-          <a href="#" class="me-3 text-decoration-none kaizen">Registrar empresa</a>
+          <router-link to="/login/register-company"
+                       class="me-3 text-decoration-none kaizen">
+            Registrar empresa
+          </router-link>
           <a href="#" class="text-decoration-none kaizen">¿Olvidaste tu contraseña?</a>
         </div>
+
       </form>
     </div>
   </div>

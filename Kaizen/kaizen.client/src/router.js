@@ -16,11 +16,16 @@ const router = createRouter({
     },
     {
       path: '/login',
-      component: AuthLayout,        
+      component: AuthLayout,
+      meta: { public: true },        
       children: [
-        { path: '', name: 'Login', component: () => import('./components/login-user.vue') }
-      ],
-      meta: { public: true }
+
+        { path: '', name: 'LoginUser', component: () => import('./components/loginUser.vue') },
+
+        {path: 'register-company', name: 'RegisterCompany', component: () => import('./components/registerCompany.vue')
+
+        }
+      ]
     }
   ]
 })
