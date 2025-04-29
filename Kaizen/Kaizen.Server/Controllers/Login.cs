@@ -17,7 +17,7 @@ namespace Kaizen.Server.Controllers
         {
             var user = _handler.ObtainUserData(credentials.Email);
             if (user is null)
-                return NotFound(new { message = "Usuario no encontrado." });
+                return NotFound(new { message = "Usuario o contraseña incorrecta." });
 
             var storedPwd = (string)user.GetType().GetProperty("Password")!.GetValue(user)!;
 
@@ -30,7 +30,7 @@ namespace Kaizen.Server.Controllers
                             credentials.Password);
 
             if (result == PasswordVerificationResult.Failed)
-                return Unauthorized(new { message = "Contraseña incorrecta." });
+                return Unauthorized(new { message = "Usuario o contraseña incorrecta." });
             // TODO: Here you can set a session cookie or generate a JWT token
             return Ok(new { message = "Sesión iniciada", user = credentials.Email });
         }

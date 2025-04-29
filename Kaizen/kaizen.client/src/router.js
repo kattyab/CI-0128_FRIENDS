@@ -1,18 +1,28 @@
-import { createWebHistory, createRouter } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router'
 
-import HomePage from "./pages/home.vue";
-import AboutPage from "./pages/about.vue";
-import LoginPage from "./pages/login-user.vue";
-
-const routes = [
-  { path: "/", component: HomePage },
-  { path: "/about", component: AboutPage },
-  { path: "/login", component: LoginPage, meta: { hide_header: true, hide_footer: true, hide_menu: true } },
-];
+import MainLayout from './pages/MainLayout.vue'
+import AuthLayout from './pages/AuthLayout.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      component: MainLayout,
+      children: [
+        { path: '', name: 'Home', component: () => import('./components/home.vue') },
+        { path: 'about', name: 'About', component: () => import('./components/about.vue') }
+      ]
+    },
+    {
+      path: '/login',
+      component: AuthLayout,        
+      children: [
+        { path: '', name: 'Login', component: () => import('./components/login-user.vue') }
+      ],
+      meta: { public: true }
+    }
+  ]
+})
 
-export default router;
+export default router
