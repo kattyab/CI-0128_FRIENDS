@@ -91,7 +91,7 @@
 
           });
           this.success = 'Inicio de sesión correcto. ¡Bienvenido!';
-
+        }
           // TODO: Add the homepage route here
         catch (err) {
           if (!err.response) {
