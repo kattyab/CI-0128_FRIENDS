@@ -101,7 +101,7 @@
         catch (err) {
           if (!err.response) {
             this.error = 'Error de red. Intente más tarde.';
-          } else if (err.response.status === 401) {
+          } else if (err.response.status === 401 || err.response.status === 404) {
             this.error = 'Error a la hora de iniciar sesión. Correo o contraseña incorrecta.';
           } else {
             this.error = 'Error desconocido.';
