@@ -4,12 +4,6 @@ import axios from 'axios'
 import MainLayout from './pages/MainLayout.vue'
 import AuthLayout from './pages/AuthLayout.vue'
 
-import Admin from './components/role_pages/Admin.vue'
-import Employee from './components/role_pages/Employee.vue'
-import Owner from './components/role_pages/Owner.vue'
-import Super from './components/role_pages/Super.vue'
-import Supervisor from './components/role_pages/Supervisor.vue'
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
