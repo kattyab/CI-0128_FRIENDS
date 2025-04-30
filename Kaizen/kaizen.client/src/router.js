@@ -1,7 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import axios from 'axios'
 
 import MainLayout from './pages/MainLayout.vue'
 import AuthLayout from './pages/AuthLayout.vue'
+
+import Admin from './components/role_pages/Admin.vue'
+import Employee from './components/role_pages/Employee.vue'
+import Owner from './components/role_pages/Owner.vue'
+import Super from './components/role_pages/Super.vue'
+import Supervisor from './components/role_pages/Supervisor.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,19 +17,54 @@ const router = createRouter({
       path: '/',
       component: MainLayout,
       children: [
-        { path: '', name: 'Home', component: () => import('./components/home.vue') },
-        { path: 'about', name: 'About', component: () => import('./components/about.vue') }
+        {
+          path: '',
+          name: 'Home',
+          component: () => import('./components/home.vue'),
+          meta: { public: true }
+        },
+        {
+          path: 'about',
+          name: 'About',
+          component: () => import('./components/about.vue'),
+          meta: { public: true }
+        },
+        {
+          path: 'dashboard',
+          name: 'Dashboard',
+          component: () => import('./components/Dashboard.vue'),
+          meta: { requiresAuth: true }
+        },
       ]
     },
     {
       path: '/login',
-      component: AuthLayout,        
+      component: AuthLayout,
       children: [
-        { path: '', name: 'Login', component: () => import('./components/login-user.vue') }
+        {
+          path: '',
+          name: 'Login',
+          component: () => import('./components/login-user.vue')
+        }
       ],
       meta: { public: true }
     }
   ]
-})
+});
+
+router.beforeEach(async (to, from, next) => {
+  const isPublic = to.meta.public;
+  const requiresAuth = to.meta.requiresAuth;
+
+  if (isPublic || !requiresAuth) {
+    return next();
+  }
+  try {
+    await axios.get('/api/login/whoami', { withCredentials: true });
+    next(); // user is authenticated
+  } catch (err) {
+    next('/login'); // not authenticated
+  }
+});
 
 export default router
