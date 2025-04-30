@@ -90,17 +90,21 @@
             email: this.username,
             password: this.password
           });
+
           const role = response.data.role;
           localStorage.setItem('userRole', role);
           this.success = 'Inicio de sesión correcto. ¡Bienvenido!';
 
+          // Redirect to the dashboard after a successful login
           this.$router.push('/dashboard');
         }
         catch (err) {
           if (!err.response) {
             this.error = 'Error de red. Intente más tarde.';
+          } else if (err.response.status === 401) {
+            this.error = 'Error a la hora de iniciar sesión. Correo o contraseña incorrecta.';
           } else {
-            this.error = err.response.data.message || 'Error desconocido.';
+            this.error = 'Error desconocido.';
           }
         }
       }
