@@ -15,8 +15,8 @@ const role  = computed(() => localStorage.getItem('role') ?? 'Empleado')
 </script>
 
 <template>
-  <!--  <Header />  -->
-  <div class="d-flex flex-grow-1 main-content">
+  <Header></Header>
+  <div class="d-flex flex-grow-1">
     <div class="me-2">
       <EmpleadoMenu v-if="role === 'Empleado'" />
       <DuenoMenu v-else-if="role === 'Dueño'" />
@@ -29,5 +29,5 @@ const role  = computed(() => localStorage.getItem('role') ?? 'Empleado')
       <RouterView />
     </main>
   </div>
-  <Footer />
+  <Footer></Footer>
 </template>
