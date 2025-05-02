@@ -11,7 +11,8 @@ const router = createRouter({
       component: MainLayout,
       children: [
         { path: '', name: 'Home', component: () => import('./components/home.vue') },
-        { path: 'about', name: 'About', component: () => import('./components/about.vue') }
+        { path: 'about', name: 'About', component: () => import('./components/about.vue') },
+        { path: 'roles', name: 'RoleUpdate', component: () => import('@/components/RoleUpdater.vue') }
       ]
     },
     {

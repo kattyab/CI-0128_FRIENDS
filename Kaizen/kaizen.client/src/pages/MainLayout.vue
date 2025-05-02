@@ -1,5 +1,6 @@
 <!-- layouts/MainLayout.vue -->
 <script setup>
+import RoleUpdater    from '../components/RoleUpdater.vue'
 import Header         from '../components/Header.vue'
 import Footer         from '../components/Footer.vue'
 import EmpleadoMenu   from '../components/menus/empleadoMenu.vue'
