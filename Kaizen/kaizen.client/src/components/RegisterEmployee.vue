@@ -26,6 +26,57 @@
 
       <div class="row">
         <div class="mb-3 col-10">
+          <label class="form-label">Sexo</label>
+          <div class="row">
+            <div class="col form-check d-flex
+                  align-items-center
+                  justify-content-center" v-for="option in sexOptions" :key="option.value">
+              <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="sex"
+                     name="sexOptions" />
+              <label class="form-check-label" :for="option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--include birthdate space-->
+      <div class="row">
+        <div class="mb-3 col-10">
+          <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
+          <input type="date" class="form-control" id="birthdate" v-model="birthdate" :class="birthdateClass"
+                 @change="birthdateTouched = true" />
+          <div class="invalid-feedback" v-if="birthdateTouched && !isBirthdateValid">Seleccione una fecha válida.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 col-10">
+          <label for="province" class="form-label">Provincia</label>
+          <input type="text" class="form-control" id="province" placeholder="Ingrese la provincia de residencia"
+                 v-model="province" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 col-10">
+          <label for="canton" class="form-label">Cantón</label>
+          <input type="text" class="form-control" id="canton" placeholder="Ingrese el cantón de residencia"
+                 v-model="canton" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 col-10">
+          <label for="othersigns" class="form-label">Otras señales</label>
+          <input type="text" class="form-control" id="othersigns" placeholder="Opcional: Ingrese otras señales de residencia"
+                 v-model="othersigns" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 col-10">
           <label class="form-label">Rol</label>
           <div class="row">
             <div class="col form-check d-flex
@@ -102,7 +153,7 @@
           <label for="startdate" class="form-label">Fecha de Inicio</label>
           <input type="date" class="form-control" id="startdate" v-model="startdate" :class="startdateClass"
                  @change="startdateTouched = true" />
-          <div class="invalid-feedback v-if=startdateTouched && !isStartDateValid">Seleccione una fecha válida.</div>
+          <div class="invalid-feedback" v-if="startdateTouched && !isStartDateValid">Seleccione una fecha válida.</div>
         </div>
       </div>
 
@@ -216,6 +267,11 @@ const isBruteSalaryValid = computed(() => {
         name: '',
         lastname: '',
         personid: '',
+        birthdate: '',
+        sex: '',
+        province: '',
+        canton: '',
+        othersigns: '',
         role: '',
         jobposition: '',
         contract: '',
@@ -225,6 +281,12 @@ const isBruteSalaryValid = computed(() => {
         bankaccount: '',
         email: '',
         startdateTouched: false,
+        birthdateTouched: false,
+
+        sexOptions: [
+          { label: 'Hombre', value: 'Hombre' },
+          { label: 'Mujer', value: 'Mujer' }
+        ],
 
         roleOptions: [
           { label: 'Empleado', value: 'Empleado' },
@@ -250,19 +312,19 @@ const isBruteSalaryValid = computed(() => {
 
     computed: {
       isStartDateValid() {
-        if (!this.startdate) return false;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selectedDate = new Date(this.startdate);
-        selectedDate.setHours(0, 0, 0, 0);
-        return selectedDate <= today;
+        return this.isPastOrToday(this.startdate);
       },
 
       startdateClass() {
-        return {
-          'is-invalid': !this.isStartDateValid && this.startdateTouched,
-          'text-muted': this.startdate === '',
-        };
+        return this.getDateClass(this.isStartDateValid, this.startdateTouched, this.startdate);
+      },
+
+      isBirthdateValid() {
+        return this.isPastOrToday(this.birthdate);
+      },
+
+      birthdateClass() {
+        return this.getDateClass(this.isBirthdateValid, this.birthdateTouched, this.birthdate);
       },
 
       isBruteSalaryValid() {
@@ -278,6 +340,11 @@ const isBruteSalaryValid = computed(() => {
           name: this.name,
           lastname: this.lastname,
           personid: this.personid,
+          sex: this.sex,
+          birthdate: this.birthdate,
+          province: this.province,
+          canton: this.canton,
+          othersigns: this.othersigns,
           role: this.role,
           jobposition: this.jobposition,
           contract: this.contract,
@@ -294,18 +361,28 @@ const isBruteSalaryValid = computed(() => {
           .catch(error => {
             console.error("Error registrando empleado", error);
           });
+      },
+
+      isPastOrToday(dateStr) {
+        if (!dateStr) return true;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(dateStr);
+        selectedDate.setHours(0, 0, 0, 0);
+        return selectedDate <= today;
+      },
+
+      getDateClass(isValid, isTouched, value) {
+        return {
+          'is-invalid': !isValid && isTouched,
+          'text-muted': value === ''
+        };
       }
     }
   };
 </script>
 
 <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
-
-  * {
-    font-family: 'DM Sans', sans-serif;
-  }
-
   .page {
     background-color: #fff;
     text-align: center;
@@ -363,17 +440,17 @@ const isBruteSalaryValid = computed(() => {
     margin-bottom: 1rem;
   }
 
-    .form-control:focus {
-      outline: none;
-      border-color: #aaa;
-      box-shadow: 0 0 0 2px rgba(0, 60, 99, 0.15);
-    }
+  .form-control:focus {
+    outline: none;
+    border-color: #aaa;
+    box-shadow: 0 0 0 2px rgba(0, 60, 99, 0.15);
+  }
 
-    .form-control.is-invalid {
-      border-color: #dc3545;
-    }
+  .form-control.is-invalid {
+    border-color: #dc3545;
+  }
 
-      .form-control.is-invalid:focus {
-        box-shadow: 0 0 0 2px rgba(235, 12, 12, 0.25);
-      }
+  .form-control.is-invalid:focus {
+    box-shadow: 0 0 0 2px rgba(235, 12, 12, 0.25);
+  }
 </style>
