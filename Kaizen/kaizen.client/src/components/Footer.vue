@@ -1,7 +1,22 @@
 <template>
   <footer class="footer mt-auto py-3 bg-body-tertiary">
     <div class="container">
-      <div class="text-body-secondary text-center">Footer content</div>
+      <div class="text-center fw-bold fs-2">
+        <span>F.R.I.E.N.D.S®</span>
+      </div>
+      <div class="text-center">
+        <span>All Rights Reserved {{ currentYear }}</span>
+      </div>
     </div>
   </footer>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      currentYear: new Date().getFullYear(),
+    };
+  },
+};
+</script>

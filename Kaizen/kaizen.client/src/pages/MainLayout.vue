@@ -34,5 +34,5 @@
       <RouterView />
     </main>
   </div>
-  <Footer />
+  <Footer></Footer>
 </template>
