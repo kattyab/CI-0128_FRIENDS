@@ -91,12 +91,7 @@
             password: this.password
           });
 
-          const role = response.data.role;
-          localStorage.setItem('userRole', role);
-          this.success = 'Inicio de sesión correcto. ¡Bienvenido!';
-
-          // Redirect to the dashboard after a successful login
-          this.$router.push('/dashboard');
+          this.$router.push('/landing-page');
         }
         catch (err) {
           if (!err.response) {
