@@ -9,9 +9,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:8080");
-            policy.AllowAnyMethod();
-            policy.AllowAnyHeader();
+            // Due to authentication, as far as I know, we need to specify the origin
+            // instead of using AllowAnyOrigin(), so you might need to change port
+            policy.WithOrigins("https://localhost:55281")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
@@ -43,10 +46,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(MyAllowSpecificOrigins);
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
 

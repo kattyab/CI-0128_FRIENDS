@@ -6,9 +6,9 @@ namespace Kaizen.Server.Repository
     public class Login(IConfiguration configuration)
     {
         private readonly string _connectionString =
-            configuration.GetConnectionString("EmployeeDetails")
+            configuration.GetConnectionString("KaizenDb")
             ?? throw new InvalidOperationException(
-                   "The connection string 'EmployeeDetails' is not defined in appsettings.json.");
+                   "The connection string 'KaizenDb' is not defined in appsettings.json.");
 
         private static DataTable ExecuteQuery(string sql,
                                               string connectionString,
@@ -29,10 +29,10 @@ namespace Kaizen.Server.Repository
         {
             const string sql = @"
                 SELECT  Email,
-                        Password,
+                        PasswordHash,
                         Active,
                         Role,
-                        PersonID
+                        PersonPK
                 FROM    Users
                 WHERE   Email = @Email;";
 
@@ -50,10 +50,10 @@ namespace Kaizen.Server.Repository
             return new
             {
                 Email = row["Email"]?.ToString(),
-                Password = row["Password"]?.ToString(),
+                PasswordHash = row["PasswordHash"]?.ToString(),
                 Active = Convert.ToBoolean(row["Active"]),
                 Role = row["Role"]?.ToString(),
-                PersonID = row["PersonID"]?.ToString()
+                PersonPK = row["PersonPK"]?.ToString()
             };
         }
     }

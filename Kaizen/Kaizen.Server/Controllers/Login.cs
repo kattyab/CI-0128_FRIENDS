@@ -21,7 +21,7 @@ namespace Kaizen.Server.Controllers
             if (user is null)
                 return NotFound(new { message = "Usuario o contraseña incorrecta." });
 
-            var storedPwd = (string)user.GetType().GetProperty("Password")!.GetValue(user)!;
+            var storedPwd = (string)user.GetType().GetProperty("PasswordHash")!.GetValue(user)!;
 
             var hasher = new PasswordHasher<string>();
             var result = hasher.VerifyHashedPassword(
