@@ -12,7 +12,7 @@
                  v-model="userSearch"
                  @focus="showUserDropdown = true" />
           <div v-if="showUserDropdown" class="dropdown-list">
-            <div v-for="user in filteredUsers"
+            <div v-for="user in cleanUserList"
                  :key="user"
                  class="dropdown-item"
                  @click="selectUser(user)">
@@ -66,6 +66,7 @@
         <thead class="table-light">
           <tr>
             <th>Responsable</th>
+            <th>Usuario</th>
             <th>Fecha y hora</th>
             <th>Rol anterior</th>
             <th>Rol nuevo</th>
@@ -74,6 +75,7 @@
         <tbody>
           <tr v-for="(entry, index) in history" :key="index">
             <td>{{ entry.responsable }}</td>
+            <td>{{ entry.usuario }}</td>
             <td>{{ entry.fecha }}</td>
             <td>{{ entry.rolAnterior }}</td>
             <td>{{ entry.rolNuevo }}</td>
@@ -85,95 +87,118 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        users: ['jcastillo', 'esibaja', 'mperez', 'arojas', 'lhernandez', 'tvalverde'],
-        roles: ['Empleado', 'Supervisor', 'Administrador'],
-        currentRoles: {
-          jcastillo: 'Empleado',
-          esibaja: 'Supervisor',
-          mperez: 'Administrador',
-          arojas: 'Empleado',
-          lhernandez: 'Supervisor',
-          tvalverde: 'Administrador'
-        },
-        userSearch: '',
-        roleSearch: '',
-        selectedUser: '',
-        selectedRole: '',
-        showUserDropdown: false,
-        showRoleDropdown: false,
-        error: false,
-        success: false,
-        warning: false,
-        warningConfirmed: false,
-        history: [
-          {
-            responsable: 'jcastillo',
-            fecha: 'Apr. 5 2025 8:05 AM',
-            rolAnterior: 'Empleado',
-            rolNuevo: 'Supervisor'
-          },
-          {
-            responsable: 'esibaja',
-            fecha: 'Apr. 5 2025 7:05 AM',
-            rolAnterior: 'Supervisor',
-            rolNuevo: 'Administrador'
-          }
-        ]
-      };
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      users: [], // se llena desde backend
+      roles: ['Empleado', 'Supervisor', 'Administrador', 'SuperAdmin'],
+      currentRoles: {},
+
+      sessionUser: 'jcastillo@email.com',
+      userSearch: '',
+      roleSearch: '',
+      selectedUser: '',
+      selectedRole: '',
+      showUserDropdown: false,
+      showRoleDropdown: false,
+      error: false,
+      success: false,
+      warning: false,
+      warningConfirmed: false,
+      history: []
+    };
+  },
+  computed: {
+    filteredUsers() {
+      return this.users.filter(u =>
+        u.toLowerCase().includes(this.userSearch.toLowerCase())
+      );
     },
-    computed: {
-      filteredUsers() {
-        return this.users.filter(u =>
-          u.toLowerCase().includes(this.userSearch.toLowerCase())
-        );
-      },
-      filteredRoles() {
-        return this.roles.filter(r =>
-          r.toLowerCase().includes(this.roleSearch.toLowerCase())
-        );
+    filteredRoles() {
+      return this.roles.filter(r =>
+        r.toLowerCase().includes(this.roleSearch.toLowerCase())
+      );
+    },
+    cleanUserList() {
+      return this.filteredUsers.map(email => email.split('@')[0]);
+    }
+  },
+  methods: {
+    async fetchUsers() {
+      try {
+        console.log("Enviando solicitud GET a /api/RolCambio...");
+        const response = await axios.get('https://localhost:7153/api/RolCambio'); // asegúrate de usar tu ruta real
+        const data = response.data;
+
+        console.log("Respuesta recibida:", data);
+
+        this.users = data.map(u => {
+          console.log("Usuario encontrado en map:", u);
+          return u.email;
+        });
+
+        data.forEach(u => {
+          console.log(`Asignando rol: ${u.email} -> ${u.nuevoRol}`);
+          this.currentRoles[u.email] = u.nuevoRol;
+        });
+
+        console.log("Lista de usuarios:", this.users);
+        console.log("Roles actuales:", this.currentRoles);
+      } catch (err) {
+        console.error('Error al obtener usuarios FE:', err);
       }
     },
-    methods: {
-      selectUser(user) {
-        this.selectedUser = user;
-        this.userSearch = user;
-        this.showUserDropdown = false;
-      },
-      selectRole(role) {
-        this.selectedRole = role;
-        this.roleSearch = role;
-        this.showRoleDropdown = false;
-      },
-      confirmChange() {
-        if (this.selectedUser && this.selectedRole) {
-          const prev = this.currentRoles[this.selectedUser];
 
-          // Mismo rol actual → error
-          if (this.selectedRole === prev) {
-            this.success = false;
-            this.error = true;
+    selectUser(user) {
+      this.selectedUser = user;
+      this.userSearch = user;
+      this.showUserDropdown = false;
+    },
+    selectRole(role) {
+      this.selectedRole = role;
+      this.roleSearch = role;
+      this.showRoleDropdown = false;
+    },
+
+    async confirmChange() {
+      if (this.selectedUser && this.selectedRole) {
+        console.log("Usuario seleccionado:", this.selectedUser);
+        console.log("Rol seleccionado:", this.selectedRole);
+        const prev = this.currentRoles[this.selectedUser+'@email.com'];
+        console.log("Rol actual guardado (prev):", prev);
+
+        if (this.selectedRole === prev) {
+          this.success = false;
+          this.error = true;
+          this.warning = false;
+          this.warningConfirmed = false;
+          setTimeout(() => (this.error = false), 3000);
+        } else if (prev === 'Administrador' && this.selectedRole === 'Empleado' && !this.warningConfirmed) {
+          this.success = false;
+          this.error = false;
+          this.warning = true;
+          this.warningConfirmed = true;
+          setTimeout(() => {
             this.warning = false;
             this.warningConfirmed = false;
-            setTimeout(() => (this.error = false), 3000);
+          }, 5000);
+        } else {
+          try {
+            console.log("Enviando solicitud PUT a cambiar-rol...");
+            console.log("Email seleccionado:", this.selectedUser);
+            console.log("Rol seleccionado:", this.selectedRole);
+            await axios.put('https://localhost:7153/api/RolCambio/cambiar-rol', {
+              email: this.selectedUser+'@email.com',
+              nuevoRol: this.selectedRole
+            });
 
-            // Admin → Empleado → advertencia primero
-          } else if (prev === 'Administrador' && this.selectedRole === 'Empleado' && !this.warningConfirmed) {
-            this.success = false;
-            this.error = false;
-            this.warning = true;
-            this.warningConfirmed = true; 
-            setTimeout(() => {
-              this.warning = false;
-              this.warningConfirmed = false; 
-            }, 5000); // tiempo de gracia
+            await this.fetchUsers();
 
-            // Segundo click después de advertencia
-          } else {
             this.history.unshift({
-              responsable: this.selectedUser,
+              responsable: this.sessionUser,
+              usuario: this.selectedUser,
               fecha: new Date().toLocaleString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -198,30 +223,37 @@
             this.roleSearch = '';
             this.selectedUser = '';
             this.selectedRole = '';
+          } catch (err) {
+            console.error('Error al cambiar el rol:', err);
+            this.error = true;
           }
-        }
-      },
-      handleClickOutside(event) {
-        const userEl = this.$refs.userDropdown;
-        const roleEl = this.$refs.roleDropdown;
-
-        if (userEl && !userEl.contains(event.target)) {
-          this.showUserDropdown = false;
-        }
-
-        if (roleEl && !roleEl.contains(event.target)) {
-          this.showRoleDropdown = false;
         }
       }
     },
-    mounted() {
-      document.addEventListener('click', this.handleClickOutside);
-    },
-    beforeUnmount() {
-      document.removeEventListener('click', this.handleClickOutside);
+
+    handleClickOutside(event) {
+      const userEl = this.$refs.userDropdown;
+      const roleEl = this.$refs.roleDropdown;
+
+      if (userEl && !userEl.contains(event.target)) {
+        this.showUserDropdown = false;
+      }
+
+      if (roleEl && !roleEl.contains(event.target)) {
+        this.showRoleDropdown = false;
+      }
     }
-  };
+  },
+  async mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+    await this.fetchUsers();
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+  }
+};
 </script>
+
 
 <style scoped lang="scss">
 

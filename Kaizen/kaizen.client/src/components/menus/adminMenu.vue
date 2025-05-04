@@ -38,6 +38,10 @@
         <span class="material-icons">account_circle</span>
         <span class="text">Login</span>
       </router-link>
+      <router-link class="button" to="/roles">
+        <span class="material-icons">assignment_ind</span>
+        <span class="text">Asignación de Roles</span>
+      </router-link>
     </div>
   </aside>
 </template>
