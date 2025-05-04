@@ -41,7 +41,6 @@
         </div>
       </div>
 
-      <!--include birthdate space-->
       <div class="row">
         <div class="mb-3 col-10">
           <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
@@ -72,6 +71,15 @@
           <label for="othersigns" class="form-label">Otras señales</label>
           <input type="text" class="form-control" id="othersigns" placeholder="Opcional: Ingrese otras señales de residencia"
                  v-model="othersigns" />
+        </div>
+      </div>
+
+      <!--TODO: Add dynamic selection of phone numbers-->
+      <div class="row">
+        <div class="mb-3 col-10">
+          <label for="phonenumber" class="form-label">Número de teléfono</label>
+          <input type="text" class="form-control" id="phonenumber" placeholder="Agregue un número de teléfono"
+                 v-model="phonenumber" />
         </div>
       </div>
 
@@ -272,6 +280,7 @@ const isBruteSalaryValid = computed(() => {
         province: '',
         canton: '',
         othersigns: '',
+        phonenumber: '',
         role: '',
         jobposition: '',
         contract: '',
@@ -336,7 +345,7 @@ const isBruteSalaryValid = computed(() => {
 
     methods: {
       saveEmployee() {
-        axios.post('https://localhost:7214/api/RegisterEmployee/registerEmployee', {
+        axios.post('https://localhost:7153/api/RegisterEmployee/registerEmployee', {
           name: this.name,
           lastname: this.lastname,
           personid: this.personid,
@@ -345,6 +354,7 @@ const isBruteSalaryValid = computed(() => {
           province: this.province,
           canton: this.canton,
           othersigns: this.othersigns,
+          phonenumber: this.phonenumber,
           role: this.role,
           jobposition: this.jobposition,
           contract: this.contract,
@@ -359,7 +369,7 @@ const isBruteSalaryValid = computed(() => {
             // Optionally redirect
           })
           .catch(error => {
-            console.error("Error registrando empleado", error);
+            console.error("Error registrando empleado en saveEmployee", error);
           });
       },
 
