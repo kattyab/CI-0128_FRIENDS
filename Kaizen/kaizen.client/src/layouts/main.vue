@@ -26,7 +26,7 @@
 
   onMounted(async () => {
     try {
-      const { data } = await axios.get('https://localhost:7153/api/Login/whoami', {
+      const { data } = await axios.get('https://localhost:7153/api/Login/authenticate', {
         withCredentials: true
       })
       role.value = data.role
