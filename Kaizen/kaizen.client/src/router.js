@@ -28,14 +28,14 @@ router.beforeEach(async (to, from, next) => {
   const isPublic = to.meta.public;
   const requiresAuth = to.meta.requiresAuth;
 
-  if (isPublic || !requiresAuth) {
-    return next();
-  }
+  if (isPublic || !requiresAuth) return next();
+
   try {
-    await axios.get('/api/login/whoami', { withCredentials: true });
+    await axios.get('/api/login/authenticate', { withCredentials: true });
     next(); // user is authenticated
   } catch (err) {
-    next('/login'); // not authenticated
+    console.warn('Not authenticated, redirecting to login.');
+    next('/login'); // user is not authenticated
   }
 });
 
