@@ -38,11 +38,11 @@
 </script>
 
 <template>
-  <div class="d-flex flex-grow-1 main-content">
-    <div class="me-2" v-if="showMenu && CurrentMenu">
+  <div class="d-flex flex-grow-1 main-content" style="height: 100vh; overflow: hidden;">
+    <div class="me-2" v-if="showMenu" style="flex-shrink: 0;">
       <component :is="CurrentMenu" />
     </div>
-    <main class="flex-grow-1">
+    <main class="flex-grow-1" style="overflow-y: auto; padding: 1rem;">
       <RouterView />
     </main>
   </div>
