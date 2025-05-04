@@ -18,7 +18,7 @@
 
             <div class="vertical-line mx-3"></div>
 
-            <router-link to="/register" class="nav-link btn-kaizen py-2 px-4 rounded">
+            <router-link to="/login/register-company" class="nav-link btn-kaizen py-2 px-4 rounded">
               Registrar empresa
             </router-link>
           </div>
