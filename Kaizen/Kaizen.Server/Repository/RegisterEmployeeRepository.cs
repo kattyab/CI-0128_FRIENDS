@@ -9,24 +9,26 @@ namespace Kaizen.Server.Repository
     public class RegisterEmployeeForm
     {
         public int Id { get; set; }
-
-        public string Name { get; set; }
-        public string Lastname { get; set; }
-        public string Personid { get; set; }
-        public string Sex { get; set; }
-        public string Phonenumber { get; set; }
-        public string Birthdate { get; set; }
-        public string Province{ get; set; }
-        public string Canton { get; set; }
-        public string Othersigns{ get; set; }
-        public string Role { get; set; }
-        public string Jobposition { get; set; }
-        public string Contract { get; set; }
-        public string Paycycle { get; set; }
-        public string Brutesalary { get; set; }
-        public string Startdate { get; set; }
-        public string Bankaccount { get; set; }
-        public string Email { get; set; }
+        public required string Adminrole { get; set; }
+        public required string Adminemail { get; set; }
+        public required string Name { get; set; }
+        public required string Lastname { get; set; }
+        public required string Personid { get; set; }
+        public required string Sex { get; set; }
+        public required string Phonenumber { get; set; }
+        public required string Birthdate { get; set; }
+        public required string Province{ get; set; }
+        public required string Canton { get; set; }
+        public required string Othersigns{ get; set; }
+        public required string Role { get; set; }
+        public required string Jobposition { get; set; }
+        public required string Contract { get; set; }
+        public required string Paycycle { get; set; }
+        public required string Brutesalary { get; set; }
+        public required string Startdate { get; set; }
+        public required string Bankaccount { get; set; }
+        public required string Email { get; set; }
+        public required string Password { get; set; }
     }
 
     public class RegisterEmployeeRepository
@@ -35,9 +37,9 @@ namespace Kaizen.Server.Repository
 
         public RegisterEmployeeRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("EmployeeDetails")
+            _connectionString = configuration.GetConnectionString("KaizenDb")
                 ?? throw new InvalidOperationException(
-                    "La cadena de conexion 'EmployeeDetails' no está definida en appsettings.json");
+                    "La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
         }
 
         public async Task<bool> CreateEmployee(RegisterEmployeeForm employee)
@@ -48,9 +50,30 @@ namespace Kaizen.Server.Repository
 
                 try
                 {
+                    string getCompanySql = employee.Adminrole == "Administrador" ? $@"
+SELECT A.CompanyPK
+FROM Admins A
+JOIN Users U ON A.AdminPK = U.PersonPK
+WHERE U.Email = '{employee.Adminemail}';"
+            : employee.Adminrole == "Dueño" ? $@"
+SELECT C.CompanyPK
+FROM Companies C
+JOIN Owners O ON C.OwnerPK = O.OwnerPK
+JOIN Users U ON O.OwnerPK = U.PersonPK
+WHERE U.Email = '{employee.Adminemail}';"
+                    : throw new Exception("Invalid role for retrieving company.");
+                    string companyPK;
+
+                    using (SqlCommand companyCmd = new SqlCommand(getCompanySql, conn))
+                    {
+                        var result = await companyCmd.ExecuteScalarAsync() ?? throw new Exception("Admin email not found or not associated with a company.");
+                        companyPK = result.ToString();
+                    }
+
+
                     var hasher = new PasswordHasher<string>();
-                    string hashedPassword = hasher.HashPassword(employee.Email, "changeme"); //TODO: Generate random placeholder passwords
-                    string companyPK = "AC8250B9-A153-4F49-9691-7F4AD4C3DB69"; //TODO: Extract WorksFor (CompanyPK) from session. Hardcoded for now.
+                    string hashedPassword = hasher.HashPassword(employee.Email, employee.Password); // Provisional way: boss sets it
+                    
                     DateTime birthdate = DateTime.Parse(employee.Birthdate);
                     DateTime startdate = DateTime.Parse(employee.Startdate);
 
