@@ -22,7 +22,7 @@ namespace Kaizen.Server.Repository
         public string Role { get; set; }
         public string Jobposition { get; set; }
         public string Contract { get; set; }
-        public string Paycicle { get; set; }
+        public string Paycycle { get; set; }
         public string Brutesalary { get; set; }
         public string Startdate { get; set; }
         public string Bankaccount { get; set; }
@@ -69,7 +69,7 @@ INSERT INTO PersonPhoneNumbers (PersonPK, Number)
 VALUES ('{personPK}', '{employee.Phonenumber}');
 
 INSERT INTO Employees (PersonPK, WorksFor, JobPosition, ContractType, WorkHours, ExtraHours, StartDate, BankAccount, BruteSalary, PayCycleType)
-VALUES ('{personPK}', '{companyPK}', '{employee.Jobposition}', '{employee.Contract}', 0, 0, '{formattedStartdate}', '{employee.Bankaccount}', '{employee.Brutesalary}', '{employee.Paycicle}');
+VALUES ('{personPK}', '{companyPK}', '{employee.Jobposition}', '{employee.Contract}', 0, 0, '{formattedStartdate}', '{employee.Bankaccount}', '{employee.Brutesalary}', '{employee.Paycycle}');
 ";
                     if (employee.Role == "Administrador")
                     {
