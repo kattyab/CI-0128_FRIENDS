@@ -37,37 +37,13 @@
 </script>
 
 <template>
-  <div class="d-flex flex-grow-1 main-content" style="height: 100vh; overflow: hidden;">
-    <div class="sidebar me-2" v-if="showMenu" style="flex-shrink: 0;">
+  <div class="d-flex flex-grow-1" style="height: 100vh; overflow: hidden;">
+    <div class="me-2" v-if="showMenu" style="flex-shrink: 0;">
       <component :is="CurrentMenu" />
     </div>
-    <main class="flex-grow-1 scrollable-content" style="overflow-y: auto; padding: 1rem;">
+    <main class="flex-grow-1" style="overflow-y: auto; padding: 1rem;">
       <RouterView />
     </main>
   </div>
   <Footer />
 </template>
-
-<style scoped>
-  .layout-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  .main-content {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
-  }
-
-  .sidebar {
-    flex-shrink: 0;
-  }
-
-  .scrollable-content {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1rem;
-  }
-</style>
