@@ -1,7 +1,8 @@
 <script setup>
-  import { computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   import { useRoute } from 'vue-router'
-  import Header from '../components/Header.vue'
+  import axios from 'axios'
+
   import Footer from '../components/Footer.vue'
   import EmpleadoMenu from '../components/menus/empleadoMenu.vue'
   import DuenoMenu from '../components/menus/duenoMenu.vue'
@@ -10,8 +11,7 @@
   import AdminMenu from '../components/menus/adminMenu.vue'
 
   const route = useRoute()
-
-  const role = computed(() => localStorage.getItem('userRole'))
+  const role = ref(null)
 
   const roleMenuMap = {
     'Empleado': EmpleadoMenu,
@@ -21,18 +21,30 @@
     'Administrador': AdminMenu
   }
 
-  const CurrentMenu = computed(() => roleMenuMap[role.value])
+  const CurrentMenu = computed(() => roleMenuMap[role.value] || null)
   const showMenu = computed(() => !['/', '/about'].includes(route.path))
+
+  onMounted(async () => {
+    try {
+      const { data } = await axios.get('https://localhost:7153/api/Login/whoami', {
+        withCredentials: true
+      })
+      role.value = data.role
+    } catch (error) {
+      console.error('Failed to fetch user role:', error)
+      role.value = null
+    }
+  })
 </script>
 
 <template>
   <div class="d-flex flex-grow-1 main-content">
-    <div class="me-2" v-if="showMenu">
+    <div class="me-2" v-if="showMenu && CurrentMenu">
       <component :is="CurrentMenu" />
     </div>
     <main class="flex-grow-1">
       <RouterView />
     </main>
   </div>
-  <Footer></Footer>
+  <Footer />
 </template>
