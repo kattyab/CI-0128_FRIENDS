@@ -1,0 +1,6 @@
+CREATE TABLE Admins (
+    AdminPK UNIQUEIDENTIFIER PRIMARY KEY,
+    CompanyPK UNIQUEIDENTIFIER,
+    FOREIGN KEY (AdminPK) REFERENCES Persons(PersonPK),
+    FOREIGN KEY (CompanyPK) REFERENCES Companies(CompanyPK)
+);
