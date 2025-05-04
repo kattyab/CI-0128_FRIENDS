@@ -8,6 +8,7 @@
           <input type="text" class="form-control" id="name" placeholder="Ingrese su nombre" v-model="name" />
         </div>
       </div>
+
       <div class="row">
         <div class="mb-3 col-10">
           <label for="lastname" class="form-label">Apellidos</label>
@@ -189,86 +190,21 @@
       </div>
     </form>
   </div>
+  <NotificationModal :title="titletext" :text="bodyTextHTML"
+                     :visible="showNotification" @close="handleNotificationClose" />
 </template>
-
-<!-- <script setup>
-
-// export default {
-//   name: 'AddEmployeeComponent',
-//   data() {
-//     return {
-
-//     };
-//   },
-// };
-
-import { ref, computed } from 'vue';
-import axios from axios;
-
-
-
-const name = ref('');
-const lastname = ref('');
-const personid = ref('');
-const role = ref('');
-const jobposition = ref('');
-const contract = ref('');
-const paycicle = ref('');
-const brutesalary = ref('');
-const startdate = ref('');
-const bankaccount = ref('');
-const email = ref('');
-
-const startdateTouched = ref(false);
-
-const roleOptions = [
-  { label: 'Empleado', value: 'employee' },
-  { label: 'Administrador', value: 'administrator' },
-  { label: 'Supervisor', value: 'supervisor' }
-];
-
-const contractOptions = [
-  { label: 'Tiempo Completo', value: 'full-time' },
-  { label: 'Medio Tiempo', value: 'part-time' },
-  { label: 'Por Horas', value: 'by-hours' },
-  { label: 'Servicios Profesionales', value: 'profesional-services' }
-]
-
-const payCycleOptions = [
-  { label: 'Mensual', value: 'monthly' },
-  { label: 'Bisemanal', value: 'biweekly' },
-  { label: 'Semanal', value: 'weekly' }
-]
-
-const isStartDateValid = computed(() => {
-  if (!startdate.value) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const selectedDate = new Date(startdate.value);
-  selectedDate.setHours(0, 0, 0, 0);
-  return selectedDate <= today;
-})
-
-const startdateClass = computed(() => {
-  return {
-    'is-invalid': !isStartDateValid.value && startdateTouched.value,
-    'text-muted': startdate.value === '',
-  };
-});
-
-const isBruteSalaryValid = computed(() => {
-  // eslint-disable-next-line
-  const regex = /^\d+(\,\d{1,2})?$/;
-  return regex.test(brutesalary.value);
-});
-</script> -->
 
 <script>
   /* eslint-disable */
-   import axios from 'axios';
+  import axios from 'axios';
+  import NotificationModal from '../components/NotificationModal.vue';
 
   export default {
     name: 'RegisterEmployee',
+
+    components: {
+      NotificationModal
+    },
 
     data() {
       return {
@@ -291,6 +227,10 @@ const isBruteSalaryValid = computed(() => {
         email: '',
         startdateTouched: false,
         birthdateTouched: false,
+
+        titletext: '',
+        bodytext: '',
+        showNotification: false,
 
         sexOptions: [
           { label: 'Hombre', value: 'Hombre' },
@@ -335,9 +275,12 @@ const isBruteSalaryValid = computed(() => {
       birthdateClass() {
         return this.getDateClass(this.isBirthdateValid, this.birthdateTouched, this.birthdate);
       },
+      // TODO: Obtain password from somewhere else, hardcoded for now
+      bodyTextHTML() {
+        return `<span>El usuario es: <strong>${this.email}</strong></span><br><span>La contraseña es: <strong>changeme</strong></span>`
+      },
 
       isBruteSalaryValid() {
-        // eslint-disable-next-line
         const regex = /^\d+$/;
         return regex.test(this.brutesalary);
       }
@@ -366,10 +309,12 @@ const isBruteSalaryValid = computed(() => {
         })
           .then(response => {
             console.log("Empleado registrado con éxito", response);
-            // Optionally redirect
+            this.titletext = "Empleado registrado con éxito";
+
+            this.showNotification = true;
           })
           .catch(error => {
-            console.error("Error registrando empleado en saveEmployee", error);
+            console.error("Error registrando empleado", error);
           });
       },
 
@@ -387,6 +332,11 @@ const isBruteSalaryValid = computed(() => {
           'is-invalid': !isValid && isTouched,
           'text-muted': value === ''
         };
+      },
+
+      handleNotificationClose() {
+        this.showNotification = false;
+        this.$router.push('/');
       }
     }
   };
