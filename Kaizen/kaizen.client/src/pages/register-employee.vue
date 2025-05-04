@@ -6,7 +6,7 @@
         <div class="mb-3 col-10">
           <label for="name" class="form-label">Nombre</label>
           <input type="text" id="name" placeholder="Ingrese su nombre" v-model="name"
-                 :class="['form-control', { 'is-invalid': name && !isNameValid}]" />
+                 :class="['form-control', { 'is-invalid': name && !isNameValid}]" required/>
           <div class="invalid-feedback" , v-if="name && !isNameValid">
             Ingrese el nombre sin números ni signos.
           </div>
@@ -16,7 +16,7 @@
       <div class="row ">
         <div class="mb-3 col-10">
           <label for="lastname" class="form-label">Apellidos</label>
-          <input type="text" id="lastname" placeholder="Ingrese sus apellidos"
+          <input type="text" id="lastname" placeholder="Ingrese sus apellidos" required
                  v-model="lastname" :class="['form-control', { 'is-invalid': lastname && !isLastnameValid}]" />
           <div class="invalid-feedback" v-if="lastname && !isLastnameValid">
             Ingrese el apellido sin números ni signos.
@@ -27,7 +27,7 @@
       <div class="row">
         <div class="mb-3 col-10">
           <label for="personid" class="form-label">Cédula de Identidad</label>
-          <input type="text" id="personid" placeholder="XX-XXXX-XXXX"
+          <input type="text" id="personid" placeholder="XX-XXXX-XXXX" required
                  v-model="personid" :class="['form-control', { 'is-invalid': personid && !isPersonidValid}]" />
           <div class="invalid-feedback" v-if="personid && !isPersonidValid">
             Ingrese una cédula física válida con guiones. Ejemplo: 01-0111-0111.
@@ -39,8 +39,7 @@
         <div class="mb-3 col-10">
           <label class="form-label">Sexo</label>
           <div class="row">
-            <div class="col form-check d-flex
-                  align-items-center
+            <div class="col form-check d-flex align-items-center required
                   justify-content-center" v-for="option in sexOptions" :key="option.value">
               <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="sex"
                      name="sexOptions" />
@@ -59,7 +58,7 @@
         <div class="mb-3 col-10">
           <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
           <input type="date" id="birthdate" v-model="birthdate" :class="[birthdateClass, 'form-control']"
-                 @change="birthdateTouched = true" />
+                 @change="birthdateTouched = true" required/>
           <div class="invalid-feedback" v-if="birthdateTouched && !isBirthdateValid">Seleccione una fecha válida.</div>
         </div>
       </div>
@@ -67,7 +66,7 @@
       <div class="row">
         <div class="mb-3 col-10">
           <label for="province" class="form-label">Provincia</label>
-          <input type="text" id="province" placeholder="Ingrese la provincia de residencia"
+          <input type="text" id="province" placeholder="Ingrese la provincia de residencia" required
                  v-model="province" :class="['form-control', { 'is-invalid': province && !isProvinceValid}]" />
           <div class="invalid-feedback" v-if="province && !isProvinceValid">
             Ingrese una provincia válida.
@@ -79,7 +78,7 @@
       <div class="row">
         <div class="mb-3 col-10">
           <label for="canton" class="form-label">Cantón</label>
-          <input type="text" id="canton" placeholder="Ingrese el cantón de residencia"
+          <input type="text" id="canton" placeholder="Ingrese el cantón de residencia" required
                  v-model="canton" :class="['form-control', { 'is-invalid': canton && !isCantonValid}]" />
           <div class="invalid-feedback" v-if="canton && !isCantonValid">
             Ingrese un cantón válido.
@@ -99,7 +98,7 @@
       <div class="row">
         <div class="mb-3 col-10">
           <label for="phonenumber" class="form-label">Número de teléfono</label>
-          <input type="text" id="phonenumber" placeholder="XXXX-XXXX"
+          <input type="text" id="phonenumber" placeholder="XXXX-XXXX" required
                  v-model="phonenumber" :class="['form-control', { 'is-invalid': phonenumber && !isPhonenumberValid}]" />
           <div class="invalid-feedback" v-if="phonenumber && !isPhonenumberValid">
             Ingrese un teléfono costarricense válido, con guión. Ejemplo: 8888-8888.
@@ -111,8 +110,7 @@
         <div class="mb-3 col-10">
           <label class="form-label">Rol</label>
           <div class="row">
-            <div class="col form-check d-flex
-                        align-items-center
+            <div class="col form-check d-flex align-items-center required
                         justify-content-center" v-for="option in roleOptions" :key="option.value">
               <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="role"
                      name="roleOptions" />
@@ -130,7 +128,7 @@
       <div class="row">
         <div class="mb-3 col-10">
           <label for="jobposition" class="form-label">Puesto</label>
-          <input type="text" id="jobposition" placeholder="Ingrese el nombre del puesto"
+          <input type="text" id="jobposition" placeholder="Ingrese el nombre del puesto" required
                  v-model="jobposition" :class="['form-control', { 'is-invalid': jobposition && !isJobPositionValid}]" />
           <div class="invalid-feedback" v-if="jobposition && !isJobPositionValid">
             Ingrese un puesto de trabajo válido.
@@ -142,11 +140,10 @@
         <div class="mb-3 col-10">
           <label class="form-label">Tipo de Contrato</label>
           <div class="row">
-            <div class="col form-check d-flex align-items-center justify-content-center"
-                 v-for="option in contractOptions"
+            <div class="col form-check d-flex align-items-center justify-content-center" v-for="option in contractOptions"
                  :key="option.value">
               <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="contract"
-                     name="contractOptions" />
+                     name="contractOptions" reqired/>
               <label class="form-check-label" :for="option.value">
                 {{ option.label }}
               </label>
@@ -162,8 +159,7 @@
         <div class="mb-3 col-10">
           <label class="form-label">Ciclo de Pago</label>
           <div class="row">
-            <div class="col form-check d-flex
-                        align-items-center
+            <div class="col form-check d-flex align-items-center required
                         justify-content-center" v-for="option in payCycleOptions" :key="option.value">
               <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="paycycle"
                      name="payCycleOptions" />
@@ -195,7 +191,7 @@
         <div class="mb-3 col-10">
           <label for="startdate" class="form-label">Fecha de Inicio</label>
           <input type="date" :class="[startdateClass, 'form-control']" id="startdate" v-model="startdate"
-                 @change="startdateTouched = true" />
+                 @change="startdateTouched = true" required/>
           <div class="invalid-feedback" v-if="startdateTouched && !isStartDateValid">Seleccione una fecha válida.</div>
         </div>
       </div>
@@ -203,8 +199,8 @@
       <div class="row">
         <div class="mb-3 col-10">
           <label for="bankaccount" class="form-label">Cuenta Bancaria</label>
-          <input type="text" id="bankaccount" placeholder="Ingrese el número de cuenta bancaria"
-                 v-model="bankaccount" :class="['form-control', { 'is-invalid': bankaccount && !isBankAccountValid }]" required />
+          <input type="text" id="bankaccount" placeholder="Ingrese el número de cuenta bancaria." required
+                 v-model="bankaccount" :class="['form-control', { 'is-invalid': bankaccount && !isBankAccountValid }]" />
           <div class="invalid-feedback" v-if="bankaccount && !isBankAccountValid">
             Ingrese un número de cuenta IBAN válido.
           </div>
@@ -216,8 +212,32 @@
           <label for="email" class="form-label">Correo Electrónico</label>
           <input type="text" id="email" placeholder="Ingrese el correo electrónico" v-model="email"
                  :class="['form-control', { 'is-invalid': email && !isEmailValid}]" required />
-          <div class="invalid-feedback" v-if="email && !isEmailValid">Ingrese un correo electrónico válido</div>
+          <div class="invalid-feedback" v-if="email && !isEmailValid">Ingrese un correo electrónico válido.</div>
         </div>
+      </div>
+
+      <div class="mb-3 col-10">
+        <label for="password" class="form-label">Contraseña</label>
+
+        <div class="input-group password-toggle">
+          <input :type="showPassword ? 'text' : 'password'"
+                 id="password"
+                 :class="['form-control', { 'is-invalid': password && !isPasswordValid }]"
+                 placeholder="Ingrese una contraseña"
+                 v-model="password"
+                 required />
+
+          <span class="input-group-text toggle-icon" @click="togglePasswordVisibility">
+            <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </span>
+          <div class="invalid-feedback" v-if="password && !isPasswordValid">
+            Verifique que su contraseña cumpla con lo siguiente:<br />
+            Mínimo una letra minúscula,<br />
+            Mínimo una letra mayúscula,<br />
+            Mínimo un caracter especial,<br />
+            Mínimo 8 dígitos de largo.
+          </div>
+        </div>       
       </div>
 
       <div class="row">
@@ -237,9 +257,8 @@
 </template>
 
 <script>
-  /* eslint-disable */
   import axios from 'axios';
-  import NotificationModal from '../components/NotificationModal.vue';
+  import NotificationModal from '../components/notification-modal.vue';
 
   export default {
     name: 'RegisterEmployee',
@@ -250,6 +269,7 @@
 
     data() {
       return {
+        userData: null,
         name: '',
         lastname: '',
         personid: '',
@@ -267,14 +287,16 @@
         startdate: '',
         bankaccount: '',
         email: '',
+        password: '',
+
+        showPassword: false,
         startdateTouched: false,
         birthdateTouched: false,
-
         titletext: '',
         showNotification: false,
         attemptedSubmit: false,
         showFormError: false,
-        formErrorMessage: 'Por favor rellene todos los espacios correctamente',
+        formErrorMessage: '',
 
         sexOptions: [
           { label: 'Hombre', value: 'Hombre' },
@@ -302,7 +324,14 @@
         ],
       };
     },
-
+    mounted() {
+      axios.get('/api/login/authenticate', { withCredentials: true })
+        .then(response => {
+          this.userData = response.data
+        })
+        .catch(error => {
+        })
+    },
     computed: {
       isStartDateValid() {
         return this.isPastOrToday(this.startdate);
@@ -319,9 +348,9 @@
       birthdateClass() {
         return this.getDateClass(this.isBirthdateValid, this.birthdateTouched, this.birthdate);
       },
-      // TODO: Obtain password from somewhere else, hardcoded for now
+
       bodyTextHTML() {
-        return `<span>El usuario es: <strong>${this.email}</strong></span><br><span>La contraseña es: <strong>changeme</strong></span>`;
+        return `<span>El usuario es: <strong>${this.email}</strong></span><br><span>La contraseña es: <strong>${this.password}</strong></span>`;
       },
 
       isNameValid() {
@@ -353,7 +382,7 @@
         const regex = /^\d{4}-\d{4}$/;
         return regex.test(this.phonenumber);
       },
-      //
+
       isJobPositionValid() {
         const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]{0,75}$/;
         return regex.test(this.jobposition);
@@ -372,6 +401,11 @@
       isEmailValid() {
         const regex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
         return regex.test(this.email);
+      },
+
+      isPasswordValid() {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{8,84}$/;
+        return regex.test(this.password);
       },
 
       isSexValid() {
@@ -403,7 +437,8 @@
           this.isBruteSalaryValid &&
           this.isStartDateValid &&
           this.isBankAccountValid &&
-          this.isEmailValid
+          this.isEmailValid &&
+          this.isPasswordValid
         );
       },
     },
@@ -413,11 +448,14 @@
         this.showFormError = false;
 
         if (!this.isFormValid) {
+          this.formErrorMessage = 'Rellene correctamente todo el formulario.';
           this.showFormError = true;
           return;
         }
 
         axios.post('https://localhost:7153/api/RegisterEmployee/registerEmployee', {
+          adminemail: this.userData.email,
+          adminrole: this.userData.role,
           name: this.name,
           lastname: this.lastname,
           personid: this.personid,
@@ -434,16 +472,17 @@
           brutesalary: this.brutesalary,
           startdate: this.startdate,
           bankaccount: this.bankaccount,
-          email: this.email
+          email: this.email,
+          password: this.password
         })
           .then(response => {
-            console.log("Empleado registrado con éxito", response);
+            console.log("Successfully registered employee", response);
             this.titletext = "Empleado registrado con éxito";
-
             this.showNotification = true;
           })
           .catch(error => {
-            console.error("Error registrando empleado", error);
+            this.formErrorMessage = 'Error registrando al empleado. Inténtelo más tarde.';
+            console.error("Error registering employee", error);
             this.showFormError = true;
           });
       },
@@ -466,7 +505,12 @@
 
       handleNotificationClose() {
         this.showNotification = false;
-        this.$router.push('/');
+        // Correct router redirect needed
+        this.$router.push('/landing-page');
+      },
+
+      togglePasswordVisibility() {
+        this.showPassword = !this.showPassword;
       }
     }
   }
@@ -518,7 +562,7 @@
   .mb-3 {
     margin: 0 auto;
     background: white;
-    border-radius: 20px;
+    border-radius: 10px;
   }
 
   .form-control {
@@ -528,6 +572,14 @@
     border: 1px solid #f2f2f2;
     transition: box-shadow 0.2s ease;
     margin-bottom: 1rem;
+  }
+
+  .input-group {
+      border-radius: 10px;
+  }
+
+  .password-toggle {
+    border-radius: 10px;
   }
 
     .form-control:focus {
@@ -543,4 +595,26 @@
       .form-control.is-invalid:focus {
         box-shadow: 0 0 0 2px rgba(235, 12, 12, 0.25);
       }
+
+  .password-toggle .toggle-icon {
+   border-radius:10px;
+    border: 1px solid #f2f2f2;
+    border-left: none;
+    padding: 0;
+    background: #f2f2f2;
+    cursor: pointer;
+    justify-content: center;
+    height: 3.15rem;
+    min-width: 2.5rem;
+  }
+
+    .password-toggle .toggle-icon i {
+      font-size: 1.2rem;
+      color: #6c757d;
+    }
+
+  .password-toggle.input-group {
+    border-radius: 10px;
+  }
+
 </style>
