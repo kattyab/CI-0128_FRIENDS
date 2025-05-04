@@ -3,13 +3,15 @@ using Kaizen.Server.Repository;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<Login>();
+builder.Services.AddScoped<RegisterEmployeeRepository>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:8080");
+            policy.WithOrigins("https://localhost:7153");
+            policy.WithOrigins("https://localhost:55281");
             policy.AllowAnyMethod();
             policy.AllowAnyHeader();
         });
