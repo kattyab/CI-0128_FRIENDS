@@ -2,6 +2,8 @@
 using Kaizen.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace Kaizen.Server.Controllers
 {
@@ -13,17 +15,15 @@ namespace Kaizen.Server.Controllers
         private readonly Login _handler = handler;
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto credentials)
+        public async Task<IActionResult> Login([FromBody] LoginDto credentials)
         {
             var user = _handler.ObtainUserData(credentials.Email);
             if (user is null)
                 return NotFound(new { message = "Usuario o contraseña incorrecta." });
 
-            var storedPwd = (string)user.GetType().GetProperty("Password")!.GetValue(user)!;
+            var storedPwd = (string)user.GetType().GetProperty("PasswordHash")!.GetValue(user)!;
 
             var hasher = new PasswordHasher<string>();
-            // This is how you hash passwords:
-            // string sampleHash = hasher.HashPassword(null, "Diosishere");
             var result = hasher.VerifyHashedPassword(
                             credentials.Email,
                             storedPwd,
@@ -31,8 +31,38 @@ namespace Kaizen.Server.Controllers
 
             if (result == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Usuario o contraseña incorrecta." });
-            // TODO: Here you can set a session cookie or generate a JWT token
-            return Ok(new { message = "Sesión iniciada", user = credentials.Email });
+
+            var role = (string)user.GetType().GetProperty("Role")!.GetValue(user)!;
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, credentials.Email),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var identity = new ClaimsIdentity(claims, "MyCookieAuth");
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync("MyCookieAuth", principal);
+
+            return Ok(new
+            {
+                message = "Sesión iniciada",
+                user = credentials.Email,
+                role
+            });
+        }
+
+        [HttpGet("whoami")]
+        public IActionResult WhoAmI()
+        {
+            if (HttpContext.User.Identity?.IsAuthenticated != true)
+                return Unauthorized(new { message = "No autenticado" });
+
+            var email = HttpContext.User.Identity?.Name;
+            var role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            return Ok(new { email, role });
         }
     }
 }
