@@ -92,90 +92,92 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      users: [], // se llena desde backend
-      roles: ['Empleado', 'Supervisor', 'Administrador', 'SuperAdmin'],
-      currentRoles: {},
+      // User and role management data
+      users: [], // List of user emails fetched from backend
+      roles: ['Empleado', 'Supervisor', 'Administrador', 'SuperAdmin'], // Available roles
+      currentRoles: {}, // Stores the current role of each user
 
-      sessionUser: 'jcastillo@email.com',
-      userSearch: '',
-      roleSearch: '',
-      selectedUser: '',
-      selectedRole: '',
-      showUserDropdown: false,
-      showRoleDropdown: false,
-      error: false,
-      success: false,
-      warning: false,
-      warningConfirmed: false,
-      history: []
+      // Session and UI state
+      sessionUser: 'jcastillo@email.com', // Hardcoded user acting as current session (could be dynamic)
+      userSearch: '', // Input for user search field
+      roleSearch: '', // Input for role search field
+      selectedUser: '', // User selected for role change
+      selectedRole: '', // Role selected to assign
+      showUserDropdown: false, // Whether the user dropdown is visible
+      showRoleDropdown: false, // Whether the role dropdown is visible
+      error: false, // Whether an error message is shown
+      success: false, // Whether a success message is shown
+      warning: false, // Whether a warning is shown before demotion
+      warningConfirmed: false, // Prevents repeated warnings in one cycle
+      history: [] // Local history of role changes (in-memory only)
     };
   },
   computed: {
+    // Filters users based on input value
     filteredUsers() {
       return this.users.filter(u =>
         u.toLowerCase().includes(this.userSearch.toLowerCase())
       );
     },
+    // Filters roles based on input value
     filteredRoles() {
       return this.roles.filter(r =>
         r.toLowerCase().includes(this.roleSearch.toLowerCase())
       );
     },
+    // Returns usernames without the domain (e.g., for displaying in dropdown)
     cleanUserList() {
       return this.filteredUsers.map(email => email.split('@')[0]);
     }
   },
   methods: {
+    // Fetch all users and their roles from backend API
     async fetchUsers() {
       try {
-        console.log("Enviando solicitud GET a /api/RolCambio...");
-        const response = await axios.get('https://localhost:7153/api/RolCambio'); // asegúrate de usar tu ruta real
+        const response = await axios.get('https://localhost:7153/api/RolChange');
         const data = response.data;
 
-        console.log("Respuesta recibida:", data);
+        // Populate users list with email addresses
+        this.users = data.map(u => u.email);
 
-        this.users = data.map(u => {
-          console.log("Usuario encontrado en map:", u);
-          return u.email;
-        });
-
+        // Store current role of each user using their email as key
         data.forEach(u => {
-          console.log(`Asignando rol: ${u.email} -> ${u.nuevoRol}`);
           this.currentRoles[u.email] = u.nuevoRol;
         });
 
-        console.log("Lista de usuarios:", this.users);
-        console.log("Roles actuales:", this.currentRoles);
       } catch (err) {
-        console.error('Error al obtener usuarios FE:', err);
+        console.error('Error fetching users from FE:', err);
       }
     },
 
+    // Called when a user is selected from the dropdown
     selectUser(user) {
       this.selectedUser = user;
       this.userSearch = user;
       this.showUserDropdown = false;
     },
+    // Called when a role is selected from the dropdown
     selectRole(role) {
       this.selectedRole = role;
       this.roleSearch = role;
       this.showRoleDropdown = false;
     },
 
+    // Confirms and executes the role change operation
     async confirmChange() {
       if (this.selectedUser && this.selectedRole) {
-        console.log("Usuario seleccionado:", this.selectedUser);
-        console.log("Rol seleccionado:", this.selectedRole);
-        const prev = this.currentRoles[this.selectedUser+'@email.com'];
-        console.log("Rol actual guardado (prev):", prev);
+        const prev = this.currentRoles[this.selectedUser + '@email.com'];
 
+        // If selected role is the same as current, show error
         if (this.selectedRole === prev) {
           this.success = false;
           this.error = true;
           this.warning = false;
           this.warningConfirmed = false;
           setTimeout(() => (this.error = false), 3000);
-        } else if (prev === 'Administrador' && this.selectedRole === 'Empleado' && !this.warningConfirmed) {
+        }
+        // Warn before demoting an Administrator to Empleado
+        else if (prev === 'Administrador' && this.selectedRole === 'Empleado' && !this.warningConfirmed) {
           this.success = false;
           this.error = false;
           this.warning = true;
@@ -184,18 +186,19 @@ export default {
             this.warning = false;
             this.warningConfirmed = false;
           }, 5000);
-        } else {
+        }
+        // Proceed with the role update
+        else {
           try {
-            console.log("Enviando solicitud PUT a cambiar-rol...");
-            console.log("Email seleccionado:", this.selectedUser);
-            console.log("Rol seleccionado:", this.selectedRole);
-            await axios.put('https://localhost:7153/api/RolCambio/cambiar-rol', {
-              email: this.selectedUser+'@email.com',
+            await axios.put('https://localhost:7153/api/RolChange/cambiar-rol', {
+              email: this.selectedUser + '@email.com',
               nuevoRol: this.selectedRole
             });
 
+            // Refresh the user list and roles after the update
             await this.fetchUsers();
 
+            // Add this action to the local history (not persisted)
             this.history.unshift({
               responsable: this.sessionUser,
               usuario: this.selectedUser,
@@ -211,7 +214,10 @@ export default {
               rolNuevo: this.selectedRole
             });
 
+            // Update the current role tracking
             this.currentRoles[this.selectedUser] = this.selectedRole;
+
+            // Show success message and reset input fields
             this.success = true;
             this.error = false;
             this.warning = false;
@@ -224,13 +230,14 @@ export default {
             this.selectedUser = '';
             this.selectedRole = '';
           } catch (err) {
-            console.error('Error al cambiar el rol:', err);
+            console.error('Error updating role:', err);
             this.error = true;
           }
         }
       }
     },
 
+    // Handles click outside dropdowns to close them
     handleClickOutside(event) {
       const userEl = this.$refs.userDropdown;
       const roleEl = this.$refs.roleDropdown;
@@ -238,16 +245,19 @@ export default {
       if (userEl && !userEl.contains(event.target)) {
         this.showUserDropdown = false;
       }
-
       if (roleEl && !roleEl.contains(event.target)) {
         this.showRoleDropdown = false;
       }
     }
   },
+
+  // Lifecycle: run when component is mounted
   async mounted() {
     document.addEventListener('click', this.handleClickOutside);
-    await this.fetchUsers();
+    await this.fetchUsers(); // Load initial data
   },
+
+  // Cleanup when component is removed
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
   }

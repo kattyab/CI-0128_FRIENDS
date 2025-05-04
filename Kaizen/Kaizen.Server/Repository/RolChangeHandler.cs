@@ -4,29 +4,33 @@ using Kaizen.Server.Models;
 
 namespace Kaizen.Server.Repository
 {
-    public class RolCambioHandler
+    // Handles role change operations related to the Users table
+    public class RolChangeHandler
     {
         private SqlConnection _conexion;
         private string _rutaConexion;
 
-        public RolCambioHandler()
+        // Constructor initializes the SQL connection using configuration settings
+        public RolChangeHandler()
         {
             var builder = WebApplication.CreateBuilder();
             _rutaConexion = builder.Configuration.GetConnectionString("DefaultConnection");
             _conexion = new SqlConnection(_rutaConexion);
         }
 
-        // cambiar el rol de un usuario por su email
+        // Updates the role of a user based on their email
         public bool CambiarRolPorEmail(string email, string nuevoRol)
         {
             string query = "UPDATE Users SET Role = @Role WHERE Email = @Email";
 
             using (SqlCommand command = new SqlCommand(query, _conexion))
             {
+                // Bind parameters to prevent SQL injection
                 command.Parameters.AddWithValue("@Role", nuevoRol);
                 command.Parameters.AddWithValue("@Email", email);
 
                 _conexion.Open();
+                // ExecuteNonQuery returns the number of rows affected; returns true if exactly 1 row was updated
                 bool resultado = command.ExecuteNonQuery() == 1;
                 _conexion.Close();
 
@@ -34,20 +38,21 @@ namespace Kaizen.Server.Repository
             }
         }
 
-        // obtener todos los usuarios y sus roles
-        public List<RolCambioModel> ObtenerUsuarios()
+        // Retrieves all users and their roles from the database
+        public List<RolChangeModel> ObtenerUsuarios()
         {
-            var usuarios = new List<RolCambioModel>();
-            string query = "SELECT Email, Role FROM Users"; 
+            var usuarios = new List<RolChangeModel>();
+            string query = "SELECT Email, Role FROM Users";
 
             using (SqlCommand command = new SqlCommand(query, _conexion))
             {
                 _conexion.Open();
                 var reader = command.ExecuteReader();
 
+                // Read each row and create a new RolChangeModel instance
                 while (reader.Read())
                 {
-                    usuarios.Add(new RolCambioModel
+                    usuarios.Add(new RolChangeModel
                     {
                         Email = reader["Email"].ToString(),
                         NuevoRol = reader["Role"].ToString()
