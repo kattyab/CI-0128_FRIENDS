@@ -9,7 +9,6 @@
   import SupervisorMenu from '../components/menus/supervisorMenu.vue'
   import SuperAdminMenu from '../components/menus/superAdminMenu.vue'
   import AdminMenu from '../components/menus/adminMenu.vue'
-
   const route = useRoute()
   const role = ref(null)
 
@@ -39,12 +38,36 @@
 
 <template>
   <div class="d-flex flex-grow-1 main-content">
-    <div class="me-2" v-if="showMenu && CurrentMenu">
+    <div class="sidebar me-2" v-if="showMenu && CurrentMenu">
       <component :is="CurrentMenu" />
     </div>
-    <main class="flex-grow-1">
+    <main class="flex-grow-1 scrollable-content">
       <RouterView />
     </main>
   </div>
   <Footer />
 </template>
+
+<style scoped>
+  .layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    flex-shrink: 0;
+  }
+
+  .scrollable-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+</style>
