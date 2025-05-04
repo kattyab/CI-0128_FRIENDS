@@ -10,7 +10,9 @@ const router = createRouter({
       children: [
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
-        { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true }},
+        { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
+        { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/unauthorized.vue'), meta: { requiresAuth: true } },
+        // { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Superadmin'] } } role restriction example
       ]
     },
     {
@@ -27,16 +29,23 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const isPublic = to.meta.public;
   const requiresAuth = to.meta.requiresAuth;
+  const requiredRoles = to.meta.requiredRoles;
 
   if (isPublic || !requiresAuth) return next();
 
   try {
-    await axios.get('/api/login/authenticate', { withCredentials: true });
-    next(); // user is authenticated
+    const res = await axios.get('/api/login/authenticate', { withCredentials: true });
+    const userRole = res.data.role;
+
+    if (requiredRoles && !requiredRoles.includes(userRole)) {
+      return next('/unauthorized');
+    }
+
+    next();
   } catch (err) {
-    console.warn('Not authenticated, redirecting to login.');
-    next('/login'); // user is not authenticated
+    next('/login');
   }
 });
+
 
 export default router
