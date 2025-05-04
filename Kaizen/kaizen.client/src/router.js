@@ -11,7 +11,7 @@ const router = createRouter({
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
-        { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/unauthorized.vue'), meta: { requiresAuth: true } },
+        { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/unauthorized.vue'), meta: { public: true } },
         // { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Superadmin'] } } role restriction example
       ]
     },
