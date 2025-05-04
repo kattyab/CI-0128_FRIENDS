@@ -11,7 +11,10 @@ const router = createRouter({
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true }},
-        { path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./components/RegisterEmployee.vue') }
+        {
+          path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./pages/register-employee.vue'), meta: { requiresAuth: true },
+                                                                                      requiredRoles: ['Administrador', 'Dueño']
+        }
       ]
     },
     {
