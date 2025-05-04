@@ -2,9 +2,9 @@
   <div class="container py-5 custom-bg text-center">
     <div class="row justify-content-center">
       <div class="col-lg-8">
-        <img src="../../public/icons/unauthorized.svg" alt="Acceso denegado" class="img-fluid mb-4" style="max-height: 250px;" />
-        <h1 class="display-5 fw-bold text-kaizen">Acceso denegado</h1>
-        <p class="lead text-muted" style="color: rgba(217, 48, 37, 0.6) !important;">
+        <img src="../../public/icons/unauthorized.png" alt="Acceso denegado" class="img-fluid mb-4" style="max-height: 250px;" />
+        <h1 class="display-5 fw-bold">Acceso denegado</h1>
+        <p class="lead text-muted" style="color: rgba(0, 60, 99, 0.6) !important;">
           No tienes los permisos necesarios para acceder a esta página.
         </p>
         <router-link to="/landing-page">
