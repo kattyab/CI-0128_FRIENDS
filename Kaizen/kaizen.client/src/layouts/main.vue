@@ -9,7 +9,6 @@
   import SupervisorMenu from '../components/menus/supervisorMenu.vue'
   import SuperAdminMenu from '../components/menus/superAdminMenu.vue'
   import AdminMenu from '../components/menus/adminMenu.vue'
-
   const route = useRoute()
   const role = ref(null)
 
@@ -38,7 +37,7 @@
 </script>
 
 <template>
-  <div class="d-flex flex-grow-1 main-content" style="height: 100vh; overflow: hidden;">
+  <div class="d-flex flex-grow-1" style="height: 100vh; overflow: hidden;">
     <div class="me-2" v-if="showMenu" style="flex-shrink: 0;">
       <component :is="CurrentMenu" />
     </div>
