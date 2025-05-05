@@ -6,7 +6,7 @@
         <div class="mb-3 col-10">
           <label for="name" class="form-label">Nombre</label>
           <input type="text" id="name" placeholder="Ingrese su nombre" v-model="name"
-                 :class="['form-control', { 'is-invalid': name && !isNameValid}]" required/>
+                 :class="['form-control', { 'is-invalid': name && !isNameValid}]" required />
           <div class="invalid-feedback" , v-if="name && !isNameValid">
             Ingrese el nombre sin números ni signos.
           </div>
@@ -26,11 +26,27 @@
 
       <div class="row">
         <div class="mb-3 col-10">
-          <label for="personid" class="form-label">Cédula de Identidad</label>
-          <input type="text" id="personid" placeholder="XX-XXXX-XXXX" required
+          <label class="form-label">Tipo de Identificación</label>
+          <div class="row">
+            <div class="col form-check d-flex align-items-center required
+                  justify-content-center" v-for="option in idTypeOptions" :key="option.value">
+              <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="idType"
+                     name="idTypeOptions" />
+              <label class="form-check-label" :for="option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 col-10">
+          <label for="personid" class="form-label">{{ idLabelText }}</label>
+          <input type="text" id="personid" :placeholder="idPlaceholder" required
                  v-model="personid" :class="['form-control', { 'is-invalid': personid && !isPersonidValid}]" />
           <div class="invalid-feedback" v-if="personid && !isPersonidValid">
-            Ingrese una cédula física válida con guiones. Ejemplo: 01-0111-0111.
+            {{ idInvalidMessage }}
           </div>
         </div>
       </div>
@@ -58,7 +74,7 @@
         <div class="mb-3 col-10">
           <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
           <input type="date" id="birthdate" v-model="birthdate" :class="[birthdateClass, 'form-control']"
-                 @change="birthdateTouched = true" required/>
+                 @change="birthdateTouched = true" required />
           <div class="invalid-feedback" v-if="birthdateTouched && !isBirthdateValid">Seleccione una fecha válida.</div>
         </div>
       </div>
@@ -143,7 +159,7 @@
             <div class="col form-check d-flex align-items-center justify-content-center" v-for="option in contractOptions"
                  :key="option.value">
               <input class="form-check-input" type="radio" :id="option.value" :value="option.value" v-model="contract"
-                     name="contractOptions" reqired/>
+                     name="contractOptions" required />
               <label class="form-check-label" :for="option.value">
                 {{ option.label }}
               </label>
@@ -191,7 +207,7 @@
         <div class="mb-3 col-10">
           <label for="startdate" class="form-label">Fecha de Inicio</label>
           <input type="date" :class="[startdateClass, 'form-control']" id="startdate" v-model="startdate"
-                 @change="startdateTouched = true" required/>
+                 @change="startdateTouched = true" required />
           <div class="invalid-feedback" v-if="startdateTouched && !isStartDateValid">Seleccione una fecha válida.</div>
         </div>
       </div>
@@ -237,7 +253,7 @@
             Mínimo un caracter especial,<br />
             Mínimo 8 dígitos de largo.
           </div>
-        </div>       
+        </div>
       </div>
 
       <div class="row">
@@ -273,6 +289,7 @@
         name: '',
         lastname: '',
         personid: '',
+        idType: 'Cédula',
         birthdate: '',
         sex: '',
         province: '',
@@ -297,6 +314,11 @@
         attemptedSubmit: false,
         showFormError: false,
         formErrorMessage: '',
+
+        idTypeOptions: [
+          { label: 'Cédula Física', value: 'Cédula' },
+          { label: 'DIMEX', value: 'DIMEX' }
+        ],
 
         sexOptions: [
           { label: 'Hombre', value: 'Hombre' },
@@ -333,8 +355,23 @@
         })
     },
     computed: {
+      idLabelText() {
+        return this.idType === 'Cédula' ? 'Cédula de Identidad' : 'DIMEX';
+      },
+
+      idPlaceholder() {
+        return this.idType === 'Cédula' ? 'XX-XXXX-XXXX' : 'XXXXXXXXXXXX';
+      },
+
+      idInvalidMessage() {
+        return this.idType === 'Cédula'
+          ? 'Ingrese una cédula física válida con guiones. Ejemplo: 01-0111-0111.'
+          : 'Ingrese un DIMEX válido de 12 dígitos numéricos.';
+      },
+
       isStartDateValid() {
-        return this.isPastOrToday(this.startdate);
+        const today = new Date();
+        return new Date(this.startdate) <= today;
       },
 
       startdateClass() {
@@ -342,7 +379,9 @@
       },
 
       isBirthdateValid() {
-        return this.isPastOrToday(this.birthdate);
+        const today = new Date();
+        const minDate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate());
+        return new Date(this.birthdate) <= minDate;
       },
 
       birthdateClass() {
@@ -364,8 +403,13 @@
       },
 
       isPersonidValid() {
-        const regex = /^\d{2}-\d{4}-\d{4}$/;
-        return regex.test(this.personid);
+        if (this.idType === 'Cédula') {
+          const regex = /^\d{2}-\d{4}-\d{4}$/;
+          return regex.test(this.personid);
+        } else {
+          const regex = /^\d{12}$/;
+          return regex.test(this.personid);
+        }
       },
 
       isProvinceValid() {
@@ -487,15 +531,6 @@
           });
       },
 
-      isPastOrToday(dateStr) {
-        if (!dateStr) return true;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selectedDate = new Date(dateStr);
-        selectedDate.setHours(0, 0, 0, 0);
-        return selectedDate <= today;
-      },
-
       getDateClass(isValid, isTouched, value) {
         return {
           'is-invalid': !isValid && isTouched,
@@ -505,7 +540,6 @@
 
       handleNotificationClose() {
         this.showNotification = false;
-        // Correct router redirect needed
         this.$router.push('/landing-page');
       },
 
@@ -575,29 +609,29 @@
   }
 
   .input-group {
-      border-radius: 10px;
+    border-radius: 10px;
   }
 
   .password-toggle {
     border-radius: 10px;
   }
 
-    .form-control:focus {
-      outline: none;
-      border-color: #aaa;
-      box-shadow: 0 0 0 2px rgba(0, 60, 99, 0.15);
-    }
+  .form-control:focus {
+    outline: none;
+    border-color: #aaa;
+    box-shadow: 0 0 0 2px rgba(0, 60, 99, 0.15);
+  }
 
-    .form-control.is-invalid {
-      border-color: #dc3545;
-    }
+  .form-control.is-invalid {
+    border-color: #dc3545;
+  }
 
-      .form-control.is-invalid:focus {
-        box-shadow: 0 0 0 2px rgba(235, 12, 12, 0.25);
-      }
+    .form-control.is-invalid:focus {
+      box-shadow: 0 0 0 2px rgba(235, 12, 12, 0.25);
+    }
 
   .password-toggle .toggle-icon {
-   border-radius:10px;
+    border-radius: 10px;
     border: 1px solid #f2f2f2;
     border-left: none;
     padding: 0;
@@ -616,5 +650,4 @@
   .password-toggle.input-group {
     border-radius: 10px;
   }
-
 </style>
