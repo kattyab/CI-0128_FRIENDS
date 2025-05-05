@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Kaizen.Server.Repository;
+using Kaizen.Server.Models;
 
 namespace Kaizen.Server.Controllers
 {
@@ -15,7 +16,7 @@ namespace Kaizen.Server.Controllers
         }
 
         [HttpPost("registerEmployee")]
-        public async Task<ActionResult<bool>> RegisterEmployee(RegisterEmployeeForm employee)
+        public async Task<ActionResult<bool>> RegisterEmployee(RegisterEmployeeDto employee)
         {
             try
             {

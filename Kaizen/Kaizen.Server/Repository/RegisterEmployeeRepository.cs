@@ -2,34 +2,10 @@ using System.Configuration;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Identity;
-
+using Kaizen.Server.Models;
 
 namespace Kaizen.Server.Repository
 {
-    public class RegisterEmployeeForm
-    {
-        public int Id { get; set; }
-        public required string Adminrole { get; set; }
-        public required string Adminemail { get; set; }
-        public required string Name { get; set; }
-        public required string Lastname { get; set; }
-        public required string Personid { get; set; }
-        public required string Sex { get; set; }
-        public required string Phonenumber { get; set; }
-        public required string Birthdate { get; set; }
-        public required string Province{ get; set; }
-        public required string Canton { get; set; }
-        public required string Othersigns{ get; set; }
-        public required string Role { get; set; }
-        public required string Jobposition { get; set; }
-        public required string Contract { get; set; }
-        public required string Paycycle { get; set; }
-        public required string Brutesalary { get; set; }
-        public required string Startdate { get; set; }
-        public required string Bankaccount { get; set; }
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-    }
 
     public class RegisterEmployeeRepository
     {
@@ -42,7 +18,7 @@ namespace Kaizen.Server.Repository
                     "La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
         }
 
-        public async Task<bool> CreateEmployee(RegisterEmployeeForm employee)
+        public async Task<bool> CreateEmployee(RegisterEmployeeDto employee)
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
@@ -50,59 +26,81 @@ namespace Kaizen.Server.Repository
 
                 try
                 {
-                    string getCompanySql = employee.Adminrole == "Administrador" ? $@"
-SELECT A.CompanyPK
-FROM Admins A
-JOIN Users U ON A.AdminPK = U.PersonPK
-WHERE U.Email = '{employee.Adminemail}';"
-            : employee.Adminrole == "Dueño" ? $@"
-SELECT C.CompanyPK
-FROM Companies C
-JOIN Owners O ON C.OwnerPK = O.OwnerPK
-JOIN Users U ON O.OwnerPK = U.PersonPK
-WHERE U.Email = '{employee.Adminemail}';"
-                    : throw new Exception("Invalid role for retrieving company.");
-                    string companyPK;
+                    string getCompanySql = employee.Adminrole switch
+                    {
+                        "Administrador" => @"
+                    SELECT A.CompanyPK
+                    FROM Admins A
+                    JOIN Users U ON A.AdminPK = U.PersonPK
+                    WHERE U.Email = @AdminEmail;",
+                        "Dueño" => @"
+                    SELECT C.CompanyPK
+                    FROM Companies C
+                    JOIN Owners O ON C.OwnerPK = O.OwnerPK
+                    JOIN Users U ON O.OwnerPK = U.PersonPK
+                    WHERE U.Email = @AdminEmail;",
+                        _ => throw new Exception("Invalid role for retrieving company.")
+                    };
 
+                    string companyPK;
                     using (SqlCommand companyCmd = new SqlCommand(getCompanySql, conn))
                     {
-                        var result = await companyCmd.ExecuteScalarAsync() ?? throw new Exception("Admin email not found or not associated with a company.");
+                        companyCmd.Parameters.AddWithValue("@AdminEmail", employee.Adminemail);
+                        var result = await companyCmd.ExecuteScalarAsync()
+                            ?? throw new Exception("Admin email not found or not associated with a company.");
                         companyPK = result.ToString();
                     }
 
-
                     var hasher = new PasswordHasher<string>();
-                    string hashedPassword = hasher.HashPassword(employee.Email, employee.Password); // Provisional way: boss sets it
-                    
+                    string hashedPassword = hasher.HashPassword(employee.Email, employee.Password);
+
                     DateTime birthdate = DateTime.Parse(employee.Birthdate);
                     DateTime startdate = DateTime.Parse(employee.Startdate);
-
-                    string formattedBirthdate = birthdate.ToString("yyyy-MM-dd");
-                    string formattedStartdate = startdate.ToString("yyyy-MM-dd");
                     Guid personPK = Guid.NewGuid();
-                    
-                    string sql = $@"
+
+                    string insertSql = @"
 INSERT INTO Persons (PersonPK, Id, Name, LastName, Sex, BirthDate, Province, Canton, OtherSigns)
-VALUES ('{personPK}', '{employee.Personid}', '{employee.Name}', '{employee.Lastname}', '{employee.Sex}', '{formattedBirthdate}', '{employee.Province}', '{employee.Canton}', '{employee.Othersigns}');
+VALUES (@PersonPK, @Id, @Name, @LastName, @Sex, @BirthDate, @Province, @Canton, @OtherSigns);
 
 INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)
-VALUES ('{employee.Email}','{hashedPassword}', 1, '{employee.Role}', '{personPK}');
+VALUES (@Email, @PasswordHash, 1, @Role, @PersonPK);
 
 INSERT INTO PersonPhoneNumbers (PersonPK, Number)
-VALUES ('{personPK}', '{employee.Phonenumber}');
+VALUES (@PersonPK, @PhoneNumber);
 
 INSERT INTO Employees (PersonPK, WorksFor, JobPosition, ContractType, WorkHours, ExtraHours, StartDate, BankAccount, BruteSalary, PayCycleType)
-VALUES ('{personPK}', '{companyPK}', '{employee.Jobposition}', '{employee.Contract}', 0, 0, '{formattedStartdate}', '{employee.Bankaccount}', '{employee.Brutesalary}', '{employee.Paycycle}');
+VALUES (@PersonPK, @CompanyPK, @JobPosition, @ContractType, 0, 0, @StartDate, @BankAccount, @BruteSalary, @PayCycleType);
 ";
+
                     if (employee.Role == "Administrador")
                     {
-                        sql += $@"
+                        insertSql += @"
 INSERT INTO Admins (AdminPK, CompanyPK)
-VALUES ('{personPK}', '{companyPK}');
-";
+VALUES (@PersonPK, @CompanyPK);";
                     }
 
-                    using SqlCommand cmd = new SqlCommand(sql, conn);
+                    using SqlCommand cmd = new SqlCommand(insertSql, conn);
+                    cmd.Parameters.AddWithValue("@PersonPK", personPK);
+                    cmd.Parameters.AddWithValue("@Id", employee.Personid);
+                    cmd.Parameters.AddWithValue("@Name", employee.Name);
+                    cmd.Parameters.AddWithValue("@LastName", employee.Lastname);
+                    cmd.Parameters.AddWithValue("@Sex", employee.Sex);
+                    cmd.Parameters.AddWithValue("@BirthDate", birthdate);
+                    cmd.Parameters.AddWithValue("@Province", employee.Province);
+                    cmd.Parameters.AddWithValue("@Canton", employee.Canton);
+                    cmd.Parameters.AddWithValue("@OtherSigns", employee.Othersigns);
+                    cmd.Parameters.AddWithValue("@Email", employee.Email);
+                    cmd.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                    cmd.Parameters.AddWithValue("@Role", employee.Role);
+                    cmd.Parameters.AddWithValue("@PhoneNumber", employee.Phonenumber);
+                    cmd.Parameters.AddWithValue("@CompanyPK", companyPK);
+                    cmd.Parameters.AddWithValue("@JobPosition", employee.Jobposition);
+                    cmd.Parameters.AddWithValue("@ContractType", employee.Contract);
+                    cmd.Parameters.AddWithValue("@StartDate", startdate);
+                    cmd.Parameters.AddWithValue("@BankAccount", employee.Bankaccount);
+                    cmd.Parameters.AddWithValue("@BruteSalary", employee.Brutesalary);
+                    cmd.Parameters.AddWithValue("@PayCycleType", employee.Paycycle);
+
                     await cmd.ExecuteNonQueryAsync();
 
                     return true;
@@ -113,5 +111,6 @@ VALUES ('{personPK}', '{companyPK}');
                 }
             }
         }
+
     }
 }
