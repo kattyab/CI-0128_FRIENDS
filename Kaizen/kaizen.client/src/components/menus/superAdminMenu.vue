@@ -38,6 +38,10 @@
         <span class="material-icons">account_circle</span>
         <span class="text">Login</span>
       </router-link>
+      <router-link class="button" to="/companieslist">
+        <span class="material-icons">corporate_fare</span>
+        <span class="text">Lista de Empresas</span>
+      </router-link>
     </div>
   </aside>
 </template>
