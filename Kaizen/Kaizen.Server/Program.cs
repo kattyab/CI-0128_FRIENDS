@@ -3,20 +3,35 @@ using Kaizen.Server.Repository;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<Login>();
+builder.Services.AddScoped<RegisterEmployeeRepository>();
+builder.Services.AddScoped<CompaniesRepository>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:8080");
-            policy.AllowAnyMethod();
-            policy.AllowAnyHeader();
+            // Due to authentication, as far as I know, we need to specify the origin
+            // instead of using AllowAnyOrigin(), so you might need to change port
+            policy.WithOrigins("https://localhost:55281")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
-// Add services to the container.
+builder.Services.AddAuthentication("MyCookieAuth")
+    .AddCookie("MyCookieAuth", options =>
+    {
+        options.Cookie.Name = "Kaizen.AuthCookie";
+        options.LoginPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    });
 
+builder.Services.AddAuthorization();
+
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -33,9 +48,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(MyAllowSpecificOrigins);
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
 

@@ -85,36 +85,32 @@
       togglePasswordVisibility() {
         this.showPassword = !this.showPassword;
       },
+
       async login() {
         this.error = '';
         this.success = '';
         try {
-          await axios.post('/api/login/login', {
+          const response = await axios.post('/api/login/login', {
             email: this.username,
             password: this.password
-
           });
-          this.success = 'Inicio de sesión correcto. ¡Bienvenido!';
+
+          this.$router.push('/landing-page');
         }
-          // TODO: Add the homepage route here
         catch (err) {
           if (!err.response) {
-            this.error = err.response.data.message;
-          }
-          else if (err.response.status === 404) {
-            this.error = 'Usuario no encontrado.';
-          }
-          else if (err.response.status === 401) {
-            this.error = err.response.data.message;
-          }
-          else {
-            this.error = err.response.data.message;
+            this.error = 'Error de red. Intente más tarde.';
+          } else if (err.response.status === 401 || err.response.status === 404) {
+            this.error = 'Error a la hora de iniciar sesión. Correo o contraseña incorrecta.';
+          } else {
+            this.error = 'Error desconocido.';
           }
         }
       }
     }
   };
 </script>
+
 
 <style scoped>
   .kaizen {
