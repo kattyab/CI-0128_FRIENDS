@@ -7,7 +7,9 @@
     <form class="mx-auto d-flex flex-column gap-4"
           style="max-width:800px;"
           @submit.prevent="registerCompany">
+
       <!-- Cédula jurídica -->
+
       <div>
         <label for="cedula" class="form-label label-kaizen mb-1">
           Cédula jurídica
