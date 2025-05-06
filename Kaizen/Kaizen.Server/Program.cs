@@ -6,8 +6,8 @@ builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
 builder.Services.AddScoped<NotificationsRepository>();
+builder.Services.AddScoped<CommonHomepageRepository>();
 builder.Services.AddScoped<CompaniesListRepository>();
-
 
 builder.Services.AddCors(options =>
 {
