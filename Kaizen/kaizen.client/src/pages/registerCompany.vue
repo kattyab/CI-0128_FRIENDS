@@ -4,12 +4,12 @@
       Registro de empresa
     </h2>
 
-    <form class="mx-auto d-flex flex-column gap-4"
-          style="max-width:800px;"
+    <form class="mx-auto row justify-content-center"
+          style="max-width: 800px;"
           @submit.prevent="registerCompany">
 
       <!-- Cédula jurídica -->
-      <div>
+      <div class="mb-3 col-10">
         <label for="cedula" class="form-label label-kaizen mb-1">Cédula jurídica</label>
         <input v-model="cedulaJuridica"
                id="cedula"
@@ -21,7 +21,7 @@
       </div>
 
       <!-- Nombre de la empresa -->
-      <div>
+      <div class="mb-3 col-10">
         <label for="nombre" class="form-label label-kaizen mb-1">Nombre de la empresa</label>
         <input v-model="nombre"
                id="nombre"
@@ -32,7 +32,7 @@
       </div>
 
       <!-- Correo electrónico -->
-      <div>
+      <div class="mb-3 col-10">
         <label for="email" class="form-label label-kaizen mb-1">Correo electrónico</label>
         <input v-model="email"
                id="email"
@@ -44,7 +44,7 @@
       </div>
 
       <!-- Dirección -->
-      <div>
+      <div class="mb-3 col-10">
         <label for="direccion" class="form-label label-kaizen mb-1">Dirección</label>
         <input v-model="direccion"
                id="direccion"
@@ -56,7 +56,7 @@
       </div>
 
       <!-- Teléfono -->
-      <div>
+      <div class="mb-3 col-10">
         <label for="telefono" class="form-label label-kaizen mb-1">Teléfono</label>
         <input v-model="telefono"
                id="telefono"
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Razón social -->
-      <div>
+      <div class="mb-3 col-10">
         <label for="razonSocial" class="form-label label-kaizen mb-1">Razón social</label>
         <input v-model="razonSocial"
                id="razonSocial"
@@ -79,16 +79,18 @@
       </div>
 
       <!-- Botón -->
-      <button type="submit"
-              class="btn boton-kaizen fw-semibold text-white mx-auto mt-3 px-5 py-2">
-        Registrar
-      </button>
+      <div class="mb-3 col-10 text-center">
+        <button type="submit"
+                class="btn boton-kaizen fw-semibold text-white px-5 py-2">
+          Registrar
+        </button>
+        <p v-if="success" class="text-success text-center small mt-2">{{ success }}</p>
+      </div>
 
-      <!-- Mensaje de éxito -->
-      <p v-if="success" class="text-success text-center small mt-2">{{ success }}</p>
     </form>
   </section>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -211,8 +213,7 @@ export default {
 
   input:focus {
     outline: none;
-    background-color: #f2f2f2; 
+    background-color: #f2f2f2;
     box-shadow: 0 0 0 2px #003C63;
   }
-
 </style>
