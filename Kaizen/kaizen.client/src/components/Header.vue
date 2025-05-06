@@ -57,7 +57,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><button class="dropdown-item" type="button">Información de usuario</button></li>
-                  <li><button class="dropdown-item" type="button">Cerrar sesión</button></li>
+                  <li><button class="dropdown-item" type="button" @click="logout">Cerrar sesión</button></li>
                 </ul>
               </div>
             </li>
@@ -70,6 +70,9 @@
 
 <script setup>
   import { ref, onMounted } from "vue";
+  import { useLogout } from '@/composables/useLogout';
+
+  const { logout } = useLogout();
 
   const notifications = ref(null);
 
