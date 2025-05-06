@@ -31,8 +31,8 @@
                   <Bell class="icon"></Bell>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li v-for="notification in notifications" :key="notification.id">
-                    <button class="dropdown-item" type="button">{{ notification.title }}</button>
+                  <li v-for="notification in data" :key="notification.id">
+                    <button class="dropdown-item" type="button">{{ notification.description }}</button>
                   </li>
                 </ul>
               </div>
@@ -69,22 +69,24 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import axios from "axios";
 
-const notifications = ref(null);
+const data = ref(null);
 
 async function fetchData() {
   try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/todos");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    let data = await response.json();
-    data = data.slice(0, 5); // Limit to 5 items
-    notifications.value = data.map((item) => ({
-      id: item.id,
-      title: item.title,
-    }));
-    console.log(notifications.value);
+    axios
+      .get("https://localhost:7153/api/notifications", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log("Data fetched successfully:", response.data);
+        data.value = response.data;
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        throw error;
+      });
   } catch (e) {
     console.log(e);
   }
