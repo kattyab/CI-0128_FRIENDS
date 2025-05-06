@@ -16,7 +16,8 @@ const router = createRouter({
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true }},
         {
           path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./pages/register-employee.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] },  
-        }
+        },
+        { path: 'employeedetails', name: 'EmployeeDetails', component: () => import('./pages/employeeDetails.vue'), meta: { public: true } },
       ]
     },
     {
