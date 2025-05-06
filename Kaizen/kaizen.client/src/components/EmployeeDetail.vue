@@ -17,8 +17,6 @@
       <h1 class="text-center mb-4 mt-4 pt-4" style="color: #003c63;">
         {{ employee?.firstName }} {{ employee?.lastName }}
       </h1>
-
-      <!-- Two Columns with Custom Gap -->
       <div class="row custom-gap">
         <!-- Left Column: Datos Contractuales -->
         <div class="col-md-6">
@@ -30,70 +28,70 @@
                 Editar
               </button>
             -->
+          </div>
+          <div class="p-3 border shadow-sm custom-box">
+            <div class="mb-3">
+              <strong>Salario</strong>
+              <div class="highlight-box">{{ employee.salary }}</div>
             </div>
-              <div class="p-3 border shadow-sm custom-box">
-                <p>
-                  <strong>Salario:</strong>
-                  <div class="highlight-box">{{ employee.salary }}</div>
-                </p>
-                <p>
-                  <strong>Tipo de Contrato:</strong>
-                  <div class="highlight-box">{{ employee.contractType }}</div>
-                </p>
-                <p>
-                  <strong>Estado:</strong>
-                  <div class="highlight-box">{{ employee.status }}</div>
-                </p>
-                <p>
-                  <strong>Periodicidad:</strong>
-                  <div class="highlight-box">{{ employee.payCycle }}</div>
-                </p>
-                <p>
-                  <strong>Puesto:</strong>
-                  <div class="highlight-box">{{ employee.jobPosition }}</div>
-                </p>
-                <p>
-                  <strong>Rol:</strong>
-                  <div class="highlight-box">{{ employee.role }}</div>
-                </p>
-              </div>
+            <div class="mb-3">
+              <strong>Tipo de Contrato</strong>
+              <div class="highlight-box">{{ employee.contractType }}</div>
             </div>
-
-  <!-- Right Column: Datos Personales -->
-            <div class="col-md-6">
-              <h5 class="text-justify mb-3 fw-bold">Datos Personales</h5>
-              <div class="p-3 border shadow-sm custom-box">
-                <p>
-                  <strong>Beneficios:</strong>
-                  <div class="highlight-box">{{ employee.benefits }}</div>
-                </p>
-                <p>
-                  <strong>Fecha de Contratación:</strong>
-                  <div class="highlight-box">{{ employee.startDate }}</div>
-                </p>
-                <p>
-                  <strong>Teléfonos:</strong>
-                  <div class="highlight-box">{{ employee.phoneNumbers }}</div>
-                </p>
-                <p>
-                  <strong>Correo:</strong>
-                  <div class="highlight-box">{{ employee.email }}</div>
-                </p>
-                <p>
-                  <strong>Provincia:</strong>
-                  <div class="highlight-box">{{ employee.province }}</div>
-                </p>
-                <p>
-                  <strong>Cantón:</strong>
-                  <div class="highlight-box">{{ employee.canton }}</div>
-                </p>
-                <p>
-                  <strong>Otras señas:</strong>
-                  <div class="highlight-box">{{ employee.otherSigns }}</div>
-                </p>
-              </div>
+            <div class="mb-3">
+              <strong>Estado</strong>
+              <div class="highlight-box">{{ employee.status }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Periodicidad</strong>
+              <div class="highlight-box">{{ employee.payCycle }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Puesto</strong>
+              <div class="highlight-box">{{ employee.jobPosition }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Rol</strong>
+              <div class="highlight-box">{{ employee.role }}</div>
             </div>
           </div>
+        </div>
+
+        <!-- Right Column: Datos Personales -->
+        <div class="col-md-6">
+          <h5 class="text-justify mb-3 fw-bold">Datos Personales</h5>
+          <div class="p-3 border shadow-sm custom-box">
+            <div class="mb-3">
+              <strong>Beneficios</strong>
+              <div class="highlight-box">{{ employee.benefits }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Fecha de Contratación</strong>
+              <div class="highlight-box">{{ employee.startDate }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Teléfonos</strong>
+              <div class="highlight-box">{{ employee.phoneNumbers }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Correo</strong>
+              <div class="highlight-box">{{ employee.email }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Provincia</strong>
+              <div class="highlight-box">{{ employee.province }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Cantón</strong>
+              <div class="highlight-box">{{ employee.canton }}</div>
+            </div>
+            <div class="mb-3">
+              <strong>Otras señas</strong>
+              <div class="highlight-box">{{ employee.otherSigns }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,7 +122,7 @@
           id: data.id,
           firstName: data.firstName,
           lastName: data.lastName,
-          salary: `${data.grossSalary.toLocaleString()}₡`,
+          salary: `₡${data.grossSalary.toLocaleString()}`,
           contractType: data.contractType,
           status: data.status,
           payCycle: data.payCycle,
@@ -176,13 +174,13 @@
   .row.custom-gap {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: 3rem;
   }
 
   .custom-gap .col-md-6 {
     flex: 1 1 48%;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 4rem;
+    padding-right: 4rem;
     min-width: 0;
   }
 
@@ -196,10 +194,10 @@
 
   .highlight-box {
     background-color: #f2f2f2;
-    border: 1px solid #d1d5db;
     padding: 5px;
     border-radius: 10px;
     word-break: break-word;
+    text-indent: 5px;
   }
 
   .custom-btn-blue {
