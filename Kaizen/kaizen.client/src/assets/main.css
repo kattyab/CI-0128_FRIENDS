@@ -1,4 +1,18 @@
+:root {
+  --primary-color: #003C63;
+}
+
 body {
   font-family: "DM Sans", sans-serif;
-  color: #003458;
+  color: var(--primary-color);
+}
+
+.form-label {
+  margin-left: 2rem;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+.form-control {
+  padding-left: 2rem;
+  padding-right: 2rem;
 }

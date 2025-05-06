@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Kaizen.Server.Controllers
 {
@@ -33,11 +34,13 @@ namespace Kaizen.Server.Controllers
                 return Unauthorized(new { message = "Usuario o contraseña incorrecta." });
 
             var role = (string)user.GetType().GetProperty("Role")!.GetValue(user)!;
+            var userId = (string)user.GetType().GetProperty("UserPK")!.GetValue(user)!;
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, credentials.Email),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
+                new Claim("UserId", userId)
             };
 
             var identity = new ClaimsIdentity(claims, "MyCookieAuth");
@@ -52,9 +55,8 @@ namespace Kaizen.Server.Controllers
                 role
             });
         }
-
-        [HttpGet("whoami")]
-        public IActionResult WhoAmI()
+        [HttpGet("authenticate")]
+        public IActionResult Authenticate()
         {
             if (HttpContext.User.Identity?.IsAuthenticated != true)
                 return Unauthorized(new { message = "No autenticado" });
@@ -63,6 +65,13 @@ namespace Kaizen.Server.Controllers
             var role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             return Ok(new { email, role });
+        }
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return Ok(new { message = "Sesión cerrada" });
         }
     }
 }
