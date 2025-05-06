@@ -34,11 +34,13 @@ namespace Kaizen.Server.Controllers
                 return Unauthorized(new { message = "Usuario o contraseña incorrecta." });
 
             var role = (string)user.GetType().GetProperty("Role")!.GetValue(user)!;
+            var userId = (string)user.GetType().GetProperty("UserPK")!.GetValue(user)!;
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, credentials.Email),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
+                new Claim("UserId", userId)
             };
 
             var identity = new ClaimsIdentity(claims, "MyCookieAuth");
