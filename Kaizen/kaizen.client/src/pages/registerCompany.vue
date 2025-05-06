@@ -66,7 +66,7 @@
         <input v-model="telefono"
                id="telefono"
                type="text"
-               placeholder="88881234"
+               placeholder="8888-1234"
                required
                class="form-control campo shadow-sm" />
       </div>
@@ -86,7 +86,7 @@
       <!-- Botón -->
       <button type="submit"
               class="btn boton-kaizen fw-semibold text-white mx-auto mt-3 px-5 py-2">
-        Registrar empresa
+        Registrar
       </button>
 
       <!-- Mensajes -->
@@ -146,7 +146,7 @@
         }
 
         // 5) Teléfono: 8 dígitos numéricos
-        const telefonoRegex = /^[0-9]{8}$/;
+        const telefonoRegex = /^[0-9]{4}-[0-9]{4}$/;
         if (!telefonoRegex.test(this.telefono)) {
           this.error = 'Error: Favor ingresar la información en el formato correcto';
           return;
