@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Kaizen.Server.Models;
 
 namespace Kaizen.Server.Repository
@@ -14,7 +14,7 @@ namespace Kaizen.Server.Repository
         public RolChangeHandler()
         {
             var builder = WebApplication.CreateBuilder();
-            _rutaConexion = builder.Configuration.GetConnectionString("DefaultConnection");
+            _rutaConexion = builder.Configuration.GetConnectionString("KaizenDb");
             _conexion = new SqlConnection(_rutaConexion);
         }
 
@@ -30,7 +30,6 @@ namespace Kaizen.Server.Repository
                 command.Parameters.AddWithValue("@Email", email);
 
                 _conexion.Open();
-                // ExecuteNonQuery returns the number of rows affected; returns true if exactly 1 row was updated
                 bool resultado = command.ExecuteNonQuery() == 1;
                 _conexion.Close();
 
@@ -49,7 +48,6 @@ namespace Kaizen.Server.Repository
                 _conexion.Open();
                 var reader = command.ExecuteReader();
 
-                // Read each row and create a new RolChangeModel instance
                 while (reader.Read())
                 {
                     usuarios.Add(new RolChangeModel

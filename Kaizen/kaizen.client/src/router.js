@@ -19,6 +19,13 @@ const router = createRouter({
         },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true } },
         { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
+
+        {
+          path: 'roles',
+          name: 'Roles',
+          component: () => import('./components/RoleUpdater.vue'),
+          meta: { requiresAuth: true, requiredRoles: ['Administrador'] }
+        }
       ]
     },
     {
