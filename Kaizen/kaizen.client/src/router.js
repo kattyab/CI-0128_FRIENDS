@@ -6,7 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: import('./layouts/main.vue'),
+      component: () => import('./layouts/main.vue'),
       children: [
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
@@ -23,7 +23,7 @@ const router = createRouter({
     },
     {
       path: '/login',
-      component: import('./layouts/auth.vue'),
+      component: () => import('./layouts/auth.vue'),
       children: [
         { path: '', name: 'Login', component: () => import('./pages/login-user.vue') },
         //{ path: 'register-company', name: 'RegisterCompany', component: () => import('./components/registerCompany.vue') },
