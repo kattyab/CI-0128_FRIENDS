@@ -34,6 +34,10 @@
                 <strong>Tipo de Contrato</strong>
                 <div class="highlight-box">{{ employee.contractType }}</div>
               </div>
+              <div class="mb-3">
+                <strong>Puesto de Trabajo</strong>
+                <div class="highlight-box">{{ employee.jobPosition }}</div>
+              </div>
               <div>
                 <strong>Teléfonos</strong>
                 <div class="highlight-box">{{ employee.phoneNumbers }}</div>
