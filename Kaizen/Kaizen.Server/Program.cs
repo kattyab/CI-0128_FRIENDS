@@ -4,6 +4,8 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
+builder.Services.AddScoped<CompaniesRepository>();
+builder.Services.AddScoped<NotificationsRepository>();
 builder.Services.AddScoped<CommonHomepageRepository>();
 
 builder.Services.AddCors(options =>
