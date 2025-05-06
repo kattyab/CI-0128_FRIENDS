@@ -2,3 +2,9 @@ body {
   font-family: "DM Sans", sans-serif;
   color: #003C63;
 }
+
+* {
+  /*background-color: #f8f9fa;*/ /* Footer */
+  /*background-color: #ffffff;*/
+  /*background-color: #f8f9fa;*/
+}
