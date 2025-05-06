@@ -24,73 +24,76 @@
         <div class="col-md-6">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold">Datos Contractuales</h5>
-            <button class="btn custom-btn-blue" @click="toggleEditContractual">
-              Editar
-            </button>
-          </div>
-          <div class="p-3 border rounded shadow-sm custom-box">
-            <p>
-              <strong>Salario:</strong>
-              <div class="highlight-box">{{ employee.salary }}</div>
-            </p>
-            <p>
-              <strong>Tipo de Contrato:</strong>
-              <div class="highlight-box">{{ employee.contractType }}</div>
-            </p>
-            <p>
-              <strong>Estado:</strong>
-              <div class="highlight-box">{{ employee.status }}</div>
-            </p>
-            <p>
-              <strong>Periodicidad:</strong>
-              <div class="highlight-box">{{ employee.payCycle }}</div>
-            </p>
-            <p>
-              <strong>Puesto:</strong>
-              <div class="highlight-box">{{ employee.jobPosition }}</div>
-            </p>
-            <p>
-              <strong>Rol:</strong>
-              <div class="highlight-box">{{ employee.role }}</div>
-            </p>
-          </div>
-        </div>
+            <!-- Not sprint related -->
+            <!--
+              <button class="btn custom-btn-blue" @click="toggleEditContractual">
+                Editar
+              </button>
+            -->
+            </div>
+              <div class="p-3 border shadow-sm custom-box">
+                <p>
+                  <strong>Salario:</strong>
+                  <div class="highlight-box">{{ employee.salary }}</div>
+                </p>
+                <p>
+                  <strong>Tipo de Contrato:</strong>
+                  <div class="highlight-box">{{ employee.contractType }}</div>
+                </p>
+                <p>
+                  <strong>Estado:</strong>
+                  <div class="highlight-box">{{ employee.status }}</div>
+                </p>
+                <p>
+                  <strong>Periodicidad:</strong>
+                  <div class="highlight-box">{{ employee.payCycle }}</div>
+                </p>
+                <p>
+                  <strong>Puesto:</strong>
+                  <div class="highlight-box">{{ employee.jobPosition }}</div>
+                </p>
+                <p>
+                  <strong>Rol:</strong>
+                  <div class="highlight-box">{{ employee.role }}</div>
+                </p>
+              </div>
+            </div>
 
-        <!-- Right Column: Datos Personales -->
-        <div class="col-md-6">
-          <h5 class="text-justify mb-3 fw-bold">Datos Personales</h5>
-          <div class="p-3 border rounded shadow-sm custom-box">
-            <p>
-              <strong>Beneficios:</strong>
-              <div class="highlight-box">{{ employee.benefits }}</div>
-            </p>
-            <p>
-              <strong>Fecha de Contratación:</strong>
-              <div class="highlight-box">{{ employee.startDate }}</div>
-            </p>
-            <p>
-              <strong>Teléfonos:</strong>
-              <div class="highlight-box">{{ employee.phoneNumbers }}</div>
-            </p>
-            <p>
-              <strong>Correo:</strong>
-              <div class="highlight-box">{{ employee.email }}</div>
-            </p>
-            <p>
-              <strong>Provincia:</strong>
-              <div class="highlight-box">{{ employee.province }}</div>
-            </p>
-            <p>
-              <strong>Cantón:</strong>
-              <div class="highlight-box">{{ employee.canton }}</div>
-            </p>
-            <p>
-              <strong>Otras señas:</strong>
-              <div class="highlight-box">{{ employee.otherSigns }}</div>
-            </p>
+  <!-- Right Column: Datos Personales -->
+            <div class="col-md-6">
+              <h5 class="text-justify mb-3 fw-bold">Datos Personales</h5>
+              <div class="p-3 border shadow-sm custom-box">
+                <p>
+                  <strong>Beneficios:</strong>
+                  <div class="highlight-box">{{ employee.benefits }}</div>
+                </p>
+                <p>
+                  <strong>Fecha de Contratación:</strong>
+                  <div class="highlight-box">{{ employee.startDate }}</div>
+                </p>
+                <p>
+                  <strong>Teléfonos:</strong>
+                  <div class="highlight-box">{{ employee.phoneNumbers }}</div>
+                </p>
+                <p>
+                  <strong>Correo:</strong>
+                  <div class="highlight-box">{{ employee.email }}</div>
+                </p>
+                <p>
+                  <strong>Provincia:</strong>
+                  <div class="highlight-box">{{ employee.province }}</div>
+                </p>
+                <p>
+                  <strong>Cantón:</strong>
+                  <div class="highlight-box">{{ employee.canton }}</div>
+                </p>
+                <p>
+                  <strong>Otras señas:</strong>
+                  <div class="highlight-box">{{ employee.otherSigns }}</div>
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -99,59 +102,59 @@
   import { ref, onMounted } from 'vue';
   import axios from 'axios';
 
-  const email = "juan.perez@example.com"; // Empleado
-  //const email = "miguel.torres@example.com"; //Supervisor
+  //const email = "juan.perez@example.com"; // Empleado
+  const email = "miguel.torres@example.com"; //Supervisor
   //const email = "ana.lopez@example.com"; // Administrador
 
   const isLoading = ref(true);
   const isEditingContractual = ref(false);
   const notFound = ref(false);
-
   const employee = ref(null);
 
-  function fetchEmployeeData() {
+  async function fetchEmployeeData() {
     isLoading.value = true;
-    axios.get(`https://localhost:7153/api/EmployeeDetails/${email}`)
-      .then(response => {
-        const data = response.data;
-        if (data) {
-          employee.value = {
-            id: data.id,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            salary: `${data.grossSalary.toLocaleString()}₡`,
-            contractType: data.contractType,
-            status: data.status,
-            payCycle: data.payCycle,
-            jobPosition: data.jobPosition,
-            role: data.role,
-            benefits: Array.isArray(data.benefits) && data.benefits.length > 0
-              ? data.benefits.join(', ')
-              : 'N/A',
-            startDate: new Date(data.startDate).toLocaleDateString('es-CR', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
-            }),
-            phoneNumbers: data.phoneNumbers.join(', '),
-            email: data.email,
-            province: data.province,
-            canton: data.canton,
-            otherSigns: data.otherSigns
-          };
-        } else {
-          console.warn('No data received from API.');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching employee data:', error);
-        notFound.value = true;
-      })
-      .finally(() => {
-        isLoading.value = false;
-      });
-  }
+    notFound.value = false;
 
+    try {
+      const response = await axios.get(`/api/EmployeeDetails/${email}`);
+      const data = response.data;
+
+      if (data) {
+        employee.value = {
+          id: data.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          salary: `${data.grossSalary.toLocaleString()}₡`,
+          contractType: data.contractType,
+          status: data.status,
+          payCycle: data.payCycle,
+          jobPosition: data.jobPosition,
+          role: data.role,
+          benefits: Array.isArray(data.benefits) && data.benefits.length > 0
+            ? data.benefits.join(', ')
+            : 'N/A',
+          startDate: new Date(data.startDate).toLocaleDateString('es-CR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          }),
+          phoneNumbers: data.phoneNumbers.join(', '),
+          email: data.email,
+          province: data.province,
+          canton: data.canton,
+          otherSigns: data.otherSigns
+        };
+      } else {
+        console.warn('No data received from API.');
+        notFound.value = true;
+      }
+    } catch (error) {
+      console.error('Error fetching employee data:', error);
+      notFound.value = true;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   function toggleEditContractual() {
     isEditingContractual.value = !isEditingContractual.value;
@@ -195,7 +198,7 @@
     background-color: #f2f2f2;
     border: 1px solid #d1d5db;
     padding: 5px;
-    border-radius: 4px;
+    border-radius: 10px;
     word-break: break-word;
   }
 
@@ -207,6 +210,7 @@
 
   .custom-box {
     border-color: #d1d5db;
+    border-radius: 10px;
   }
 
     .custom-box h5,
