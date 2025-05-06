@@ -19,6 +19,8 @@ const router = createRouter({
         },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true } },
         { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
+
+        { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] }},
       ]
     },
     {
