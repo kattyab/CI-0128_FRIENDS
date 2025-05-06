@@ -3,6 +3,7 @@ using Kaizen.Server.Repository;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<Login>();
+builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
 
 builder.Services.AddCors(options =>
@@ -51,6 +52,7 @@ app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
