@@ -11,13 +11,9 @@
           <form @submit.prevent="submitForm">
             <div class="mb-3">
               <label for="benefitName" class="form-label">Nombre beneficio</label>
-              <input type="text"
-                     class="form-control input-type"
-                     id="benefitName"
-                     v-model="formData.benefitName"
-                     :class="{ 'is-invalid': validationErrors.benefitName }"
-                     placeholder="Ingrese el nombre del beneficio"
-                     required>
+              <input type="text" class="form-control input-type" id="benefitName"
+                     v-model="formData.benefitName" :class="{ 'is-invalid': validationErrors.benefitName }"
+                     placeholder="Ingrese el nombre del beneficio" required>
               <div class="invalid-feedback" v-if="validationErrors.benefitName">
                 {{ validationErrors.benefitName }}
               </div>
@@ -25,56 +21,50 @@
 
             <div class="mb-3">
               <label for="minimumTime" class="form-label">Tiempo mínimo (meses)</label>
-              <input type="number"
-                     class="form-control input-type"
-                     id="minimumTime"
-                     v-model.number="formData.minimumTime"
-                     :class="{ 'is-invalid': validationErrors.minimumTime }"
-                     placeholder="Ingrese el tiempo mínimo para ser elegible"
-                     min="0"
+              <input type="number" class="form-control input-type" id="minimumTime"
+                     v-model.number="formData.minimumTime" :class="{ 'is-invalid': validationErrors.minimumTime }"
+                     placeholder="Ingrese el tiempo mínimo para ser elegible" min="0"
                      required>
               <div class="invalid-feedback" v-if="validationErrors.minimumTime">
                 {{ validationErrors.minimumTime }}
               </div>
             </div>
 
-            <div class="mb-3 col-10">
-              <label class="form-label">Elegibles</label>
-              <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       id="empleado"
-                       v-model="formData.elegibles.empleado">
-                <label class="form-check-label" for="empleado">Empleado</label>
+            <div class="mb-3">
+              <label class="form-label d-block">Elegibles</label>
+              <div class="d-flex justify-content-between elegibles-container">
+                <div class="form-check elegible-item">
+                  <input class="form-check-input"type="checkbox"id="fullTime"
+                         v-model="formData.elegibles.fullTime">
+                  <label class="form-check-label ms-2" for="fullTime">Tiempo Completo</label>
+                </div>
+                <div class="form-check elegible-item">
+                  <input class="form-check-input" type="checkbox" id="partTime"
+                         v-model="formData.elegibles.partTime">
+                  <label class="form-check-label ms-2" for="partTime">Medio Tiempo</label>
+                </div>
+                <div class="form-check elegible-item">
+                  <input class="form-check-input" type="checkbox" id="byHours"
+                         v-model="formData.elegibles.byHours">
+                  <label class="form-check-label ms-2" for="byHours">Por Horas</label>
+                </div>
+                <div class="form-check elegible-item">
+                  <input class="form-check-input" type="checkbox" id="byServices"
+                         v-model="formData.elegibles.byServices">
+                  <label class="form-check-label ms-2" for="byServices">Por Servicios</label>
+                </div>
               </div>
-              <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       id="admin"
-                       v-model="formData.elegibles.admin">
-                <label class="form-check-label" for="admin">Administrador</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       id="supervisor"
-                       v-model="formData.elegibles.supervisor">
-                <label class="form-check-label" for="supervisor">Supervisor</label>
-              </div>
-              <div class="text-danger small" v-if="validationErrors.elegibles">
+              <div class="text-danger small mt-1" v-if="validationErrors.elegibles">
                 {{ validationErrors.elegibles }}
               </div>
             </div>
 
             <div class="mb-3">
               <label for="benefitType" class="form-label">Tipo de beneficio</label>
-              <select class="form-select input-type"
-                      id="benefitType"
-                      v-model="formData.benefitType"
-                      :class="{ 'is-invalid': validationErrors.benefitType }"
-                      required>
+              <select class="form-select input-type" id="benefitType" v-model="formData.benefitType"
+                      :class="{ 'is-invalid': validationErrors.benefitType }" required>
                 <option value="" disabled>Seleccione un tipo</option>
-                <option value="fixedAmmount">Monto fijo</option>
+                <option value="fixedAmount">Monto fijo</option>
                 <option value="percentage">Porcentaje</option>
                 <option value="api">API</option>
               </select>
@@ -83,20 +73,15 @@
               </div>
             </div>
 
-            <div v-if="formData.benefitType === 'fixedAmmount'" class="mb-3">
-              <label for="fixedAmmount" class="form-label">Monto fijo</label>
+            <div v-if="formData.benefitType === 'fixedAmount'" class="mb-3">
+              <label for="fixedAmount" class="form-label">Monto fijo</label>
               <div class="input-group">
                 <span class="input-group-text input-type">₡</span>
-                <input type="number"
-                       class="form-control input-type"
-                       id="fixedAmmount"
-                       v-model.number="formData.fixedAmmount"
-                       :class="{ 'is-invalid': validationErrors.fixedAmmount }"
-                       min="0"
-                       placeholder="XXXXXX"
-                       required>
-                <div class="invalid-feedback" v-if="validationErrors.fixedAmmount">
-                  {{ validationErrors.fixedAmmount }}
+                <input type="number" class="form-control input-type" id="fixedAmount"
+                       v-model.number="formData.fixedAmount" :class="{ 'is-invalid': validationErrors.fixedAmount }"
+                       min="0" placeholder="XXXXXX" required>
+                <div class="invalid-feedback" v-if="validationErrors.fixedAmount">
+                  {{ validationErrors.fixedAmount }}
                 </div>
               </div>
             </div>
@@ -104,16 +89,9 @@
             <div v-if="formData.benefitType === 'percentage'" class="mb-3">
               <label for="percentage" class="form-label">Porcentaje</label>
               <div class="input-group">
-                <input type="number"
-                       class="form-control input-type"
-                       id="percentage"
-                       v-model.number="formData.percentage"
-                       :class="{ 'is-invalid': validationErrors.percentage }"
-                       step="0.01"
-                       min="0"
-                       max="100"
-                       placeholder="XXX"
-                       required>
+                <input type="number" class="form-control input-type" id="percentage"
+                       v-model.number="formData.percentage" :class="{ 'is-invalid': validationErrors.percentage }"
+                       step="0.01" min="0" max="100" placeholder="XXX" required>
                 <span class="input-group-text input-type">%</span>
                 <div class="invalid-feedback" v-if="validationErrors.percentage">
                   {{ validationErrors.percentage }}
@@ -123,24 +101,18 @@
 
             <div v-if="formData.benefitType === 'api'">
               <label for="apiUrl" class="form-label">URL de API</label>
-              <input type="url"
-                     class="form-control input-type mb-3"
-                     id="apiUrl"
-                     v-model="formData.apiUrl"
-                     :class="{ 'is-invalid': validationErrors.apiUrl }"
-                     placeholder="Ingrese un enlace válido"
-                     required>
+              <input type="url" class="form-control input-type mb-3"
+                     id="apiUrl" v-model="formData.apiUrl" :class="{ 'is-invalid': validationErrors.apiUrl }"
+                     placeholder="Ingrese un enlace válido" required>
               <div class="invalid-feedback" v-if="validationErrors.apiUrl">
                 {{ validationErrors.apiUrl }}
               </div>
 
               <div>
                 <label for="parameterQuantity" class="form-label mt-3">Cantidad de parámetros</label>
-                <select class="form-select input-type mb-3"
-                        id="parameterQuantity"
+                <select class="form-select input-type mb-3" id="parameterQuantity"
                         v-model.number="formData.parameterQuantity"
-                        :class="{ 'is-invalid': validationErrors.parameterQuantity }"
-                        required>
+                        :class="{ 'is-invalid': validationErrors.parameterQuantity }" required>
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
@@ -153,161 +125,207 @@
 
             <div class="d-flex justify-content-center pt-3 pb-3">
               <button type="button" class="btn btn-secondary btn-lg btn-block me-2" @click="resetForm">Cancelar</button>
-              <button type="submit" class="btn btn-primary btn-lg btn-block">Guardar</button>
+              <button type="submit" class="btn btn-primary btn-lg btn-block" @click="saveBenefit">Guardar</button>
             </div>
           </form>
         </div>
         <div class="col-1"></div>
       </div>
     </div>
-
-
-    <!--<div class="mt-4" v-if="showPreview">
-      <div class="card">
-        <div class="card-header bg-info text-white">
-          <h5 class="mb-0">Vista previa de datos</h5>
-        </div>
-        <div class="card-body">
-          <pre>{{ formData }}</pre>
-        </div>
-      </div>
-    </div>-->
   </div>
 
 </template>
 
 <script>
-import { ref, reactive, computed } from 'vue';
+  import { ref, reactive, onMounted } from 'vue';
+  import axios from 'axios';
 
-export default {
-  name: 'CrearBeneficios',
-  setup() {
-    const formData = reactive({
-      benefitName: '',
-      minimumTime: 0,
-      elegibles: {
-        empleado: false,
-        admin: false,
-        supervisor: false
-      },
-      benefitType: '',
-      fixedAmmount: null,
-      percentage: null,
-      apiUrl: '',
-      parameterQuantity: 1
-    });
+  export default {
+    name: 'BenefitCreation',
 
-    const validationErrors = reactive({});
-    const showPreview = ref(true);
-    const validateForm = () => {
-      const errors = {};
-
-      if (!formData.benefitName.trim()) {
-        errors.benefitName = 'El nombre del beneficio es requerido';
-      }
-
-      if (formData.minimumTime === null || formData.minimumTime < 0) {
-        errors.minimumTime = 'El tiempo mínimo debe ser un número positivo';
-      }
-
-      if (!formData.elegibles.empleado && !formData.elegibles.admin && !formData.elegibles.supervisor) {
-        errors.elegibles = 'Debe seleccionar al menos una opción';
-      }
-
-      if (!formData.benefitType) {
-        errors.benefitType = 'Debe seleccionar un tipo de beneficio';
-      }
-
-      if (formData.benefitType === 'fixedAmmount') {
-        if (formData.fixedAmmount === null || formData.fixedAmmount < 0) {
-          errors.fixedAmmount = 'El monto debe ser un número positivo';
-        }
-      } else if (formData.benefitType === 'percentage') {
-        if (formData.percentage === null || formData.percentage < 0 || formData.percentage > 100) {
-          errors.percentage = 'El porcentaje debe estar entre 0 y 100';
-        }
-      } else if (formData.benefitType === 'api') {
-        const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-        if (!formData.apiUrl || !urlPattern.test(formData.apiUrl)) {
-          errors.apiUrl = 'Debe ingresar una URL válida';
-        }
-
-        if (![1, 2, 3].includes(formData.parameterQuantity)) {
-          errors.parameterQuantity = 'Debe seleccionar una cantidad válida de parámetros';
-        }
-      }
-
-      Object.keys(validationErrors).forEach(key => {
-        delete validationErrors[key];
+    setup() {
+      const formData = reactive({
+        benefitName: '',
+        minimumTime: 0,
+        elegibles: {
+          fullTime: false,
+          partTime: false,
+          byHours: false,
+          byServices: false,
+        },
+        benefitType: '',
+        fixedAmount: null,
+        percentage: null,
+        apiUrl: '',
+        parameterQuantity: 1
       });
 
-      Object.keys(errors).forEach(key => {
-        validationErrors[key] = errors[key];
+      const validationErrors = reactive({});
+      const isSubmitting = ref(false);
+      const userData = ref(null);
+      const showPreview = ref(false);
+
+      onMounted(() => {
+        axios.get('/api/login/authenticate', { withCredentials: true })
+          .then(response => {
+            userData.value = response.data;
+          })
+          .catch(error => {
+            console.error('Authentication error:', error);
+          });
       });
 
-      return Object.keys(errors).length === 0;
-    };
+      const validateForm = () => {
+        const errors = {};
 
+        if (!formData.benefitName.trim()) {
+          errors.benefitName = 'El nombre del beneficio es requerido';
+        }
 
-    const submitForm = () => {
-      if (validateForm()) {
+        if (formData.minimumTime === null || formData.minimumTime < 0) {
+          errors.minimumTime = 'El tiempo mínimo debe ser un número positivo';
+        }
 
-        const submitData = {
-          benefitName: formData.benefitName,
-          minimumTime: formData.minimumTime,
-          elegibles: Object.keys(formData.elegibles).filter(key => formData.elegibles[key]),
-          benefitType: formData.benefitType,
-        };
+        if (!formData.elegibles.fullTime && !formData.elegibles.partTime &&
+          !formData.elegibles.byHours && !formData.elegibles.byServices) {
+          errors.elegibles = 'Debe seleccionar al menos una opción';
+        }
 
-        if (formData.benefitType === 'fixedAmmount') {
-          submitData.valor = formData.fixedAmmount;
+        if (!formData.benefitType) {
+          errors.benefitType = 'Debe seleccionar un tipo de beneficio';
+        }
+
+        if (formData.benefitType === 'fixedAmount') {
+          if (formData.fixedAmount === null || formData.fixedAmount < 0) {
+            errors.fixedAmount = 'El monto debe ser un número positivo';
+          }
         } else if (formData.benefitType === 'percentage') {
-          submitData.valor = formData.percentage;
+          if (formData.percentage === null || formData.percentage < 0 || formData.percentage > 100) {
+            errors.percentage = 'El porcentaje debe estar entre 0 y 100';
+          }
         } else if (formData.benefitType === 'api') {
-          submitData.apiUrl = formData.apiUrl;
-          submitData.parameterQuantity = formData.parameterQuantity;
+          const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+          if (!formData.apiUrl || !urlPattern.test(formData.apiUrl)) {
+            errors.apiUrl = 'Debe ingresar una URL válida';
+          }
+          if (![1, 2, 3].includes(formData.parameterQuantity)) {
+            errors.parameterQuantity = 'Debe seleccionar una cantidad válida de parámetros';
+          }
         }
 
-        // Backend logic
-        console.log('Successfully registered benefit');
-        alert('Beneficio guardado correctamente'); // This is not an alert
-        resetForm();
-      } else {
-        console.log('Invalid form');
-      }
-    };
+        Object.keys(validationErrors).forEach(key => {
+          delete validationErrors[key];
+        });
 
-    const resetForm = () => {
-      formData.benefitName = '';
-      formData.minimumTime = 0;
-      formData.elegibles.empleado = false;
-      formData.elegibles.admin = false;
-      formData.elegibles.supervisor = false;
-      formData.benefitType = '';
-      formData.fixedAmmount = null;
-      formData.percentage = null;
-      formData.apiUrl = '';
-      formData.parameterQuantity = 1;
+        Object.keys(errors).forEach(key => {
+          validationErrors[key] = errors[key];
+        });
 
-      Object.keys(validationErrors).forEach(key => {
-        delete validationErrors[key];
-      });
-    };
+        return Object.keys(errors).length === 0;
+      };
 
-    return {
-      formData,
-      validationErrors,
-      showPreview,
-      submitForm,
-      resetForm
-    };
-  }
-};
+      const submitForm = async () => {
+        await saveBenefit();
+      };
+
+      const saveBenefit = async () => {
+        if (!validateForm()) {
+          return;
+        }
+
+        if (!userData.value || !userData.value.email) {
+          console.error('User data not available');
+          return;
+        }
+
+        isSubmitting.value = true;
+
+        try {
+          const benefitData = {
+            name: formData.benefitName,
+            minWorkDurationMonths: formData.minimumTime,
+            adminEmail: userData.value.email,
+            adminRole: userData.value.role,
+            isFullTime: formData.elegibles.fullTime,
+            isPartTime: formData.elegibles.partTime,
+            isByHours: formData.elegibles.byHours,
+            isByService: formData.elegibles.byServices,
+            isFixed: formData.benefitType === 'fixedAmount',
+            fixedValue: formData.benefitType === 'fixedAmount' ? formData.fixedAmount : null,
+            isPercentage: formData.benefitType === 'percentage',
+            percentageValue: formData.benefitType === 'percentage' ? formData.percentage : null,
+            isAPI: formData.benefitType === 'api',
+            apiPath: formData.benefitType === 'api' ? formData.apiUrl : null,
+            numParameters: formData.benefitType === 'api' ? formData.parameterQuantity : null
+          };
+
+          console.log('Benefit data being sent:', benefitData);
+          console.log(userData);
+          const response = await axios.post('https://localhost:7153/api/BenefitCreation/benefitCreation', {
+            name: formData.benefitName,
+            minWorkDurationMonths: formData.minimumTime,
+            adminEmail: userData.value.email,
+            adminRole: userData.value.role,
+            isFullTime: formData.elegibles.fullTime,
+            isPartTime: formData.elegibles.partTime,
+            isByHours: formData.elegibles.byHours,
+            isByService: formData.elegibles.byServices,
+            isFixed: formData.benefitType === 'fixedAmount',
+            fixedValue: formData.benefitType === 'fixedAmount' ? formData.fixedAmount : null,
+            isPercentage: formData.benefitType === 'percentage',
+            percentageValue: formData.benefitType === 'percentage' ? formData.percentage : null,
+            isAPI: formData.benefitType === 'api',
+            apiPath: formData.benefitType === 'api' ? formData.apiUrl : null,
+            numParameters: formData.benefitType === 'api' ? formData.parameterQuantity : null
+          });
+
+          if (response.status === 200 || response.status === 201) {
+            console.log("Successfully registered benefit");
+          } else {
+            console.log("Couldn't register benefit");
+          }
+          resetForm();
+        } catch (error) {
+          console.error('Error creating benefit:', error);
+        } finally {
+          isSubmitting.value = false;
+        }
+      };
+
+      // Reset form to initial state
+      const resetForm = () => {
+        formData.benefitName = '';
+        formData.minimumTime = 0;
+        formData.elegibles.fullTime = false;
+        formData.elegibles.partTime = false;
+        formData.elegibles.byHours = false;
+        formData.elegibles.byServices = false;
+        formData.benefitType = '';
+        formData.fixedAmount = null;
+        formData.percentage = null;
+        formData.apiUrl = '';
+        formData.parameterQuantity = 1;
+
+        // Clear all validation errors
+        Object.keys(validationErrors).forEach(key => {
+          delete validationErrors[key];
+        });
+      };
+
+      return {
+        formData,
+        validationErrors,
+        isSubmitting,
+        showPreview,
+        submitForm,
+        resetForm
+      };
+    }
+  };
 </script>
 
 <style scoped>
   .page {
-
     margin-top: 1rem;
     margin-bottom: 1rem;
     background: white; /*eliminate when done*/
@@ -320,7 +338,7 @@ export default {
   }
 
   .mb-3 {
-      padding-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
   }
 
   .input-type {
@@ -329,8 +347,8 @@ export default {
     background-color: #f2f2f2;
     border: 1px solid #f2f2f2;
     transition: box-shadow 0.2s ease;
-    
   }
+
   ::placeholder {
     color: #6c757d !important;
   }
@@ -339,14 +357,29 @@ export default {
     color: #000 !important;
   }
 
-    .input-type:focus {
-      outline: none;
-      border-color: #aaa;
-      box-shadow: 0 0 0 2px rgba(0, 60, 99, 0.15);
-    }
+  .input-type:focus {
+    outline: none;
+    border-color: #aaa;
+    box-shadow: 0 0 0 2px rgba(0, 60, 99, 0.15);
+  }
 
-  .form-check {
-    margin-bottom: 0.25rem;
+  .elegibles-container {
+    width: 100%;
+    padding: 0.5rem 0;
+  }
+
+  .elegible-item {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  .form-check-input {
+    margin-top: 0;
+  }
+
+  .form-check-label {
+    margin-left: 0.5rem;
   }
 
   .form-check-input:focus {
