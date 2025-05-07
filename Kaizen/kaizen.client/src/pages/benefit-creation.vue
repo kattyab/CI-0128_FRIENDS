@@ -1,5 +1,4 @@
 <template>
-
   <div class="page container-fluid mt-4">
     <div>
       <h1>Crear Beneficios</h1>
@@ -34,7 +33,7 @@
               <label class="form-label d-block">Elegibles</label>
               <div class="d-flex justify-content-between elegibles-container">
                 <div class="form-check elegible-item">
-                  <input class="form-check-input"type="checkbox"id="fullTime"
+                  <input class="form-check-input" type="checkbox" id="fullTime"
                          v-model="formData.elegibles.fullTime">
                   <label class="form-check-label ms-2" for="fullTime">Tiempo Completo</label>
                 </div>
@@ -122,10 +121,21 @@
                 </div>
               </div>
             </div>
-
             <div class="d-flex justify-content-center pt-3 pb-3">
               <button type="button" class="btn btn-secondary btn-lg btn-block me-2" @click="resetForm">Cancelar</button>
-              <button type="submit" class="btn btn-primary btn-lg btn-block" @click="saveBenefit">Guardar</button>
+              <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isSubmitting">
+                Guardar
+              </button>
+            </div>
+            <div class="row">
+              <div class="col-10">
+                <div v-if="showFormError" class="form-error-message alert alert-danger mt-3 mb-3">
+                  {{ formErrorMessage }}
+                </div>
+                <div v-if="showSuccessMessage" class="success-message alert alert-success mt-3 mb-3">
+                  {{ successMessage }}
+                </div>
+              </div>
             </div>
           </form>
         </div>
@@ -133,7 +143,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -165,51 +174,76 @@
       const userData = ref(null);
       const showPreview = ref(false);
 
+      const showFormError = ref(false);
+      const formErrorMessage = ref('');
+      const showSuccessMessage = ref(false);
+      const successMessage = ref('');
+
       onMounted(() => {
         axios.get('/api/login/authenticate', { withCredentials: true })
           .then(response => {
             userData.value = response.data;
           })
           .catch(error => {
-            console.error('Authentication error:', error);
+            console.error('Error de autenticación:', error);
+            showError('No se pudo autenticar el usuario. Por favor, inicie sesión nuevamente.');
           });
       });
 
+      const showError = (message) => {
+        formErrorMessage.value = message;
+        showFormError.value = true;
+      };
+
+      const showSuccess = (message) => {
+        successMessage.value = message;
+        showSuccessMessage.value = true;
+      };
+
       const validateForm = () => {
         const errors = {};
+        let hasErrors = false;
 
         if (!formData.benefitName.trim()) {
           errors.benefitName = 'El nombre del beneficio es requerido';
+          hasErrors = true;
         }
 
         if (formData.minimumTime === null || formData.minimumTime < 0) {
           errors.minimumTime = 'El tiempo mínimo debe ser un número positivo';
+          hasErrors = true;
         }
 
         if (!formData.elegibles.fullTime && !formData.elegibles.partTime &&
           !formData.elegibles.byHours && !formData.elegibles.byServices) {
           errors.elegibles = 'Debe seleccionar al menos una opción';
+          hasErrors = true;
         }
 
         if (!formData.benefitType) {
           errors.benefitType = 'Debe seleccionar un tipo de beneficio';
+          hasErrors = true;
         }
 
         if (formData.benefitType === 'fixedAmount') {
           if (formData.fixedAmount === null || formData.fixedAmount < 0) {
             errors.fixedAmount = 'El monto debe ser un número positivo';
+            hasErrors = true;
           }
         } else if (formData.benefitType === 'percentage') {
           if (formData.percentage === null || formData.percentage < 0 || formData.percentage > 100) {
             errors.percentage = 'El porcentaje debe estar entre 0 y 100';
+            hasErrors = true;
           }
         } else if (formData.benefitType === 'api') {
           const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
           if (!formData.apiUrl || !urlPattern.test(formData.apiUrl)) {
             errors.apiUrl = 'Debe ingresar una URL válida';
+            hasErrors = true;
           }
           if (![1, 2, 3].includes(formData.parameterQuantity)) {
             errors.parameterQuantity = 'Debe seleccionar una cantidad válida de parámetros';
+            hasErrors = true;
           }
         }
 
@@ -221,7 +255,11 @@
           validationErrors[key] = errors[key];
         });
 
-        return Object.keys(errors).length === 0;
+        if (hasErrors) {
+          showError('Por favor corrija los errores en el formulario antes de continuar.');
+        }
+
+        return !hasErrors;
       };
 
       const submitForm = async () => {
@@ -234,11 +272,13 @@
         }
 
         if (!userData.value || !userData.value.email) {
-          console.error('User data not available');
+          showError('Datos de usuario no disponibles. Por favor, inicie sesión nuevamente.');
           return;
         }
 
         isSubmitting.value = true;
+
+        showFormError.value = false;
 
         try {
           const benefitData = {
@@ -259,34 +299,32 @@
             numParameters: formData.benefitType === 'api' ? formData.parameterQuantity : null
           };
 
-          console.log('Benefit data being sent:', benefitData);
-          console.log(userData);
-          const response = await axios.post('https://localhost:7153/api/BenefitCreation/benefitCreation', {
-            name: formData.benefitName,
-            minWorkDurationMonths: formData.minimumTime,
-            adminEmail: userData.value.email,
-            adminRole: userData.value.role,
-            isFullTime: formData.elegibles.fullTime,
-            isPartTime: formData.elegibles.partTime,
-            isByHours: formData.elegibles.byHours,
-            isByService: formData.elegibles.byServices,
-            isFixed: formData.benefitType === 'fixedAmount',
-            fixedValue: formData.benefitType === 'fixedAmount' ? formData.fixedAmount : null,
-            isPercentage: formData.benefitType === 'percentage',
-            percentageValue: formData.benefitType === 'percentage' ? formData.percentage : null,
-            isAPI: formData.benefitType === 'api',
-            apiPath: formData.benefitType === 'api' ? formData.apiUrl : null,
-            numParameters: formData.benefitType === 'api' ? formData.parameterQuantity : null
-          });
+          const response = await axios.post('https://localhost:7153/api/BenefitCreation/benefitCreation', benefitData);
 
           if (response.status === 200 || response.status === 201) {
-            console.log("Successfully registered benefit");
+            showSuccess('Beneficio registrado exitosamente.');
+            resetForm();
           } else {
-            console.log("Couldn't register benefit");
+            showError('No se pudo registrar el beneficio. Por favor, intente nuevamente.');
           }
-          resetForm();
         } catch (error) {
           console.error('Error creating benefit:', error);
+
+          if (error.response) {
+            if (error.response.status === 400) {
+              showError('Datos inválidos. Por favor verifique la información ingresada.');
+            } else if (error.response.status === 401 || error.response.status === 403) {
+              showError('No tiene permisos para realizar esta acción.');
+            } else if (error.response.status === 409) {
+              showError('Ya existe un beneficio con este nombre.');
+            } else if (error.response.status === 500) {
+              showError('Error en el servidor. Por favor, intente más tarde.');
+            } else {
+              showError(`Error: ${error.response.data.message || 'No se pudo completar la operación'}`);
+            }
+          } else {
+            showError('Error de conexión. Por favor, verifique su conexión a internet.');
+          }
         } finally {
           isSubmitting.value = false;
         }
@@ -318,7 +356,11 @@
         isSubmitting,
         showPreview,
         submitForm,
-        resetForm
+        resetForm,
+        showFormError,
+        formErrorMessage,
+        showSuccessMessage,
+        successMessage
       };
     }
   };
@@ -328,7 +370,6 @@
   .page {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    background: white; /*eliminate when done*/
   }
 
   h1 {
@@ -399,4 +440,9 @@
     border-color: #6c757d;
     font-weight: bold;
   }
+
+  .form-error-message, .success-message{
+    border-radius: 10px;
+  }
+
 </style>
