@@ -189,6 +189,7 @@
 </style>
 
 <style lang="scss">
+
   body {
     background: var(--light);
   }
@@ -200,4 +201,5 @@
     outline: none;
     background: none;
   }
+  
 </style>
