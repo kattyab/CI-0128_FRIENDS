@@ -39,8 +39,8 @@ namespace Kaizen.Server.Repository
                         INSERT INTO Users (UserPK, Email, PasswordHash, Active, Role, PersonPK)
                         VALUES (@UserPK, @Email, @PasswordHash, @Active, @Role, @PersonPK);
 
-                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
-                        VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @Distrito, @OtherSigns);
+                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, District, OtherSigns)
+                        VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
                         ";
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn, transaction);
@@ -77,7 +77,7 @@ namespace Kaizen.Server.Repository
                     cmd.Parameters.AddWithValue("@PO", (object?)company.PO ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@Province", company.Province);
                     cmd.Parameters.AddWithValue("@Canton", company.Canton);
-                    cmd.Parameters.AddWithValue("@Distrito", company.Distrito);
+                    cmd.Parameters.AddWithValue("@District", company.District);
                     cmd.Parameters.AddWithValue("@OtherSigns", company.OtherSigns);
 
                     await cmd.ExecuteNonQueryAsync();
