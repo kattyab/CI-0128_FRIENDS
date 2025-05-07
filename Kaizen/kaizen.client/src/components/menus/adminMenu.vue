@@ -24,7 +24,7 @@
     </router-link>
   -->
 
-    <h3>Administrador</h3>
+    <h3>Menu</h3>
     <div class="menu">
       <router-link class="button" to="/landing-page">
         <span class="material-icons">home</span>
@@ -41,6 +41,14 @@
       <router-link class="button" to="/registeremployee">
         <span class="material-icons">person_add</span>
         <span class="text">Agregar Empleados</span>
+      </router-link>
+      <router-link class="button" to="/registerbenefits">
+        <span class="material-icons">workspace_premium</span>
+        <span class="text">Registrar Beneficios</span>
+      </router-link>
+      <router-link class="button" to="/registerbenefits">
+        <span class="material-icons">star</span>
+        <span class="text">Agregar Beneficios</span>
       </router-link>
     </div>
   </aside>
