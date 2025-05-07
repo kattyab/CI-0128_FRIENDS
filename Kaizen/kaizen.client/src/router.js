@@ -13,13 +13,11 @@ const router = createRouter({
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/unauthorized.vue'), meta: { public: true } },
         // { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Superadmin'] } } role restriction example
-        { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true }},
-        {
-          path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./pages/register-employee.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] },  
-        },
+        { path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./pages/register-employee.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true } },
         { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
-        { path: 'employees', name: 'Employees Index', component: () => import('./pages/employees/index.vue'), meta: { requiresAuth: true } },
+        { path: 'employees', name: 'Employees Index', component: () => import('./pages/employees/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
+        { path: 'employees/:id', name: 'EmployeeDetails', component: () => import('./pages/employees/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
         { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] }},
       ]
     },
@@ -28,7 +26,7 @@ const router = createRouter({
       component: () => import('./layouts/auth.vue'),
       children: [
         { path: '', name: 'Login', component: () => import('./pages/login-user.vue') },
-        //{ path: 'register-company', name: 'RegisterCompany', component: () => import('./components/registerCompany.vue') },
+        // { path: 'register-company', name: 'RegisterCompany', component: () => import('./components/registerCompany.vue') },
       ],
       meta: { public: true }
     }
@@ -55,6 +53,5 @@ router.beforeEach(async (to, from, next) => {
     next('/login');
   }
 });
-
 
 export default router
