@@ -12,6 +12,7 @@ builder.Services.AddScoped<CommonHomepageRepository>();
 builder.Services.AddScoped<CompaniesListRepository>();
 builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
+builder.Services.AddScoped<CompanyDetailsRepository>();
 
 builder.Services.AddCors(options =>
 {
