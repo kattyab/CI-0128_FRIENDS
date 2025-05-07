@@ -110,7 +110,6 @@ async function fetchData() {
         withCredentials: true,
       })
       .then((response) => {
-        console.log("Data fetched successfully:", response.data);
         data.value = response.data;
       })
       .catch((error) => {
