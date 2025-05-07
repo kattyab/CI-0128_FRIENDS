@@ -1,13 +1,14 @@
 <template>
-  <aside :class="`${is_expanded && 'is_expanded'}`">
+  <aside :class="{ is_expanded: is_expanded }" class="d-flex flex-column p-3">
     <div class="menu-toggle-wrap">
       <button class="menu-toggle" @click="ToggleMenu">
         <span class="material-icons">menu</span>
       </button>
     </div>
 
-    <h3>Menu</h3>
-    <div class="menu">
+    <h5>Menu</h5>
+
+    <div class="menu d-flex flex-column">
       <router-link class="button" to="/landing-page">
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
@@ -25,85 +26,94 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+
+  import { ref, onMounted, onBeforeUnmount } from 'vue'
 
   const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
 
   const ToggleMenu = () => {
-    is_expanded.value = !is_expanded.value
-    localStorage.setItem("is_expanded", is_expanded.value)
+    if (window.innerWidth > 768) {
+      is_expanded.value = !is_expanded.value
+      localStorage.setItem("is_expanded", is_expanded.value)
+    }
   }
+
+  const handleResize = () => {
+    if (window.innerWidth <= 768) {
+      is_expanded.value = false
+      localStorage.setItem("is_expanded", is_expanded.value)
+    }
+  }
+
+  onMounted(() => {
+    window.addEventListener('resize', handleResize)
+    handleResize()
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize)
+  })
 </script>
 
 <style lang="scss" scoped>
+  .material-icons {
+    font-size: 2rem;
+    color: #003c63;
+    transition: 0.2s ease-out;
+  }
+
   aside {
-    display: flex;
-    flex-direction: column;
-    width: calc(2rem + 32px);
-    min-height: 100vh;
+    width: 4rem;
+    height: 100%;
     overflow: hidden;
-    padding: 1rem;
     background-color: #f4f6f8;
     color: var(--light);
 
     .menu-toggle-wrap {
-      display: flex;
-      margin-bottom: 1rem;
-      position: relative;
-      top: 0;
+      margin-left: -0.35rem;
 
       .menu-toggle {
-        transition: 0.2s ease-out;
-        margin-left: -0.3rem;
-
         .material-icons {
-          font-size: 2rem;
-          color: #003c63;
           transition: 0.2s ease-out;
         }
 
         &:hover .material-icons {
-          color: #003c63;
           transform: translateX(0.5rem);
         }
       }
     }
 
-    h3, .button .text {
+    h5,
+    .button .text {
       opacity: 0;
     }
 
-    h3 {
+    h5 {
       color: #003c63;
-      font-size: 0.875rem;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
+      margin: 0.5rem 0;
     }
 
     .menu {
       margin: 0 -1rem;
+      padding: 0 0 0 1rem;
 
       .button {
+        height: 3rem;
         display: flex;
         align-items: center;
         text-decoration: none;
-        padding: 0.5rem 1rem;
 
-        .material-icons {
-          font-size: 2rem;
+        .material-icons,
+        .text {
           color: #003c63;
-          margin-right: 0rem;
         }
 
         .text {
-          color: #003c63;
-          padding: 0.5rem;
+          margin: 0.75rem;
         }
 
         &.hover,
         &.router-link-exact-active {
-          background-color: var(--light-alt);
-
           .material-icons,
           .text {
             color: #5AB779;
@@ -119,36 +129,10 @@
     &.is_expanded {
       width: var(--sidebar-width);
 
-      .menu-toggle-wrap .menu-toggle {
-        transform: rotate(180deg);
-      }
-
-      h3, .button .text {
+      h5,
+      .button .text {
         opacity: 1;
       }
-
-      .button .material-icons {
-        margin-right: 0rem;
-      }
     }
-
-    @media (max-width: 768px) {
-      position: fixed;
-      z-index: 99;
-    }
-  }
-</style>
-
-<style lang="scss">
-  body {
-    background: var(--light);
-  }
-
-  button {
-    cursor: pointer;
-    appearance: none;
-    border: none;
-    outline: none;
-    background: none;
   }
 </style>
