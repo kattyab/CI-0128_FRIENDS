@@ -34,6 +34,10 @@
         <span class="material-icons">work_history</span>
         <span class="text">Registro de Horas</span>
       </router-link>
+      <router-link class="button" to="/registerbenefits">
+        <span class="material-icons">workspace_premium</span>
+        <span class="text">Registrar Beneficios</span>
+      </router-link>
     </div>
   </aside>
 </template>

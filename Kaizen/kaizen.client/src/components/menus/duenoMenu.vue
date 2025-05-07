@@ -24,7 +24,7 @@
     </router-link>
   -->
 
-    <h3>Propietario</h3>
+    <h3>Menu</h3>
     <div class="menu">
       <!-- landing y company se unen eventualmente -->
       <router-link class="button" to="/landing-page">
@@ -44,6 +44,10 @@
       <router-link class="button" to="/registeremployee">
         <span class="material-icons">person_add</span>
         <span class="text">Agregar Empleados</span>
+      </router-link>
+      <router-link class="button" to="/registerbenefits">
+        <span class="material-icons">star</span>
+        <span class="text">Agregar Beneficios</span>
       </router-link>
     </div>
     </aside>
