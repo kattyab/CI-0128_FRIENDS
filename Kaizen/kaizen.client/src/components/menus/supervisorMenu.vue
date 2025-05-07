@@ -30,9 +30,13 @@
         <span class="material-icons">home</span>
         <span class="text">Home</span>
       </router-link>
-      <router-link class="button" to="/about">
+      <router-link class="button" to="/companies">
+        <span class="material-icons">apartment</span>
+        <span class="text">Companies</span>
+      </router-link>
+      <router-link class="button" to="/employees">
         <span class="material-icons">group</span>
-        <span class="text">Empleados</span>
+        <span class="text">Employees</span>
       </router-link>
       <router-link class="button" to="/login">
         <span class="material-icons">account_circle</span>
@@ -185,22 +189,6 @@
 </style>
 
 <style lang="scss">
-  :root {
-    --primary: #4ade80;
-    --primary-alt: #22c55e;
-    --grey: #64748b;
-    --dark: #1e293b;
-    --dark-alt: #334155;
-    --light: #f1f5f9;
-    --sidebar-width: 300px;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'DM Sans', sans-serif;
-  }
 
   body {
     background: var(--light);
@@ -213,18 +201,5 @@
     outline: none;
     background: none;
   }
-
-  .app {
-    display: flex;
-
-
-    main {
-      flex: 1 1 0;
-      padding: 2rem;
-
-      @media (max-width: 1024px) {
-        padding-left: 6rem;
-      }
-    }
-  }
+  
 </style>
