@@ -30,7 +30,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label d-block">Elegibles</label>
+              <label class="form-label d-block">Contratos elegibles</label>
               <div class="d-flex justify-content-between elegibles-container">
                 <div class="form-check elegible-item">
                   <input class="form-check-input" type="checkbox" id="fullTime"
@@ -78,7 +78,7 @@
                 <span class="input-group-text input-type">₡</span>
                 <input type="number" class="form-control input-type" id="fixedAmount"
                        v-model.number="formData.fixedAmount" :class="{ 'is-invalid': validationErrors.fixedAmount }"
-                       min="0" placeholder="XXXXXX" required>
+                       min="0" placeholder="25000" required>
                 <div class="invalid-feedback" v-if="validationErrors.fixedAmount">
                   {{ validationErrors.fixedAmount }}
                 </div>
@@ -90,7 +90,7 @@
               <div class="input-group">
                 <input type="number" class="form-control input-type" id="percentage"
                        v-model.number="formData.percentage" :class="{ 'is-invalid': validationErrors.percentage }"
-                       step="0.01" min="0" max="100" placeholder="XXX" required>
+                       step="0.01" min="0" max="100" placeholder="100" required>
                 <span class="input-group-text input-type">%</span>
                 <div class="invalid-feedback" v-if="validationErrors.percentage">
                   {{ validationErrors.percentage }}
@@ -102,7 +102,7 @@
               <label for="apiUrl" class="form-label">URL de API</label>
               <input type="url" class="form-control input-type mb-3"
                      id="apiUrl" v-model="formData.apiUrl" :class="{ 'is-invalid': validationErrors.apiUrl }"
-                     placeholder="Ingrese un enlace válido" required>
+                     placeholder="http://example.com" required>
               <div class="invalid-feedback" v-if="validationErrors.apiUrl">
                 {{ validationErrors.apiUrl }}
               </div>
@@ -128,7 +128,8 @@
               </button>
             </div>
             <div class="row">
-              <div class="col-10">
+              <div class="col-4"></div>
+              <div class="col-4">
                 <div v-if="showFormError" class="form-error-message alert alert-danger mt-3 mb-3">
                   {{ formErrorMessage }}
                 </div>
@@ -136,6 +137,7 @@
                   {{ successMessage }}
                 </div>
               </div>
+              <div class="col-4"></div>
             </div>
           </form>
         </div>
@@ -441,6 +443,7 @@
 
   .form-error-message, .success-message{
     border-radius: 10px;
+    text-align: center;
   }
 
 </style>
