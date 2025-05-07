@@ -2,10 +2,10 @@
 {
     public class BenefitCreationDto
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
         public int MinWorkDurationMonths { get; set; }
-        public string AdminEmail { get; set; }
-        public string AdminRole { get; set; }
+        public required string AdminEmail { get; set; }
+        public required string AdminRole { get; set; }
         public bool IsFullTime { get; set; }
         public bool IsPartTime { get; set; }
         public bool IsByHours { get; set; }
