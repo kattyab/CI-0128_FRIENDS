@@ -26,21 +26,13 @@
 
     <h3>Super Administrador</h3>
     <div class="menu">
-      <router-link class="button" to="/">
+      <router-link class="button" to="/landing-page">
         <span class="material-icons">home</span>
-        <span class="text">Home</span>
-      </router-link>
-      <router-link class="button" to="/companies">
-        <span class="material-icons">apartment</span>
-        <span class="text">Companies</span>
+        <span class="text">Inicio</span>
       </router-link>
       <router-link class="button" to="/employees">
         <span class="material-icons">group</span>
-        <span class="text">Employees</span>
-      </router-link>
-      <router-link class="button" to="/login">
-        <span class="material-icons">account_circle</span>
-        <span class="text">Login</span>
+        <span class="text">Empleados</span>
       </router-link>
       <router-link class="button" to="/companieslist">
         <span class="material-icons">corporate_fare</span>
