@@ -93,8 +93,8 @@
   .sidebar {
     width: 250px;
     min-width: 250px;
-    border-right: 1px solid #dee2e6;
     transition: transform 0.3s ease, background-color 0.3s ease;
+    height: 100vh; 
   }
 
     .sidebar.sidebar-open {
@@ -104,6 +104,7 @@
   .main-content {
     display: flex;
     flex-grow: 1;
+    min-height: 100vh;
   }
 
   .content-area {
