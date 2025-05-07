@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">Company Details</h1>
+    <h1 class="text-center">{{ data?.companyName || 'N/A' }}</h1>
     <form>
       <div class="mb-3">
         <label for="company_id" class="form-label">Company ID</label>
