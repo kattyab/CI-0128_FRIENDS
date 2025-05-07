@@ -66,9 +66,8 @@
     overflow: hidden;
     padding: 1rem;
     min-height: 100vh;
-    background-color: var(--light);
+    background-color: #f4f6f8;
     color: var(--light);
-    transition: 0.2s ease-out;
 
     .logo {
       margin-bottom: 1rem;
@@ -80,24 +79,24 @@
 
     .menu-toggle-wrap {
       display: flex;
-
       margin-bottom: 1rem;
       position: relative;
       top: 0;
-      transition: 0.2s ease-out;
+
 
       .menu-toggle {
         transition: 0.2s ease-out;
+        margin-left: -0.3rem;
 
         .material-icons {
           font-size: 2rem;
-          color: #5C5F62;
+          color: #003c63;
           transition: 0.2s ease-out;
         }
 
         &:hover {
           .material-icons {
-            color: #5AB779;
+            color: #003c63;
             transform: translateX(0.5rem)
           }
         }
@@ -107,11 +106,10 @@
 
     h3, .button .text {
       opacity: 0;
-      transition: 0.3s ease-out;
     }
 
     h3 {
-      color: #5C5F62;
+      color: #003c63;
       font-size: 0.875rem;
       margin-bottom: 0.5rem;
       text-transform: uppercase;
@@ -125,18 +123,16 @@
         align-items: center;
         text-decoration: none;
         padding: 0.5rem 1rem;
-        transition: 0.2s ease-out;
+
 
         .material-icons {
           font-size: 2rem;
-          color: #5C5F62;
-          transition: 0.2s ease-out;
-          margin-right: 1rem;
+          color: #003c63;
+          margin-right: 0rem;
         }
 
         .text {
-          color: #5C5F62;
-          transition: 0.2s ease-out;
+          color: #003c63;
           padding: 0.5rem;
         }
 
@@ -159,9 +155,7 @@
 
       .menu-toggle-wrap {
 
-
         .menu-toggle {
-          transform: rotate(180deg);
         }
       }
 
@@ -171,7 +165,7 @@
 
       .button {
         .material-icons {
-          margin-right: 1rem;
+          margin-right: 0rem;
         }
       }
     }
@@ -188,6 +182,7 @@
 
   body {
     background: var(--light);
+
   }
 
   button {

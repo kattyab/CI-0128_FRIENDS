@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer mt-auto py-3 bg-white">
+  <footer class="footer mt-auto" style="background-color: #003c63; color: white; padding: 30px 0;">
     <div class="container">
       <div class="text-center fw-bold fs-2">
         <span>F.R.I.E.N.D.S®</span>
@@ -23,6 +23,7 @@
 
 <style scoped>
   .footer {
+    margin-top: auto;
     border-top: 1px solid #dee2e6;
   }
 </style>
