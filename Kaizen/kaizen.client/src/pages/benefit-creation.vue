@@ -330,7 +330,6 @@
         }
       };
 
-      // Reset form to initial state
       const resetForm = () => {
         formData.benefitName = '';
         formData.minimumTime = 0;
@@ -344,7 +343,6 @@
         formData.apiUrl = '';
         formData.parameterQuantity = 1;
 
-        // Clear all validation errors
         Object.keys(validationErrors).forEach(key => {
           delete validationErrors[key];
         });
