@@ -6,7 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: import('./layouts/main.vue'),
+      component: () => import('./layouts/main.vue'),
       children: [
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
@@ -19,11 +19,13 @@ const router = createRouter({
         },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true } },
         { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
+        { path: 'employees', name: 'Employees Index', component: () => import('./pages/employees/index.vue'), meta: { requiresAuth: true } },
+        { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] }},
       ]
     },
     {
       path: '/login',
-      component: import('./layouts/auth.vue'),
+      component: () => import('./layouts/auth.vue'),
       children: [
         { path: '', name: 'Login', component: () => import('./pages/login-user.vue') },
         { path: 'register-company', name: 'RegisterCompany', component: () => import('./pages/registerCompany.vue') },
