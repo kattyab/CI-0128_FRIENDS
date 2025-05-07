@@ -18,9 +18,10 @@ const router = createRouter({
           path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./pages/register-employee.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] },  
         },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true } },
-          { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
-          { path: 'employeedetails', name: 'EmployeeDetails', component: () => import('./pages/employeeDetails.vue')/*, meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] }*/ },
-          { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
+        { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
+        { path: 'employees', name: 'Employees Index', component: () => import('./pages/employees/index.vue'), meta: { requiresAuth: true } },
+        { path: 'employees/:id', name: 'EmployeeDetails', component: () => import('./pages/employees/show.vue')/*, meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] }*/ },
+        { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] }},
       ]
     },
     {

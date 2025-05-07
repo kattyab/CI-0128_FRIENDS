@@ -8,19 +8,18 @@ namespace Kaizen.Server.Controllers
     [ApiController]
     public class EmployeeDetailsController : ControllerBase
     {
-        private readonly Repository.EmployeeDetailsRepository _employeeHandler;
+        private readonly EmployeeDetailsRepository _employeeHandler;
 
-        public EmployeeDetailsController(Repository.EmployeeDetailsRepository employeeHandler)
+        public EmployeeDetailsController(EmployeeDetailsRepository employeeHandler)
         {
             _employeeHandler = employeeHandler;
         }
-
-        [HttpGet("{email}")]
+        [HttpGet("by-id/{empId:guid}")]
         [ProducesResponseType(typeof(EmployeeDetailsDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetEmployeeInfo(string email)
+        public async Task<IActionResult> GetEmployeeById(Guid empId)
         {
-            var employee = _employeeHandler.ObtainEmployeeData(email);
+            var employee = await _employeeHandler.ObtainEmployeeDataById(empId);
             if (employee == null)
             {
                 return NotFound(new { message = "Empleado no encontrado." });
