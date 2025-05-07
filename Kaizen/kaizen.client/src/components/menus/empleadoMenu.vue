@@ -26,17 +26,13 @@
 
     <h3>Menu</h3>
     <div class="menu">
-      <router-link class="button" to="/">
+      <router-link class="button" to="/landing-page">
         <span class="material-icons">home</span>
-        <span class="text">Home</span>
+        <span class="text">Inicio</span>
       </router-link>
-      <router-link class="button" to="/about">
-        <span class="material-icons">group</span>
-        <span class="text">Team</span>
-      </router-link>
-      <router-link class="button" to="/login">
-        <span class="material-icons">account_circle</span>
-        <span class="text">Login</span>
+      <router-link class="button" to="/registerhours">
+        <span class="material-icons">work_history</span>
+        <span class="text">Registro de Horas</span>
       </router-link>
     </div>
   </aside>
@@ -45,14 +41,13 @@
 <script setup>
   import { ref } from 'vue'
 
-  const is_expanded = ref(localStorage.getItem("is_expanded")=== "true")
+  const is_expanded = ref(localStorage.getItem("is_expanded") === "true");
 
   const ToggleMenu = () => {
     is_expanded.value = !is_expanded.value
 
     localStorage.setItem("is_expanded", is_expanded.value)
   }
-
 </script>
 
 

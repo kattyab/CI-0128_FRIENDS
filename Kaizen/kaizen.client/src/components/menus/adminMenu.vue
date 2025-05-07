@@ -26,7 +26,7 @@
 
     <h3>Administrador</h3>
     <div class="menu">
-      <router-link class="button" to="/landingpage">
+      <router-link class="button" to="/landing-page">
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
       </router-link>
@@ -34,7 +34,7 @@
         <span class="material-icons">apartment</span>
         <span class="text">Empresa</span>
       </router-link>
-      <router-link class="button" to="/employees">
+      <router-link class="button" to="/companyemployees">
         <span class="material-icons">group</span>
         <span class="text">Empleados</span>
       </router-link>
