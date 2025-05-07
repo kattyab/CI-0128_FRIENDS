@@ -342,7 +342,7 @@ export default {
         po: "",
         province: this.province,
         canton: this.canton,
-        distrito: this.district,
+        district: this.district,
         otherSigns: this.additionalSigns,
 
         owner: {
