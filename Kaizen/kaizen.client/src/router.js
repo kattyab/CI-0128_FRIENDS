@@ -19,8 +19,8 @@ const router = createRouter({
         { path: 'employees/:id', name: 'EmployeeDetails', component: () => import('./pages/employees/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
         { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companieslist/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
-        { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true } },
+        { path: 'registerbenefits', name: 'Benefit Creation', component: () => import('./pages/benefit-creation.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
       ]
     },
     {
