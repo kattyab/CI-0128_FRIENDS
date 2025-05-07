@@ -26,21 +26,13 @@
 
     <h3>Supervisor</h3>
     <div class="menu">
-      <router-link class="button" to="/">
+      <router-link class="button" to="/landing-page">
         <span class="material-icons">home</span>
-        <span class="text">Home</span>
+        <span class="text">Inicio</span>
       </router-link>
-      <router-link class="button" to="/companies">
-        <span class="material-icons">apartment</span>
-        <span class="text">Companies</span>
-      </router-link>
-      <router-link class="button" to="/employees">
-        <span class="material-icons">group</span>
-        <span class="text">Employees</span>
-      </router-link>
-      <router-link class="button" to="/login">
+      <router-link class="button" to="/review-hours">
         <span class="material-icons">account_circle</span>
-        <span class="text">Login</span>
+        <span class="text">Revisar Horas</span>
       </router-link>
     </div>
   </aside>
