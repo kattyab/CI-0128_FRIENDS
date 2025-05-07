@@ -18,3 +18,7 @@ CREATE TABLE Companies (
     OtherSigns NVARCHAR(MAX), 
     FOREIGN KEY (OwnerPK) REFERENCES Persons(PersonPK)
 );
+
+CREATE INDEX IDX_Companies_OwnerPK ON Companies(OwnerPK);
+CREATE INDEX IDX_Companies_CompanyID ON Companies(CompanyID);
+CREATE INDEX IDX_Companies_Type ON Companies(Type);
