@@ -10,9 +10,12 @@
         <div>
           <img src="@/assets/images/azul.png" alt="Kaizen Logo" class="app-logo" />
         </div>
+
+        <!--
         <div>
           <img src="https://place-hold.it/200x50&text=Company" alt="Kaizen Logo" class="company-logo" />
         </div>
+        -->
 
         <button class="navbar-toggler"
                 type="button"

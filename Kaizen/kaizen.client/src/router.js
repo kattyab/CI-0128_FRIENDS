@@ -20,7 +20,9 @@ const router = createRouter({
         { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companieslist/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true } },
-        { path: 'registerbenefits', name: 'Benefit Creation', component: () => import('./pages/benefit-creation.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'addbenefits', name: 'Benefit Creation', component: () => import('./pages/benefit-creation.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'companyemployees', name: 'Companies Employees', component: () => import('./pages/employees/ByCompanyIndex.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'company', name: 'Company', component: () => import('./pages/Company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
       ]
     },
     {

@@ -9,12 +9,8 @@
   <h5>Menu</h5>
   <div class="menu d-flex flex-column">
       <router-link class="button" to="/landing-page">
-        <span class="material-icons">home</span>
-        <span class="text">Inicio</span>
-      </router-link>
-      <router-link class="button" to="/company">
         <span class="material-icons">apartment</span>
-        <span class="text">Empresa</span>
+        <span class="text">Inicio</span>
       </router-link>
       <router-link class="button" to="/companyemployees">
         <span class="material-icons">group</span>
