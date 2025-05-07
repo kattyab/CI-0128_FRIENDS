@@ -1,9 +1,3 @@
--- 9
-CREATE TABLE SuperAdmins (
-    SuperAdminPK UNIQUEIDENTIFIER PRIMARY KEY,
-    FOREIGN KEY (SuperAdminPK) REFERENCES Persons(PersonPK)
-);
-
 -- 10
 CREATE TABLE Supervises (
     SupervisorID UNIQUEIDENTIFIER NOT NULL,
