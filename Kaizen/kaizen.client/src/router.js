@@ -10,9 +10,8 @@ const router = createRouter({
       children: [
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
-        { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
+        { path: 'landingpage', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/unauthorized.vue'), meta: { public: true } },
-        // { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Superadmin'] } } role restriction example
         { path: 'registeremployee', name: 'RegisterEmployee', component: () => import('./pages/register-employee.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true } },
