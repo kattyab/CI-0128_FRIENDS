@@ -38,20 +38,15 @@ SELECT DISTINCT
     c.OtherSigns,
     c.Logo
 FROM Companies c
--- Join with owner person to get OwnerName regardless of current user
 INNER JOIN Persons po ON c.OwnerPK = po.PersonPK
 
--- Join to get the current user
 INNER JOIN Users u ON u.Email = @Email
 INNER JOIN Persons pu ON u.PersonPK = pu.PersonPK
 
--- Owner path
 LEFT JOIN Companies co ON c.CompanyPK = co.CompanyPK AND c.OwnerPK = pu.PersonPK
 
--- Admin path
 LEFT JOIN Admins a ON a.AdminPK = pu.PersonPK AND a.CompanyPK = c.CompanyPK
 
--- Only return companies where the user is either the Owner or an Admin
 WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL;
 ", connection);
 
