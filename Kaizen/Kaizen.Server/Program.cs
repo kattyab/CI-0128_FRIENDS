@@ -7,7 +7,7 @@ builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
 builder.Services.AddScoped<RegisterCompanyRepository>();
 builder.Services.AddScoped<NotificationsRepository>();
-builder.Services.AddScoped<EmployeesRepository>()
+builder.Services.AddScoped<EmployeesRepository>();
 builder.Services.AddScoped<CommonHomepageRepository>();
 builder.Services.AddScoped<CompaniesListRepository>();
 
