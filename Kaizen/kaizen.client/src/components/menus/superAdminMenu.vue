@@ -193,6 +193,7 @@
 </style>
 
 <style lang="scss">
+
   body {
     background: var(--light);
   }

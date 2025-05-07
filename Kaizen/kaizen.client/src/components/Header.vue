@@ -1,34 +1,35 @@
 <template>
   <header>
-    <nav class="navbar navbar-expand-md bg-body-secondary">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-          <img src="@/assets/images/logo.png" alt="Kaizen Logo" class="app-logo" />
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarCollapse"
-          aria-controls="navbarCollapse"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
+    <nav class="navbar navbar-expand-md bg-white">
+      <div class="container-fluid d-flex align-items-center">
+        <button class="btn hamburger-btn d-md-none me-2"
+                @click="$emit('toggle-sidebar')">
+          ☰
         </button>
+
+        <div>
+          <img src="@/assets/images/logo.png" alt="Kaizen Logo" class="app-logo" />
+        </div>
+        <div>
+          <img src="https://place-hold.it/200x50&text=Company" alt="Kaizen Logo" class="company-logo" />
+        </div>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+          ▾
+        </button>
+
         <div class="collapse navbar-collapse" id="navbarCollapse">
-          <a class="navbar-brand" href="#">
-            <img
-              src="https://place-hold.it/200x50&text=Company"
-              alt="Kaizen Logo"
-              class="company-logo"
-            />
-          </a>
           <ul class="navbar-nav mb-2 mb-md-0 ms-auto">
             <li class="nav-item">
               <div class="nav-link">
                 <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
-                  <Bell class="icon"></Bell>
+                  <Bell class="icon" />
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li v-for="notification in notifications" :key="notification.id">
@@ -40,7 +41,7 @@
             <li class="nav-item">
               <div class="nav-link">
                 <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
-                  <Gear class="icon"></Gear>
+                  <Gear class="icon" />
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><button class="dropdown-item" type="button">Setting #1</button></li>
@@ -52,11 +53,11 @@
             <li class="nav-item">
               <div class="nav-link">
                 <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
-                  <User class="icon"></User>
+                  <User class="icon" />
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><button class="dropdown-item" type="button">Información de usuario</button></li>
-                  <li><button class="dropdown-item" type="button">Cerrar sesión</button></li>
+                  <li><button class="dropdown-item" type="button" @click="logout">Cerrar sesión</button></li>
                 </ul>
               </div>
             </li>
@@ -68,65 +69,83 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+  import { ref, onMounted } from "vue";
+  import { useLogout } from '@/composables/useLogout';
 
-const notifications = ref(null);
+  const { logout } = useLogout();
 
-async function fetchData() {
-  try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/todos");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const notifications = ref(null);
+
+  async function fetchData() {
+    try {
+      const response = await fetch("https://jsonplaceholder.typicode.com/todos");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      let data = await response.json();
+      data = data.slice(0, 5);
+      notifications.value = data.map((item) => ({
+        id: item.id,
+        title: item.title,
+      }));
+    } catch (e) {
+      console.log(e);
     }
-    let data = await response.json();
-    data = data.slice(0, 5); // Limit to 5 items
-    notifications.value = data.map((item) => ({
-      id: item.id,
-      title: item.title,
-    }));
-    console.log(notifications.value);
-  } catch (e) {
-    console.log(e);
   }
-}
 
-onMounted(fetchData);
+  onMounted(fetchData);
 </script>
 
 <script>
-import Bell from "@/assets/icons/bell.vue";
-import Gear from "@/assets/icons/gear.vue";
-import User from "@/assets/icons/user.vue";
-export default {
-  components: {
-    Bell,
-    Gear,
-    User,
-  },
-  methods: {},
-};
+  import Bell from "@/assets/icons/bell.vue";
+  import Gear from "@/assets/icons/gear.vue";
+  import User from "@/assets/icons/user.vue";
+  export default {
+    components: {
+      Bell,
+      Gear,
+      User,
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-.app-logo {
-  max-height: 54px;
-}
-.company-logo {
-  max-height: 44px;
-}
-.user-logo {
-  max-height: 54px;
-}
-.icon {
-  height: 28px;
-}
-
-.navbar .navbar-nav {
-  align-items: start;
-}
-@media (min-width: 768px) {
-  .navbar .navbar-nav {
-    align-items: center;
+  .app-logo {
+    max-height: 54px;
   }
-}
+
+  .company-logo {
+    max-height: 44px;
+  }
+
+  .user-logo {
+    max-height: 54px;
+  }
+
+  .icon {
+    height: 28px;
+  }
+
+  .navbar {
+    background-color: white !important;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .navbar .navbar-nav {
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .navbar .navbar-nav {
+      align-items: center;
+    }
+  }
+
+  .hamburger-btn {
+    font-size: 0.1rem;
+  }
+
+  nav .container-fluid > div {
+    margin-right: 15px;
+  }
 </style>
