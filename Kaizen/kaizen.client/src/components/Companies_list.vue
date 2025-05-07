@@ -30,7 +30,12 @@
             <td>{{ empresa.companyID }}</td>
             <td>{{ empresa.employeesCount }}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary">Acciones</button>
+              <router-link
+                :to="`/companieslist/${empresa.companyPK}`"
+                class="btn btn-sm btn-outline-primary"
+              >
+                Acciones
+              </router-link>
             </td>
           </tr>
         </tbody>
@@ -38,6 +43,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
   import axios from 'axios';
