@@ -30,9 +30,13 @@
         <span class="material-icons">home</span>
         <span class="text">Home</span>
       </router-link>
-      <router-link class="button" to="/about">
+      <router-link class="button" to="/companies">
+        <span class="material-icons">apartment</span>
+        <span class="text">Companies</span>
+      </router-link>
+      <router-link class="button" to="/employees">
         <span class="material-icons">group</span>
-        <span class="text">Empleados</span>
+        <span class="text">Employees</span>
       </router-link>
       <router-link class="button" to="/login">
         <span class="material-icons">account_circle</span>

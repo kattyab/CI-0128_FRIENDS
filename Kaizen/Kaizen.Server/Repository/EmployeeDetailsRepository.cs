@@ -1,123 +1,112 @@
-﻿using System.Data;
+﻿using Kaizen.Server.Models;
 using Microsoft.Data.SqlClient;
-using Kaizen.Server.Models;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Data;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Kaizen.Server.Repository
 {
     public class EmployeeDetailsRepository
     {
-        private readonly SqlConnection _connection;
-        private readonly string _connectionPath;
+        private readonly string _connectionString;
 
         public EmployeeDetailsRepository(IConfiguration configuration)
         {
-            _connectionPath = configuration.GetConnectionString("KaizenDb") ??
-              throw new ArgumentNullException(nameof(configuration), "Connection string 'KaizenDb' cannot be null.");
-            _connection = new SqlConnection(_connectionPath);
+            _connectionString = configuration.GetConnectionString("KaizenDb");
         }
 
-        public DataTable CreateConsultTable(string query, SqlParameter[]? parameters = null)
+        public async Task<EmployeeDetailsDto> ObtainEmployeeDataById(Guid empId)
         {
-            using var connection = new SqlConnection(_connection.ConnectionString);
-            using var command = new SqlCommand(query, connection);
-
-            if (parameters != null)
+            using (var connection = new SqlConnection(_connectionString))
+            using (var adapter = new SqlDataAdapter())
             {
-                command.Parameters.AddRange(parameters);
+                var query = @"
+                    SELECT 
+                        e.EmpID,
+                        p.Id,
+                        p.Name AS FirstName,
+                        p.LastName,
+                        p.Sex,
+                        p.BirthDate,
+                        p.Province,
+                        p.Canton,
+                        p.OtherSigns,
+                        e.JobPosition,
+                        e.ContractType,
+                        e.WorkHours,
+                        e.ExtraHours,
+                        e.StartDate,
+                        e.BankAccount,
+                        e.BruteSalary AS GrossSalary,
+                        e.PayCycleType AS PayCycle,
+                        u.Email,
+                        u.Role,
+                        u.Active AS Status,
+                        pp.Number AS PhoneNumber
+                    FROM 
+                        dbo.Employees e
+                        INNER JOIN dbo.Persons p ON e.PersonPK = p.PersonPK
+                        LEFT JOIN dbo.Users u ON p.PersonPK = u.PersonPK
+                        LEFT JOIN dbo.PersonPhoneNumbers pp ON p.PersonPK = pp.PersonPK
+                    WHERE 
+                        e.EmpID = @EmpID;";
+
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@EmpID", empId);
+                adapter.SelectCommand = command;
+
+                var table = new DataTable();
+
+                await connection.OpenAsync();
+                adapter.Fill(table);
+
+                if (table.Rows.Count == 0)
+                    return null;
+
+                return MapRowToDto(table);
+            }
+        }
+
+        private EmployeeDetailsDto MapRowToDto(DataTable table)
+        {
+            var row = table.Rows[0];
+            var phoneNumbers = new List<string>();
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                var phoneNumber = dataRow["PhoneNumber"].ToString();
+                if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    phoneNumbers.Add(phoneNumber);
+                }
             }
 
-            var dataAdapter = new SqlDataAdapter(command);
-            var resultTable = new DataTable();
-            dataAdapter.Fill(resultTable);
-            return resultTable;
-        }
-
-        public EmployeeDetailsDto? ObtainEmployeeData(string email)
-        {
-            var employeeDataTable = FetchEmployeeDataTable(email);
-
-            if (employeeDataTable.Rows.Count == 0)
-                return null;
-
-            var row = employeeDataTable.Rows[0];
-
-            var employeeData = new EmployeeDetailsDto
+            return new EmployeeDetailsDto
             {
-                Id = Convert.ToString(row["id"])!,
-                FirstName = Convert.ToString(row["first_name"])!,
-                LastName = Convert.ToString(row["last_name"])!,
-                Gender = Convert.ToString(row["gender"])!,
-                BirthDate = Convert.ToDateTime(row["birth_date"]),
-                GrossSalary = Convert.ToDecimal(row["gross_salary"]),
-                ContractType = Convert.ToString(row["contract_type"])!,
-                StartDate = Convert.ToDateTime(row["start_date"]),
-                PayCycle = Convert.ToString(row["pay_cycle"])!,
-                Status = Convert.ToBoolean(row["status"]) ? "Activo" : "Inactivo",
-                Email = Convert.ToString(row["email"])!,
-                Province = GetString(row, "province"),
-                Canton = GetString(row, "canton"),
-                OtherSigns = GetString(row, "other_signs"),
-                JobPosition = GetString(row, "job_position"),
-                Role = GetString(row, "role"),
-                PhoneNumbers = ExtractPhoneNumbers(employeeDataTable),
-                Benefits = ExtractBenefits(employeeDataTable)
+                EmpID = row["EmpID"].ToString(),
+                Id = row["Id"]?.ToString(),
+                FirstName = row["FirstName"].ToString(),
+                LastName = row["LastName"].ToString(),
+                Sex = row["Sex"].ToString(),
+                BirthDate = Convert.ToDateTime(row["BirthDate"]),
+                Province = row["Province"]?.ToString(),
+                Canton = row["Canton"]?.ToString(),
+                OtherSigns = row["OtherSigns"]?.ToString(),
+                JobPosition = row["JobPosition"]?.ToString(),
+                ContractType = row["ContractType"].ToString(),
+                WorkHours = row["WorkHours"] != DBNull.Value ? Convert.ToInt32(row["WorkHours"]) : (int?)null,
+                ExtraHours = row["ExtraHours"] != DBNull.Value ? Convert.ToInt32(row["ExtraHours"]) : (int?)null,
+                StartDate = Convert.ToDateTime(row["StartDate"]),
+                BankAccount = row["BankAccount"].ToString(),
+                GrossSalary = Convert.ToDecimal(row["GrossSalary"]),
+                PayCycle = row["PayCycle"]?.ToString(),
+                Email = row["Email"]?.ToString(),
+                Role = row["Role"]?.ToString(),
+                Status = row["Status"] != DBNull.Value && Convert.ToBoolean(row["Status"]),
+                PhoneNumbers = phoneNumbers
             };
-
-            return employeeData;
-        }
-
-        private DataTable FetchEmployeeDataTable(string email)
-        {
-            string query = @"SELECT 
-          p.Id AS id,
-          p.Name AS first_name,
-          p.LastName AS last_name,
-          p.Sex AS gender,
-          p.BirthDate AS birth_date,
-          p.Province AS province,
-          p.Canton AS canton,
-          p.OtherSigns AS other_signs,
-          ph.Number AS phone_number,
-          e.BruteSalary AS gross_salary,
-          e.ContractType AS contract_type,
-          e.StartDate AS start_date,
-          e.PayCycleType AS pay_cycle,
-          e.JobPosition AS job_position,
-          u.Role AS role,
-          u.Active AS status,
-          b.Name AS benefit,
-          u.Email AS email
-        FROM Persons p
-        INNER JOIN Users u ON u.PersonPK = p.PersonPK
-        LEFT JOIN Employees e ON e.PersonPK = p.PersonPK
-        LEFT JOIN PersonPhoneNumbers ph ON ph.PersonPK = p.PersonPK
-        LEFT JOIN ChosenBenefits cb ON cb.EmployeeID = e.EmpID
-        LEFT JOIN Benefits b ON b.ID = cb.BenefitID
-        WHERE u.Email = @Email;";
-
-            SqlParameter[] parameters = { new("@Email", email) };
-            return CreateConsultTable(query, parameters);
-        }
-
-        private static string? GetString(DataRow row, string column)
-        {
-            return row.IsNull(column) ? null : Convert.ToString(row[column]);
-        }
-
-        private static List<string> ExtractPhoneNumbers(DataTable table)
-        {
-            return [.. table.AsEnumerable()
-                  .Where(r => !r.IsNull("phone_number"))
-                  .Select(r => Convert.ToString(r["phone_number"])!)
-                  .Distinct()];
-        }
-
-        private static List<string> ExtractBenefits(DataTable table)
-        {
-            return [.. table.AsEnumerable()
-                  .Where(r => !r.IsNull("benefit"))
-                  .Select(r => Convert.ToString(r["benefit"])!)
-                  .Distinct()];
         }
     }
 }

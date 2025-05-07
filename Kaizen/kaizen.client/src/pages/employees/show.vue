@@ -130,7 +130,7 @@
           lastName: data.lastName,
           salary: `₡${data.grossSalary.toLocaleString()}`,
           contractType: data.contractType,
-          status: data.status,
+          status: data.status ? 'Activo' : 'Inactivo',
           payCycle: data.payCycle,
           jobPosition: data.jobPosition,
           role: data.role,
@@ -142,7 +142,7 @@
             month: '2-digit',
             year: 'numeric'
           }),
-          phoneNumbers: data.phoneNumbers.join(', '),
+          phoneNumbers: Array.isArray(data.phoneNumbers) ? data.phoneNumbers.join(', ') : 'N/A',
           email: data.email,
           province: data.province,
           canton: data.canton,

@@ -12,13 +12,4 @@ body {
   color: var(--primary-color);
   font-weight: 500;
 }
-.form-control {
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
 
-* {
-  /*background-color: #f8f9fa;*/ /* Footer */
-  /*background-color: #ffffff;*/
-  /*background-color: #f8f9fa;*/
-}
