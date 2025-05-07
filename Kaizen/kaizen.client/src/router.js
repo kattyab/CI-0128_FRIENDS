@@ -20,6 +20,7 @@ const router = createRouter({
         { path: 'employees/:id', name: 'EmployeeDetails', component: () => import('./pages/employees/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
         { path: 'companieslist', name: 'CompaniesList', component: () => import('./components/Companies_list.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] }},
         { path: 'registerbenefits', name: 'Benefit Creation', component: () => import('./pages/benefit-creation.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'company', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
       ]
     },
     {
