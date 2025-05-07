@@ -69,7 +69,7 @@
   <Header v-if="shouldRenderHeaderAndHamburger" />
 
   <div class="d-flex flex-column min-vh-100 layout-container">
-    <div class="d-flex flex-grow-1 main-content">
+    <div :class="['main-content', { 'sidebar-open': isSidebarOpen }]">
       <div v-if="showMenu" :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
         <component :is="CurrentMenu" />
       </div>
@@ -92,13 +92,13 @@
 
   .sidebar {
     width: 250px;
-    min-width: 250px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    height: 100vh; 
+    overflow: hidden;
+    transition: width 0.3s ease;
   }
 
     .sidebar.sidebar-open {
       background-color: #f8f9fa;
+      width: 0px;
     }
 
   .main-content {
@@ -107,27 +107,32 @@
     min-height: 100vh;
   }
 
+  .main-content.sidebar-open .content-area {
+    margin-left: 250px; /* Igual al ancho del sidebar */
+    transition: margin-left 0.3s ease;
+  }
+
   .content-area {
     flex-grow: 1;
     padding: 1rem;
-    overflow-y: auto;
   }
 
   @media (max-width: 768px) {
-    .sidebar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      transform: translateX(-100%);
-      z-index: 1050;
-      transition: transform 0.3s ease, background-color 0.3s ease;
+
+    .layout-container {
+      min-height: 100vh;
     }
 
-      .sidebar.sidebar-open {
-        transform: translateX(0);
-        background-color: #f8f9fa;
-      }
+    .sidebar {
+      width: 0;
+      overflow: hidden;
+      transition: width 0.3s ease;
+      background-color: #f8f9fa;
+    }
+
+.sidebar.sidebar-open {
+  width: 250px;
+}
 
     .overlay {
       position: fixed;
