@@ -92,7 +92,6 @@
           :value="data?.otherSigns"
         />
       </div>
-      <a class="btn btn-primary" :href="`/companies/${data?.companyPK}/edit`">Edit</a>
     </form>
   </div>
 </template>
