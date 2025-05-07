@@ -16,19 +16,30 @@ public class CompanyEmployeesRepository
 
         using var connection = new SqlConnection(_connectionString);
         using var command = new SqlCommand(@"
-            SELECT 
-                e.EmpID,
-                p.Name,
-                p.LastName,
-                p.Id,
-                e.JobPosition,
-                e.ContractType
-            FROM Employees e
-            INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
-            INNER JOIN Persons p ON e.PersonPK = p.PersonPK
-            INNER JOIN Persons owner ON c.OwnerPK = owner.PersonPK
-            INNER JOIN Users u ON u.PersonPK = owner.PersonPK
-            WHERE u.Email = @Email;", connection);
+    SELECT 
+    e.EmpID, 
+    p.Name, 
+    p.LastName, 
+    p.Id, 
+    e.JobPosition, 
+    e.ContractType 
+FROM 
+    Employees e
+INNER JOIN 
+    Companies c ON e.WorksFor = c.CompanyPK
+INNER JOIN 
+    Persons p ON e.PersonPK = p.PersonPK
+INNER JOIN 
+    Users u ON u.Email = @Email
+LEFT JOIN 
+    Persons owner ON c.OwnerPK = owner.PersonPK AND u.PersonPK = owner.PersonPK AND u.Role = 'Dueño'
+LEFT JOIN 
+    Admins a ON a.CompanyPK = c.CompanyPK AND a.AdminPK = u.PersonPK AND u.Role = 'Administrador'
+WHERE 
+    (
+        (u.Role = 'Dueño' AND c.OwnerPK = u.PersonPK) OR
+        (u.Role = 'Administrador' AND a.AdminPK IS NOT NULL)
+    );", connection);
 
         command.Parameters.AddWithValue("@Email", email);
 
