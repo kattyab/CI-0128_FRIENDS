@@ -62,9 +62,6 @@
 </script>
 
 <template>
-  <!--<button v-if="shouldRenderHeaderAndHamburger" @click="toggleSidebar">
-    ☰
-  </button>-->
 
   <Header v-if="shouldRenderHeaderAndHamburger" />
 
@@ -83,6 +80,3 @@
   </div>
 </template>
 
-<style scoped>
-  /* No sidebar-specific styles anymore */
-</style>
