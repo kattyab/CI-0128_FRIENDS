@@ -1,73 +1,9 @@
 <template>
-  <div class="container py-4">
-    <!-- Spinner -->
-    <div v-if="isLoading" class="text-center mt-5">
-      <div class="spinner-border text-primary mb-3" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="fw-bold">Cargando datos de empleado...</p>
+  <footer class="footer mt-auto py-3 bg-body-tertiary">
+    <div class="container">
+      <div class="text-body-secondary text-center">Footer content</div>
     </div>
-
-    <div v-else-if="notFound" class="alert alert-danger text-center">
-      Empleado no encontrado.
-    </div>
-
-    <div v-else>
-      <!-- Employee Name -->
-      <h1 class="text-center mb-4 mt-4 pt-4" style="color: #003c63;">
-        Bienvenido/a
-        {{ employee?.firstName }} {{ employee?.lastName }}
-      </h1>
-      <!-- Employee Data -->
-      <div class="row custom-gap">
-        <div class="col-md-12">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold">Datos Personales</h5>
-          </div>
-          <div class="p-3 border shadow-sm custom-box">
-            <div class="mb-3">
-              <strong>Rol</strong>
-              <div class="highlight-box">{{ employee.role }}</div>
-            </div>
-            <div>
-              <div class="mb-3">
-                <strong>Tipo de Contrato</strong>
-                <div class="highlight-box">{{ employee.contractType }}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Puesto de Trabajo</strong>
-                <div class="highlight-box">{{ employee.jobPosition }}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Teléfonos</strong>
-                <div class="highlight-box">{{ employee.phoneNumbers }}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Correo</strong>
-                <div class="highlight-box">{{ userData.email}}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Provincia</strong>
-                <div class="highlight-box">{{ employee.province }}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Cantón</strong>
-                <div class="highlight-box">{{ employee.canton }}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Otras señas</strong>
-                <div class="highlight-box">{{ employee.otherSigns ? employee.otherSigns : 'N/A' }}</div>
-              </div>
-              <div class="mb-3">
-                <strong>Salario bruto</strong>
-                <div class="highlight-box">{{ employee.salary }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </footer>
 </template>
 
 <script setup>
