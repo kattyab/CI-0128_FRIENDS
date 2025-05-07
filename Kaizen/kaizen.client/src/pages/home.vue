@@ -1,6 +1,6 @@
 <template>
   <header>
-    <nav class="navbar navbar-expand-md custom-bg">
+    <nav class="navbar navbar-expand-md">
       <div class="container-fluid d-flex justify-content-center">
         <div class="d-flex justify-content-between align-items-center w-70">
           <div class="navbar-brand">
@@ -27,7 +27,7 @@
     </nav>
   </header>
 
-  <div class="container py-5 custom-bg">
+  <div class="container py-5">
     <div class="row align-items-center mb-5">
       <div class="col-lg-6 text-center text-lg-start">
         <h1 class="display-4 fw-bold">Gestiona tu planilla con Kaizen</h1>
@@ -47,7 +47,7 @@
 
     <div class="row text-center g-4">
       <div v-for="feature in features" :key="feature.title" class="col-sm-6 col-lg-3">
-        <div class="card h-100 shadow-sm border-0">
+        <div class="card h-100 shadow-sm border-1">
           <div class="card-body" style="color: #003C63;">
             <img :src="feature.icon" :alt="feature.title" class="mb-3" style="width: 48px;" />
             <h5 class="card-title">{{ feature.title }}</h5>
