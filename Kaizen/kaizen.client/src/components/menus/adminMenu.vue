@@ -26,21 +26,21 @@
 
     <h3>Administrador</h3>
     <div class="menu">
-      <router-link class="button" to="/">
+      <router-link class="button" to="/landingpage">
         <span class="material-icons">home</span>
-        <span class="text">Home</span>
+        <span class="text">Inicio</span>
       </router-link>
-      <router-link class="button" to="/companies">
+      <router-link class="button" to="/company">
         <span class="material-icons">apartment</span>
-        <span class="text">Companies</span>
+        <span class="text">Empresa</span>
       </router-link>
       <router-link class="button" to="/employees">
         <span class="material-icons">group</span>
-        <span class="text">Employees</span>
+        <span class="text">Empleados</span>
       </router-link>
-      <router-link class="button" to="/login">
-        <span class="material-icons">account_circle</span>
-        <span class="text">Login</span>
+      <router-link class="button" to="/registeremployee">
+        <span class="material-icons">person_add</span>
+        <span class="text">Agregar Empleados</span>
       </router-link>
     </div>
   </aside>
