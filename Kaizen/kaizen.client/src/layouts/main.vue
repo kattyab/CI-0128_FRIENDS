@@ -62,21 +62,19 @@
 </script>
 
 <template>
-  <button class="hamburger-toggle d-md-none" v-if="shouldRenderHeaderAndHamburger" @click="toggleSidebar">
+  <!--<button v-if="shouldRenderHeaderAndHamburger" @click="toggleSidebar">
     ☰
-  </button>
+  </button>-->
 
   <Header v-if="shouldRenderHeaderAndHamburger" />
 
-  <div class="d-flex flex-column min-vh-100 layout-container">
-    <div class="d-flex flex-grow-1 main-content">
-      <div v-if="showMenu" :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
+  <div class="d-flex flex-column min-vh-100">
+    <div class="d-flex flex-grow-1">
+      <div v-if="showMenu">
         <component :is="CurrentMenu" />
       </div>
 
-      <div v-if="isSidebarOpen" class="overlay d-md-none" @click="closeSidebar"></div>
-
-      <main class="flex-grow-1 content-area">
+      <main class="flex-grow-1">
         <RouterView />
       </main>
     </div>
@@ -86,69 +84,5 @@
 </template>
 
 <style scoped>
-  .layout-container {
-    min-height: 100vh;
-  }
-
-  .sidebar {
-    width: 250px;
-    min-width: 250px;
-    border-right: 1px solid #dee2e6;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-  }
-
-    .sidebar.sidebar-open {
-      background-color: #f8f9fa;
-    }
-
-  .main-content {
-    display: flex;
-    flex-grow: 1;
-  }
-
-  .content-area {
-    flex-grow: 1;
-    padding: 1rem;
-    overflow-y: auto;
-  }
-
-  @media (max-width: 768px) {
-    .sidebar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      transform: translateX(-100%);
-      z-index: 1050;
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-      .sidebar.sidebar-open {
-        transform: translateX(0);
-        background-color: #f8f9fa;
-      }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.3);
-      z-index: 1040;
-    }
-
-    .hamburger-toggle {
-      position: fixed;
-      top: 18px;
-      left: 12px;
-      z-index: 1060;
-      font-size: 1.5rem;
-      padding: 0.25rem 0.75rem;
-      background-color: #003c63;
-      color: white;
-      border: none;
-      border-radius: 4px;
-    }
-  }
+  /* No sidebar-specific styles anymore */
 </style>
