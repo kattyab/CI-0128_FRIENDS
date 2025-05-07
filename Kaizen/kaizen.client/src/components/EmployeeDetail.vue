@@ -101,10 +101,6 @@
   import axios from 'axios';
   import { useRoute } from 'vue-router';
 
-  //const email = "juan.perez@example.com"; // Empleado
-  const email = "miguel.torres@example.com"; //Supervisor
-  //const email = "ana.lopez@example.com"; // Administrador
-
   const route = useRoute();
   const isLoading = ref(true);
   const isEditingContractual = ref(false);

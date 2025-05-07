@@ -1,6 +1,6 @@
 <template>
   <header>
-    <nav class="navbar navbar-expand-md bg-white">
+    <nav class="navbar navbar-expand-md">
       <div class="container-fluid d-flex align-items-center">
         <button class="btn hamburger-btn d-md-none me-2"
                 @click="$emit('toggle-sidebar')">
@@ -8,7 +8,7 @@
         </button>
 
         <div>
-          <img src="@/assets/images/logo.png" alt="Kaizen Logo" class="app-logo" />
+          <img src="@/assets/images/azul.png" alt="Kaizen Logo" class="app-logo" />
         </div>
         <div>
           <img src="https://place-hold.it/200x50&text=Company" alt="Kaizen Logo" class="company-logo" />
@@ -124,10 +124,16 @@
 
   .icon {
     height: 28px;
+    color: #003c63;
+    fill: #003c63;
+  }
+
+  .btn{
+      border: none;
   }
 
   .navbar {
-    background-color: white !important;
+    background-color: #f4f6f8 !important;
     border-bottom: 1px solid #dee2e6;
   }
 
