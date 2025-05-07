@@ -3,15 +3,15 @@
     <h1 class="text-center">{{ data?.companyName || 'N/A' }}</h1>
     <form>
       <div class="mb-3">
-        <label for="company_id" class="form-label">Company ID</label>
+        <label for="company_id" class="form-label">Cédula Jurídica</label>
         <input id="company_id" type="text" class="form-control" disabled :value="data?.companyID" />
       </div>
       <div class="mb-3">
-        <label for="owner" class="form-label">Owner</label>
+        <label for="owner" class="form-label">Dueño</label>
         <input id="owner" type="text" class="form-control" disabled :value="data?.ownerName" />
       </div>
       <div class="mb-3">
-        <label for="company_name" class="form-label">Company Name</label>
+        <label for="company_name" class="form-label">Nombre de Empresa</label>
         <input id="company_name"
                type="text"
                class="form-control"
@@ -19,15 +19,15 @@
                :value="data?.companyName" />
       </div>
       <div class="mb-3">
-        <label for="brand_name" class="form-label">Brand Name</label>
+        <label for="brand_name" class="form-label">Nombre de Fantasía</label>
         <input id="brand_name" type="text" class="form-control" disabled :value="data?.brandName" />
       </div>
       <div class="mb-3">
-        <label for="type" class="form-label">Type</label>
+        <label for="type" class="form-label">Tipo</label>
         <input id="type" type="text" class="form-control" disabled :value="data?.type" />
       </div>
       <div class="mb-3">
-        <label for="foundation_date" class="form-label">Foundation Date</label>
+        <label for="foundation_date" class="form-label">Fecha de Fundación</label>
         <input id="foundation_date"
                type="text"
                class="form-control"
@@ -35,7 +35,7 @@
                :value="data?.foundationDate ? new Date(data?.foundationDate).toISOString().split('T')[0] : ''" />
       </div>
       <div class="mb-3">
-        <label for="max_benefits" class="form-label">Max Benefits</label>
+        <label for="max_benefits" class="form-label">Beneficios Máximos</label>
         <input id="max_benefits"
                type="text"
                class="form-control"
@@ -43,11 +43,11 @@
                :value="data?.maxBenefits" />
       </div>
       <div class="mb-3">
-        <label for="web_page" class="form-label">Web Page</label>
+        <label for="web_page" class="form-label">Página Web</label>
         <input id="web_page" type="text" class="form-control" disabled :value="data?.webPage" />
       </div>
       <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label">Descripción</label>
         <input id="description"
                type="text"
                class="form-control"
@@ -55,19 +55,19 @@
                :value="data?.description" />
       </div>
       <div class="mb-3">
-        <label for="po" class="form-label">PO</label>
+        <label for="po" class="form-label">Apartado Postal</label>
         <input id="po" type="text" class="form-control" disabled :value="data?.po" />
       </div>
       <div class="mb-3">
-        <label for="province" class="form-label">Province</label>
+        <label for="province" class="form-label">Provincia</label>
         <input id="province" type="text" class="form-control" disabled :value="provinceValue" />
       </div>
       <div class="mb-3">
-        <label for="canton" class="form-label">Canton</label>
+        <label for="canton" class="form-label">Cantón</label>
         <input id="canton" type="text" class="form-control" disabled :value="cantonValue" />
       </div>
       <div class="mb-3">
-        <label for="other_signs" class="form-label">Other Signs</label>
+        <label for="other_signs" class="form-label">Otras Señas</label>
         <input id="other_signs"
                type="text"
                class="form-control"
