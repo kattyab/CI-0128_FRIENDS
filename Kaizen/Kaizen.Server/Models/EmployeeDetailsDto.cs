@@ -1,4 +1,5 @@
-﻿public class EmployeeDetailsDto
+﻿namespace Kaizen.Server.Models;
+public class EmployeeDetailsDto
 {
     public string EmpID { get; set; }
     public string Id { get; set; }
