@@ -32,7 +32,8 @@ namespace Kaizen.Server.Repository
                         PasswordHash,
                         Active,
                         Role,
-                        PersonPK
+                        PersonPK,
+                        UserPK
                 FROM    Users
                 WHERE   Email = @Email;";
 
@@ -53,7 +54,8 @@ namespace Kaizen.Server.Repository
                 PasswordHash = row["PasswordHash"]?.ToString(),
                 Active = Convert.ToBoolean(row["Active"]),
                 Role = row["Role"]?.ToString(),
-                PersonPK = row["PersonPK"]?.ToString()
+                PersonPK = row["PersonPK"]?.ToString(),
+                UserPK = row["UserPK"]?.ToString()
             };
         }
     }
