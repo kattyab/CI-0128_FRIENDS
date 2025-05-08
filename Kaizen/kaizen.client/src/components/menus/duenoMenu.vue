@@ -20,7 +20,7 @@
         <span class="material-icons">person_add</span>
         <span class="text">Agregar Empleados</span>
       </router-link>
-      <router-link class="button" to="/registerbenefits">
+      <router-link class="button" to="/addbenefits">
         <span class="material-icons">star</span>
         <span class="text">Agregar Beneficios</span>
       </router-link>
