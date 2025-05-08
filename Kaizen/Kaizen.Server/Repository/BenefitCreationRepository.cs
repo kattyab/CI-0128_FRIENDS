@@ -36,8 +36,8 @@ namespace Kaizen.Server.Repository
                         "Dueño" => @"
                     SELECT C.CompanyPK
                     FROM Companies C
-                    JOIN Owners O ON C.OwnerPK = O.OwnerPK
-                    JOIN Users U ON O.OwnerPK = U.PersonPK
+                    JOIN Persons P ON C.OwnerPK = P.PersonPK
+                    JOIN Users U ON P.PersonPK= U.PersonPK
                     WHERE U.Email = @AdminEmail;",
                         _ => throw new Exception("Invalid role for retrieving company.")
                     };
