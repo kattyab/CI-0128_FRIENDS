@@ -1,3 +1,0 @@
-﻿SELECT *
-FROM Persons
-WHERE ID = '123456789';
