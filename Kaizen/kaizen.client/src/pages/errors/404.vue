@@ -5,7 +5,7 @@
     <p class="text-muted">Spoiler: tampoco entendí el Trigger.</p>
 
     <!-- Imagen fija centrada -->
-    <img src="/src/assets/descarga.jpeg"
+    <img src="@/assets/images/404.jpeg"
          alt="404 divertido"
          class="img-fluid my-4 centered-image" />
 
@@ -18,7 +18,7 @@
 
 <script>
   export default {
-    name: "NotFoundPage",
+    name: "Not Found",
   };
 </script>
 

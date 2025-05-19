@@ -3,13 +3,13 @@
   import { useRoute } from 'vue-router'
   import axios from 'axios'
 
-  import Header from '../components/Header.vue'
-  import Footer from '../components/Footer.vue'
-  import EmpleadoMenu from '../components/menus/empleadoMenu.vue'
-  import DuenoMenu from '../components/menus/duenoMenu.vue'
-  import SupervisorMenu from '../components/menus/supervisorMenu.vue'
-  import SuperAdminMenu from '../components/menus/superAdminMenu.vue'
-  import AdminMenu from '../components/menus/adminMenu.vue'
+  import Header from '@/components/shared/Header.vue'
+  import Footer from '@/components/shared/Footer.vue'
+  import EmpleadoMenu from '@/components/menus/employee.vue'
+  import OwnerMenu from '@/components/menus/owner.vue'
+  import SupervisorMenu from '@/components/menus/supervisor.vue'
+  import SuperAdminMenu from '@/components/menus/superAdmin.vue'
+  import AdminMenu from '@/components/menus/admin.vue'
 
   const route = useRoute()
   const role = ref(null)
@@ -17,7 +17,7 @@
 
   const roleMenuMap = {
     'Empleado': EmpleadoMenu,
-    'Dueño': DuenoMenu,
+    'Dueño': OwnerMenu,
     'Supervisor': SupervisorMenu,
     'Superadmin': SuperAdminMenu,
     'Administrador': AdminMenu
@@ -79,4 +79,3 @@
     <Footer />
   </div>
 </template>
-

@@ -274,7 +274,7 @@
 
 <script>
   import axios from 'axios';
-  import NotificationModal from '../components/notification-modal.vue';
+  import NotificationModal from '@/components/modals/notification.vue';
 
   export default {
     name: 'RegisterEmployee',

@@ -8,11 +8,11 @@
   const roleComponent = ref(null)
 
   const roleComponentMap = {
-    'Administrador': markRaw(defineAsyncComponent(() => import('./role_pages/Admin.vue'))),
-    'Empleado': markRaw(defineAsyncComponent(() => import('./role_pages/Employee.vue'))),
-    'Dueño': markRaw(defineAsyncComponent(() => import('./role_pages/Owner.vue'))),
-    'Superadmin': markRaw(defineAsyncComponent(() => import('./role_pages/Super.vue'))),
-    'Supervisor': markRaw(defineAsyncComponent(() => import('./role_pages/Supervisor.vue')))
+    'Administrador': markRaw(defineAsyncComponent(() => import('./roles/Admin.vue'))),
+    'Empleado': markRaw(defineAsyncComponent(() => import('./roles/Employee.vue'))),
+    'Dueño': markRaw(defineAsyncComponent(() => import('./roles/Owner.vue'))),
+    'Superadmin': markRaw(defineAsyncComponent(() => import('./roles/Super.vue'))),
+    'Supervisor': markRaw(defineAsyncComponent(() => import('./roles/Supervisor.vue')))
   }
 
   onMounted(async () => {

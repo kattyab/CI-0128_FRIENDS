@@ -4,7 +4,7 @@
 
 <script setup>
   import { ref, onMounted, onBeforeUnmount } from 'vue'
-  import clockSketch from '../composables/clock.js'
+  import clockSketch from '../../composables/clock.js'
 
   const sketchContainer = ref(null)
   let p5Instance = null

@@ -4,7 +4,7 @@
          style="width:420px;border-radius:18px;">
       <!-- Logo -->
       <div class="text-center mb-1">
-        <img src="/logo.png" alt="Kaizen Logo" width="250" />
+        <img src="@/assets/images/logo.png" alt="Kaizen Logo" width="250" />
       </div>
 
       <!-- Success message -->
@@ -55,7 +55,7 @@
 
         <!-- secondary links -->
         <div class="text-center small">
-          <router-link to="/login/register-company"
+          <router-link to="/auth/register-company"
                        class="me-3 text-decoration-none kaizen">
             Registrar empresa
           </router-link>
@@ -90,7 +90,7 @@
         this.error = '';
         this.success = '';
         try {
-          const response = await axios.post('/api/login/login', {
+          const response = await axios.post('/api/auth/login', {
             email: this.username,
             password: this.password
           });
