@@ -12,7 +12,7 @@
               Sobre nosotros
             </router-link>
 
-            <router-link to="/login" class="nav-link login-link ">
+            <router-link to="/auth/login" class="nav-link login-link ">
               Iniciar sesión
             </router-link>
 
