@@ -5,7 +5,7 @@ import axios from 'axios';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
-import './assets/main.css';
+import './assets/css/main.css';
 
 axios.defaults.withCredentials = true;
 

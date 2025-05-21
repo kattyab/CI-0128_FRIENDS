@@ -12,13 +12,13 @@
               Sobre nosotros
             </router-link>
 
-            <router-link to="/login" class="nav-link login-link ">
+            <router-link to="/auth/login" class="nav-link login-link ">
               Iniciar sesión
             </router-link>
 
             <div class="vertical-line mx-3"></div>
 
-            <router-link to="/login/register-company" class="nav-link btn-kaizen py-2 px-4 rounded">
+            <router-link to="/auth/register-company" class="nav-link btn-kaizen py-2 px-4 rounded">
               Registrar empresa
             </router-link>
           </div>
@@ -62,30 +62,34 @@
 </template>
 
 <script setup>
-  import P5Clock from '../components/Clock.vue'
+import P5Clock from '@/components/shared/Clock.vue';
+import time from "@/assets/icons/time.svg";
+import money from "@/assets/icons/money.svg";
+import benefits from "@/assets/icons/benefits.svg";
+import reports from "@/assets/icons/reports.svg";
 
-  const features = [
-    {
-      title: "Control de Horas",
-      description: "Registra las horas laborales para un cálculo preciso de la planilla.",
-      icon: "/icons/time.svg",
-    },
-    {
-      title: "Gestión Salarial",
-      description: "Define sueldos base, bonificaciones y deducciones.",
-      icon: "/icons/money.svg",
-    },
-    {
-      title: "Beneficios",
-      description: "Asigna y visualiza los beneficios de cada empleado en tiempo real.",
-      icon: "/icons/benefits.svg",
-    },
-    {
-      title: "Reportes",
-      description: "Genera reportes de planilla y descárcalos en PDF o CSV.",
-      icon: "/icons/reports.svg",
-    },
-  ];
+const features = [
+  {
+    title: "Control de Horas",
+    description: "Registra las horas laborales para un cálculo preciso de la planilla.",
+    icon: time,
+  },
+  {
+    title: "Gestión Salarial",
+    description: "Define sueldos base, bonificaciones y deducciones.",
+    icon: money,
+  },
+  {
+    title: "Beneficios",
+    description: "Asigna y visualiza los beneficios de cada empleado en tiempo real.",
+    icon: benefits,
+  },
+  {
+    title: "Reportes",
+    description: "Genera reportes de planilla y descárcalos en PDF o CSV.",
+    icon: reports,
+  },
+];
 </script>
 
 <style scoped>
