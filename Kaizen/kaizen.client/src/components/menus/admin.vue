@@ -24,7 +24,7 @@
         <span class="text">Empleados</span>
       </router-link>
 
-      <router-link class="button" to="/registeremployee">
+      <router-link class="button" to="/employees/register">
         <span class="material-icons">person_add</span>
         <span class="text">Agregar Empleados</span>
       </router-link>
