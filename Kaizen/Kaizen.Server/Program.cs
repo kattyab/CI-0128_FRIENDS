@@ -1,7 +1,13 @@
+﻿using Kaizen.Server.Infrastructure.Services.IncomeTax;
+using Kaizen.Server.Application.Interfaces.IncomeTax;
+using MediatR;
+using System.Reflection;
 using Kaizen.Server.Infrastructure.Repositories;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
+
+// Registrando repositorios existentes
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
@@ -14,14 +20,17 @@ builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
+builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
+// Cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            // Due to authentication, as far as I know, we need to specify the origin
-            // instead of using AllowAnyOrigin(), so you might need to change port
             policy.WithOrigins("https://localhost:55281")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
@@ -40,15 +49,12 @@ builder.Services.AddAuthentication("MyCookieAuth")
 
 builder.Services.AddAuthorization();
 
-// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -62,7 +68,18 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 app.MapControllers();
+
+// DEMO
+using (var scope = app.Services.CreateScope())
+{
+    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+    var salarioEjemplo = 5_500_000m;
+    var resultado = await mediator.Send(new Kaizen.Server.Application.Queries.IncomeTax.CalculateIncomeTax(salarioEjemplo));
+
+    Console.WriteLine($"Salario bruto: ₡{salarioEjemplo:N0}");
+    Console.WriteLine($"Impuesto sobre la renta: ₡{resultado.TaxAmount:N0}");
+}
 
 app.Run();
