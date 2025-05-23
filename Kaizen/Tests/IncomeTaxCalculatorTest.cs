@@ -22,6 +22,8 @@ namespace Tests.IncomeTaxCalculatorTest
         private const decimal Rate3 = 0.20m;
         private const decimal Rate4 = 0.25m;
 
+        private const int SecondDecimal = 2;
+
         [SetUp]
         public void SetUp()
         {
@@ -49,7 +51,7 @@ namespace Tests.IncomeTaxCalculatorTest
             tax += CalculateTaxSegment(salary, Bracket2Threshold, Bracket3Threshold, Rate2);
             tax += CalculateTaxSegment(salary, Bracket3Threshold, Bracket4Threshold, Rate3);
             tax += CalculateTaxSegment(salary, Bracket4Threshold, decimal.MaxValue, Rate4);
-            return Math.Round(tax, 2);
+            return Math.Round(tax, SecondDecimal);
         }
 
         private decimal CalculateTaxSegment(decimal salary, decimal lowerLimit, decimal upperLimit, decimal rate)

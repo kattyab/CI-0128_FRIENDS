@@ -7,6 +7,8 @@ namespace Kaizen.Server.Infrastructure.Services.IncomeTax
     {
         private readonly List<IncomeTaxBracket> _brackets;
 
+        private const int SecondDecimal = 2;
+
         public IncomeTaxCalculator(IIncomeTaxBracketProvider provider)
         {
             _brackets = provider.GetBrackets();
@@ -23,7 +25,7 @@ namespace Kaizen.Server.Infrastructure.Services.IncomeTax
                     tax += taxable * bracket.Rate;
                 }
             }
-            return Math.Round(tax, 2);
+            return Math.Round(tax, SecondDecimal);
         }
     }
 }

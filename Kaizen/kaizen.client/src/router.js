@@ -60,7 +60,7 @@ router.beforeEach(async (to, from, next) => {
 
     next();
   } catch (err) {
-    next('/login');
+    next('/auth/login');
   }
 });
 
