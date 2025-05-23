@@ -7,10 +7,9 @@ namespace Kaizen.Server.Infrastructure.Services.IncomeTax
     {
         private readonly List<IncomeTaxBracket> _brackets;
 
-        public IncomeTaxCalculator(IConfiguration config)
+        public IncomeTaxCalculator(IIncomeTaxBracketProvider provider)
         {
-            var configPath = config["Paths:IncomeTaxBracketsFile"];
-            _brackets = IncomeTaxBracketLoader.LoadFromFile(configPath!);
+            _brackets = provider.GetBrackets();
         }
 
         public decimal Calculate(decimal grossSalary)
