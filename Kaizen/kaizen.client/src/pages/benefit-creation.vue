@@ -182,7 +182,7 @@
       const successMessage = ref('');
 
       onMounted(() => {
-        axios.get('/api/login/authenticate', { withCredentials: true })
+        axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true })
           .then(response => {
             userData.value = response.data;
           })
@@ -301,7 +301,7 @@
             numParameters: formData.benefitType === 'api' ? formData.parameterQuantity : null
           };
 
-          const response = await axios.post('https://localhost:7153/api/BenefitCreation/benefitCreation', benefitData);
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitCreation/benefitCreation`, benefitData);
 
           if (response.status === 200 || response.status === 201) {
             showSuccess('Beneficio registrado exitosamente.');

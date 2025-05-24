@@ -44,7 +44,7 @@
 
   onMounted(async () => {
     try {
-      const { data } = await axios.get('https://localhost:7153/api/Login/authenticate', {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/Login/authenticate`, {
         withCredentials: true
       })
       role.value = data.role

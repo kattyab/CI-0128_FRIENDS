@@ -52,7 +52,7 @@
 
   const deleteEmployee = async (empID) => {
     try {
-      await axios.delete(`/api/CompanyEmployees/${empID}`, { withCredentials: true });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/CompanyEmployees/${empID}`, { withCredentials: true });
       employees.value = employees.value.filter(e => e.empID !== empID);
     } catch (err) {
       console.error('Error deleting employee:', err);
@@ -62,7 +62,7 @@
 
   const fetchData = async (email) => {
     try {
-      const response = await axios.get(`/api/CompanyEmployees/by-owner-email/${email}`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/CompanyEmployees/by-owner-email/${email}`, {
         withCredentials: true,
       });
       employees.value = response.data;
@@ -76,7 +76,7 @@
 
   onMounted(async () => {
     try {
-      const response = await axios.get('/api/login/authenticate', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, {
         withCredentials: true,
       });
       emailComponent.value = response.data.email;
@@ -90,4 +90,3 @@
     }
   });
 </script>
-

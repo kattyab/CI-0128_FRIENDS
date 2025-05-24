@@ -91,7 +91,7 @@
       // Fetch companies from the API
       async cargarEmpresas() {
         try {
-          const response = await axios.get('https://localhost:7153/api/CompaniesList');
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/CompaniesList`);
           this.empresas = response.data;
         } catch (error) {
           console.error('Error loading companies:', error);
