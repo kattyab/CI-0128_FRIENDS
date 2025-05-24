@@ -12,16 +12,16 @@
         </tr>
       </thead>
       <tbody class="table-group-divider">
-        <tr class="position-relative" v-for="(empresa, index) in empresasFiltradas" :key="index">
-          <th scope="row">{{ empresa.companyName }}</th>
-          <td>{{ empresa.ownerName }}</td>
-          <td>{{ empresa.companyID }}</td>
-          <td>{{ empresa.employeesCount }}</td>
+        <tr class="position-relative" v-for="(company, index) in filteredCompanies" :key="index">
+          <th scope="row">{{ company.companyName }}</th>
+          <td>{{ company.ownerName }}</td>
+          <td>{{ company.companyID }}</td>
+          <td>{{ company.employeesCount }}</td>
           <td>
-            <a :href="`/companieslist/${empresa.companyPK}`" class="btn btn-primary">
+            <a :href="`/companieslist/${company.companyPK}`" class="btn btn-primary">
               <span class="material-icons">visibility</span>
             </a>
-            <a :href="`/companieslist/${empresa.companyPK}/edit`" class="btn btn-danger ms-1">
+            <a :href="`/companieslist/${company.companyPK}/edit`" class="btn btn-danger ms-1">
               <span class="material-icons">delete</span>
             </a>
           </td>
@@ -38,45 +38,45 @@
     name: 'EmpresaLista',
     data() {
       return {
-        busqueda: '',
-        ordenAscendente: true,
-        empresas: [],
+        search: '',
+        ascendingOrder: true,
+        companies: [],
       };
     },
     computed: {
-      empresasFiltradas() {
-        let resultado = this.empresas.filter(empresa =>
-          empresa.companyName.toLowerCase().includes(this.busqueda.toLowerCase())
+      filteredCompanies() {
+        let result = this.companies.filter(company =>
+          company.companyName.toLowerCase().includes(this.search.toLowerCase())
         );
 
-        resultado.sort((a, b) => {
-          const nombreA = a.companyName.toLowerCase();
-          const nombreB = b.companyName.toLowerCase();
-          return this.ordenAscendente
-            ? nombreA.localeCompare(nombreB)
-            : nombreB.localeCompare(nombreA);
+        result.sort((a, b) => {
+          const nameA = a.companyName.toLowerCase();
+          const nameB = b.companyName.toLowerCase();
+          return this.ascendingOrder
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
         });
 
-        return resultado;
+        return result;
       }
     },
     methods: {
-      ordenarPorNombre() {
-        this.ordenAscendente = !this.ordenAscendente;
+      orderByName() {
+        this.ascendingOrder = !this.ascendingOrder;
       },
-      async cargarEmpresas() {
+      async loadCompanies() {
         try {
           const response = await axios.get('https://localhost:7153/api/CompaniesList', {
             withCredentials: true
           });
-          this.empresas = response.data;
+          this.companies = response.data;
         } catch (error) {
           console.error('Error loading companies:', error);
         }
       },
     },
     mounted() {
-      this.cargarEmpresas();
+      this.loadCompanies();
     }
   };
 </script>
