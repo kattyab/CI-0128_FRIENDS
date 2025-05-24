@@ -34,7 +34,7 @@
         <p class="lead text-muted" style="color: rgba(0, 60, 99, 0.6) !important;">
           Administra horas, sueldos, deducciones y genera reportes de forma sencilla.
         </p>
-        <router-link to="/login">
+        <router-link to="/auth/login">
           <button class="btn btn-kaizen btn-lg mt-3">Comenzar ahora</button>
         </router-link>
       </div>
