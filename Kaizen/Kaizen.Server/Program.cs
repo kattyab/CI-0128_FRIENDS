@@ -1,7 +1,13 @@
 using Kaizen.Server.Infrastructure.Repositories;
+using System.Reflection;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddUserSecrets(Assembly.GetExecutingAssembly())
+    .AddEnvironmentVariables();
+
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
