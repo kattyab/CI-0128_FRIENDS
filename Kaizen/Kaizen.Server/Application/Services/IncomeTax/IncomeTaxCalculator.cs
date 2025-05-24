@@ -1,7 +1,7 @@
 ﻿using Kaizen.Server.Application.Interfaces.IncomeTax;
 using Kaizen.Server.Infrastructure.Helpers.IncomeTax;
 
-namespace Kaizen.Server.Infrastructure.Services.IncomeTax
+namespace Kaizen.Server.Application.Services.IncomeTax
 {
     public class IncomeTaxCalculator : IIncomeTaxCalculator
     {

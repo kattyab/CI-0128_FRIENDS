@@ -1,6 +1,6 @@
 using Moq;
-using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using Kaizen.Server.Infrastructure.Helpers.IncomeTax;
+using Kaizen.Server.Application.Services.IncomeTax;
 
 namespace Tests.IncomeTaxCalculatorTest
 {
