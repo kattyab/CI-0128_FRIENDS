@@ -1,5 +1,4 @@
-﻿using Kaizen.Server.Application.Interfaces.IncomeTax;
-using Kaizen.Server.Infrastructure.Helpers.IncomeTax;
+﻿using Kaizen.Server.Infrastructure.Helpers.IncomeTax;
 
 namespace Kaizen.Server.Infrastructure.Services.IncomeTax
 {

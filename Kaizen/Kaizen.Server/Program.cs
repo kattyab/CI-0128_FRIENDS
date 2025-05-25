@@ -3,7 +3,9 @@ using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.IncomeTax;
 using Kaizen.Server.Infrastructure.Repositories;
 using Kaizen.Server.Application.Services.IncomeTax;
-
+using Kaizen.Server.Application.Interfaces.CCSS;
+using Kaizen.Server.Application.Services.CCSS;
+using Kaizen.Server.Infrastructure.Services.CCSS;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,9 @@ builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
+builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
+builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
