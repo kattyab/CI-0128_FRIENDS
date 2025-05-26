@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "kaizen.client", "kaizen.client\kaizen.client.esproj", "{86CF845E-01F0-4CBB-4DC3-47D392FFBDA3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaizen.Server", "Kaizen.Server\Kaizen.Server.csproj", "{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{42BFB91C-48D5-4086-958A-3A6D32FADA19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +25,10 @@ Global
 		{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFE64803-0239-4C09-8BD0-29FA0EBBAB49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42BFB91C-48D5-4086-958A-3A6D32FADA19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42BFB91C-48D5-4086-958A-3A6D32FADA19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42BFB91C-48D5-4086-958A-3A6D32FADA19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42BFB91C-48D5-4086-958A-3A6D32FADA19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
