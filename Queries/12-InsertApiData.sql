@@ -22,3 +22,7 @@ VALUES
 
 ('Vorlagenersteller S.A.', 'https://mediseguro-vorlagenersteller-d4hmbvf7frg7aqan.southcentralus-01.azurewebsites.net/api/MediSeguroMonto', 'POST', 'token',
  'TOKEN123', '{ "fechaNacimiento": "{dob}", "genero": "{sexo}", "cantidadDependientes": "{dependents}" }', 'decimal', @Benefit_VORLAG);
+
+
+ALTER TABLE ApiDeductionConfigs
+DROP COLUMN Endpoint;
