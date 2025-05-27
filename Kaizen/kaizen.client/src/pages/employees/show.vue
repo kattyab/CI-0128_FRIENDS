@@ -120,7 +120,7 @@
     console.log("Employee ID:", empID);
 
     try {
-      const response = await axios.get(`/api/EmployeeDetails/by-id/${empID}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/EmployeeDetails/by-id/${empID}`);
       const data = response.data;
 
       if (data) {

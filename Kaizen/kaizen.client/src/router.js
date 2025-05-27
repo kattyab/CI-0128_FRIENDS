@@ -52,7 +52,7 @@ router.beforeEach(async (to, from, next) => {
   if (isPublic || !requiresAuth) return next();
 
   try {
-    const res = await axios.get('/api/login/authenticate', { withCredentials: true });
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true });
     const userRole = res.data.role;
 
     if (requiredRoles && !requiredRoles.includes(userRole)) {

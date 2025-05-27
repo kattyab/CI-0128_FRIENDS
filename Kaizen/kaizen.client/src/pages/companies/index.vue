@@ -34,7 +34,7 @@ const data = ref([]);
 async function fetchData() {
   try {
     axios
-      .get("https://localhost:7153/api/companies", {
+      .get(`${import.meta.env.VITE_API_URL}/api/companies`, {
         withCredentials: true,
       })
       .then((response) => {

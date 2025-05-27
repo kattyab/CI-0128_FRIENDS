@@ -107,7 +107,7 @@ const route = useRoute();
 async function fetchData() {
   try {
     axios
-      .get(`https://localhost:7153/api/companies/${route.params.id}`, {
+      .get(`${import.meta.env.VITE_API_URL}/api/companies/${route.params.id}`, {
         withCredentials: true,
       })
       .then((response) => {

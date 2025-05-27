@@ -17,7 +17,7 @@
 
   onMounted(async () => {
     try {
-      const { data } = await axios.get('/api/login/authenticate', {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, {
         withCredentials: true
       })
       roleComponent.value = roleComponentMap[data.role] || null

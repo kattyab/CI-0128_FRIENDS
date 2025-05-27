@@ -66,7 +66,7 @@
       },
       async loadCompanies() {
         try {
-          const response = await axios.get('https://localhost:7153/api/CompaniesList', {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/CompaniesList`, {
             withCredentials: true
           });
           this.companies = response.data;
