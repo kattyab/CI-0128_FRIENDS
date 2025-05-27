@@ -10,6 +10,7 @@ const router = createRouter({
       children: [
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
+        { path: 'benefitselection', name: 'BenefitSelection', component: () => import('./pages/benefits/benefitSelection.vue'), meta: { public: true } }, //test path
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/errors/403.vue'), meta: { public: true } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
