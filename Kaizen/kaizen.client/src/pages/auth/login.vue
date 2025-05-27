@@ -90,7 +90,7 @@
         this.error = '';
         this.success = '';
         try {
-          const response = await axios.post('/api/login/login', {
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/login/login`, {
             email: this.username,
             password: this.password
           });

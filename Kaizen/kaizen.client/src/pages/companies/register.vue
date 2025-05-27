@@ -329,7 +329,7 @@ export default {
       }
       try{
 
-      await axios.post('/api/registerCompany', {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/registerCompany`, {
         companyID: this.cedulaJuridica,
         companyName: this.nombreEmpresa,
         brandName: this.brandName,

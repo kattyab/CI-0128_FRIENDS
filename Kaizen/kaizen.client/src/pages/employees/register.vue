@@ -347,7 +347,7 @@
       };
     },
     mounted() {
-      axios.get('/api/login/authenticate', { withCredentials: true })
+      axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true })
         .then(response => {
           this.userData = response.data
         })
@@ -497,7 +497,7 @@
           return;
         }
 
-        axios.post('https://localhost:7153/api/RegisterEmployee/registerEmployee', {
+        axios.post(`${import.meta.env.VITE_API_URL}/api/RegisterEmployee/registerEmployee`, {
           adminemail: this.userData.email,
           adminrole: this.userData.role,
           name: this.name,

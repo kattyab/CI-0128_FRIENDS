@@ -45,7 +45,7 @@ const data = ref([]);
 async function fetchData() {
   try {
     axios
-      .get("https://localhost:7153/api/employees", {
+      .get(`${import.meta.env.VITE_API_URL}/api/employees`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -62,7 +62,7 @@ async function fetchData() {
 
 async function deleteEmployee(id) {
   try {
-    await axios.delete(`https://localhost:7153/api/employees/${id}`, {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/employees/${id}`, {
       withCredentials: true,
     });
     console.log("Employee deleted successfully");
