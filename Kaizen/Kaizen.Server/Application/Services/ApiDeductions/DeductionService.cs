@@ -1,5 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos.ApiDeductions;
-using Kaizen.Server.Application.Interfaces.ApiDeductions;
+﻿using Kaizen.Server.Application.Interfaces.ApiDeductions;
 
 namespace Kaizen.Server.Application.Services.ApiDeductions;
 

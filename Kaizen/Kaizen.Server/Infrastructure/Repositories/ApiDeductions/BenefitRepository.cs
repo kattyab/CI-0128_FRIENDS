@@ -1,7 +1,5 @@
 ﻿using System.Data;
-using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.ApiDeductions;
-using Kaizen.Server.Application.Interfaces;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Microsoft.Data.SqlClient;
 
