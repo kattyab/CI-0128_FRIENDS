@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.Data.SqlClient;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.IncomeTax;
 using Kaizen.Server.Infrastructure.Repositories;
@@ -6,13 +7,24 @@ using Kaizen.Server.Application.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.CCSS;
 using Kaizen.Server.Application.Services.CCSS;
 using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Application.Interfaces.ApiDeductions;
+using Kaizen.Server.Infrastructure.Services.ApiDeductions;
+using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddUserSecrets(Assembly.GetExecutingAssembly())
     .AddEnvironmentVariables();
+
+builder.Services.AddScoped<SqlConnection>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connStr = config.GetConnectionString("KaizenDb");
+    return new SqlConnection(connStr);
+});
 
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
@@ -26,15 +38,21 @@ builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
+
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
+
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
+
+builder.Services.AddScoped<IBenefitRepository, BenefitRepository>();
+builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -71,9 +89,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors(MyAllowSpecificOrigins);
-
 app.UseAuthentication();
 app.UseAuthorization();
 
