@@ -25,7 +25,7 @@ namespace Kaizen.Server.Application.Services.IncomeTax
                     tax += taxable * bracket.Rate;
                 }
             }
-            return Math.Round(tax, SecondDecimal);
+            return Math.Round(tax, SecondDecimal, MidpointRounding.ToEven);
         }
     }
 }
