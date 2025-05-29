@@ -2,7 +2,7 @@
 
 public class BenefitDto
 {
-    public Guid ID { get; set; }
+    public int ID { get; set; }
     public string Name { get; set; }
     public string Path { get; set; }
     public string HttpMethod { get; set; }
