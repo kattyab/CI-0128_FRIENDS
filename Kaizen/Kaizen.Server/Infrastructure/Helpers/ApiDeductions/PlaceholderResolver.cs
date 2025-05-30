@@ -8,9 +8,9 @@ public static class PlaceholderResolver
     {
         if (string.IsNullOrEmpty(input)) return input;
 
-        foreach (var kvp in values)
+        foreach (var keyValuePlaceholder in values)
         {
-            input = input.Replace($"{{{kvp.Key}}}", kvp.Value);
+            input = input.Replace($"{{{keyValuePlaceholder.Key}}}", keyValuePlaceholder.Value);
         }
         return input;
     }
@@ -23,8 +23,8 @@ public static class PlaceholderResolver
 
     public static decimal ExtractFromJson(string json, string propertyName)
     {
-        using var doc = JsonDocument.Parse(json);
-        if (doc.RootElement.TryGetProperty(propertyName, out var prop))
+        using var document = JsonDocument.Parse(json);
+        if (document.RootElement.TryGetProperty(propertyName, out var prop))
             return prop.GetDecimal();
 
         throw new Exception($"Property '{propertyName}' not found in response.");

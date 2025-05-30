@@ -13,6 +13,10 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
         private Dictionary<Guid, Employee>? _employeeData;
         private Dictionary<Guid, List<Guid>>? _employeeChosenBenefits;
 
+        private static readonly decimal _percentageDivider = 100m;
+        private static readonly int _decimalPlacesToRound = 2;
+        private static readonly int _monthsInYear = 12;
+
         public BenefitDeductionService(
             Guid companyID,
             IBenefitDeductionRepository benefitRepo,
@@ -56,7 +60,8 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
                 return benefit.FixedValue.Value;
 
             if (benefit.IsPercetange && benefit.PercentageValue.HasValue)
-                return Math.Round((benefit.PercentageValue.Value / 100m) * salary, 2);
+                return Math.Round((benefit.PercentageValue.Value / _percentageDivider) * salary, _decimalPlacesToRound);
+
 
             return 0;
         }
@@ -78,7 +83,7 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
         private static bool MeetsMinMonths(Employee emp, Benefit benefit)
         {
             var now = DateTime.Now;
-            var months = ((now.Year - emp.StartDate.Year) * 12) + now.Month - emp.StartDate.Month;
+            var months = ((now.Year - emp.StartDate.Year) * _monthsInYear) + now.Month - emp.StartDate.Month;
             return months >= benefit.MinWorkDurationMonths;
         }
     }

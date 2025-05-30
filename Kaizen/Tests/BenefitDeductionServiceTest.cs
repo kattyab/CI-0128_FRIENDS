@@ -7,6 +7,27 @@ namespace Kaizen.Tests.Application.Services.BenefitDeductionResults;
 
 public class BenefitDeductionResultServiceTests
 {
+    private const decimal BruteSalaryLow = 1000m;
+    private const decimal BruteSalaryHigh = 2000m;
+
+    private const decimal DentistFixedValue = 80m;
+    private const decimal DentistFixedValueMultiple = 75m;
+
+    private const decimal VisionPercentageValue = 2.5m;
+    private const decimal VisionExpectedDeduction = 50m;
+
+    private const decimal DoctorFixedValue = 150m;
+
+    private const decimal VisionPlanFixedValue = 40m;
+    private const decimal ExtraCoverageFixedValue = 100m;
+
+    private const int DentistMinMonths = 6;
+    private const int DentistMinMonthsMultiple = 3;
+    private const int VisionMinMonths = 6;
+    private const int DoctorMinMonths = 1;
+
+    private const int EmployeeSeniorityMonths = -12;
+
     private Mock<IBenefitDeductionRepository> _mockBenefitRepo;
     private Mock<IEmployeeDeductionRepository> _mockEmployeeRepo;
     private BenefitDeductionService _service;
@@ -34,27 +55,27 @@ public class BenefitDeductionResultServiceTests
     {
         var benefitId = Guid.NewGuid();
         var benefits = new List<Benefit>
-    {
-        new Benefit
         {
-            BenefitID = benefitId,
-            Name = "Dentista",
-            IsFixed = true,
-            FixedValue = 80m,
-            IsFullTime = true,
-            MinWorkDurationMonths = 6
-        }
-    };
+            new Benefit
+            {
+                BenefitID = benefitId,
+                Name = "Dentista",
+                IsFixed = true,
+                FixedValue = DentistFixedValue,
+                IsFullTime = true,
+                MinWorkDurationMonths = DentistMinMonths
+            }
+        };
         var employee = new Employee
         {
             ContractType = "Tiempo Completo",
-            StartDate = DateTime.Now.AddMonths(-12),
-            BruteSalary = 1000m
+            StartDate = DateTime.Now.AddMonths(EmployeeSeniorityMonths),
+            BruteSalary = BruteSalaryLow
         };
         var chosenBenefits = new Dictionary<Guid, List<Guid>>
-    {
-        { _employeeId, new List<Guid> { benefitId } }
-    };
+        {
+            { _employeeId, new List<Guid> { benefitId } }
+        };
         _mockBenefitRepo
             .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(benefits);
@@ -69,7 +90,7 @@ public class BenefitDeductionResultServiceTests
 
         Assert.That(result, Has.Count.EqualTo(1));
         Assert.That(result[0].BenefitName, Is.EqualTo("Dentista"));
-        Assert.That(result[0].DeductionValue, Is.EqualTo(80m));
+        Assert.That(result[0].DeductionValue, Is.EqualTo(DentistFixedValue));
     }
 
     [Test]
@@ -80,47 +101,47 @@ public class BenefitDeductionResultServiceTests
         var healthBenefitId = Guid.NewGuid();
 
         var benefits = new List<Benefit>
-    {
-        new Benefit
         {
-            BenefitID = dentalBenefitId,
-            Name = "Dentista",
-            IsFixed = true,
-            FixedValue = 75m,
-            IsFullTime = true,
-            MinWorkDurationMonths = 3
-        },
-        new Benefit
-        {
-            BenefitID = visionBenefitId,
-            Name = "Oftalmologo",
-            IsPercetange = true,
-            PercentageValue = 2.5m,
-            IsFullTime = true,
-            MinWorkDurationMonths = 6
-        },
-        new Benefit
-        {
-            BenefitID = healthBenefitId,
-            Name = "Doctor a Casa",
-            IsFixed = true,
-            FixedValue = 150m,
-            IsFullTime = true,
-            MinWorkDurationMonths = 1
-        }
-    };
+            new Benefit
+            {
+                BenefitID = dentalBenefitId,
+                Name = "Dentista",
+                IsFixed = true,
+                FixedValue = DentistFixedValueMultiple,
+                IsFullTime = true,
+                MinWorkDurationMonths = DentistMinMonthsMultiple
+            },
+            new Benefit
+            {
+                BenefitID = visionBenefitId,
+                Name = "Oftalmologo",
+                IsPercetange = true,
+                PercentageValue = VisionPercentageValue,
+                IsFullTime = true,
+                MinWorkDurationMonths = VisionMinMonths
+            },
+            new Benefit
+            {
+                BenefitID = healthBenefitId,
+                Name = "Doctor a Casa",
+                IsFixed = true,
+                FixedValue = DoctorFixedValue,
+                IsFullTime = true,
+                MinWorkDurationMonths = DoctorMinMonths
+            }
+        };
 
         var employee = new Employee
         {
             ContractType = "Tiempo Completo",
-            StartDate = DateTime.Now.AddMonths(-12),
-            BruteSalary = 2000m
+            StartDate = DateTime.Now.AddMonths(EmployeeSeniorityMonths),
+            BruteSalary = BruteSalaryHigh
         };
 
         var chosenBenefits = new Dictionary<Guid, List<Guid>>
-    {
-        { _employeeId, new List<Guid> { dentalBenefitId, visionBenefitId, healthBenefitId } }
-    };
+        {
+            { _employeeId, new List<Guid> { dentalBenefitId, visionBenefitId, healthBenefitId } }
+        };
 
         _mockBenefitRepo
             .Setup(r => r.GetBenefitsByCompany(_companyId))
@@ -138,15 +159,15 @@ public class BenefitDeductionResultServiceTests
 
         var dentalDeduction = result.FirstOrDefault(r => r.BenefitName == "Dentista");
         Assert.That(dentalDeduction, Is.Not.Null);
-        Assert.That(dentalDeduction.DeductionValue, Is.EqualTo(75m));
+        Assert.That(dentalDeduction.DeductionValue, Is.EqualTo(DentistFixedValueMultiple));
 
         var visionDeduction = result.FirstOrDefault(r => r.BenefitName == "Oftalmologo");
         Assert.That(visionDeduction, Is.Not.Null);
-        Assert.That(visionDeduction.DeductionValue, Is.EqualTo(50m));
+        Assert.That(visionDeduction.DeductionValue, Is.EqualTo(VisionExpectedDeduction));
 
         var healthDeduction = result.FirstOrDefault(r => r.BenefitName == "Doctor a Casa");
         Assert.That(healthDeduction, Is.Not.Null);
-        Assert.That(healthDeduction.DeductionValue, Is.EqualTo(150m));
+        Assert.That(healthDeduction.DeductionValue, Is.EqualTo(DoctorFixedValue));
     }
 
     [Test]
@@ -156,13 +177,13 @@ public class BenefitDeductionResultServiceTests
             .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(new List<Benefit>
             {
-            new Benefit
-            {
-                BenefitID = Guid.NewGuid(),
-                Name = "Vision Plan",
-                IsFixed = true,
-                FixedValue = 40m
-            }
+                new Benefit
+                {
+                    BenefitID = Guid.NewGuid(),
+                    Name = "Vision Plan",
+                    IsFixed = true,
+                    FixedValue = VisionPlanFixedValue
+                }
             });
         _mockEmployeeRepo
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
@@ -181,25 +202,25 @@ public class BenefitDeductionResultServiceTests
             .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(new List<Benefit>
             {
-            new Benefit
-            {
-                BenefitID = benefitId,
-                Name = "Extra Coverage",
-                IsFixed = true,
-                FixedValue = 100m
-            }
+                new Benefit
+                {
+                    BenefitID = benefitId,
+                    Name = "Extra Coverage",
+                    IsFixed = true,
+                    FixedValue = ExtraCoverageFixedValue
+                }
             });
         _mockEmployeeRepo
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
             .Returns(new Dictionary<Guid, List<Guid>>
             {
-            { _employeeId, new List<Guid>() }
+                { _employeeId, new List<Guid>() }
             });
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
             .Returns(new Dictionary<Guid, Employee>
             {
-            { _employeeId, new Employee { BruteSalary = 1000m } }
+                { _employeeId, new Employee { BruteSalary = BruteSalaryLow } }
             });
 
         var result = _service.GetDeductionsForEmployee(_employeeId);

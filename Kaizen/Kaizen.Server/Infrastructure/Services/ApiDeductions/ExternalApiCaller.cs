@@ -10,36 +10,36 @@ public class ExternalApiCaller : IExternalApiCaller
 {
     private readonly HttpClient _httpClient = new();
 
-    public async Task<decimal> FetchDeductionAsync(APIsDto config, Dictionary<string, string> runtimeParameters)
+    public async Task<decimal> FetchDeductionAsync(APIsDto apiConfig, Dictionary<string, string> runtimeParameters)
     {
-        string resolvedParameters = PlaceholderResolver.Resolve(config.ParametersJson, runtimeParameters);
+        string resolvedParameters = PlaceholderResolver.Resolve(apiConfig.ParametersJson, runtimeParameters);
         HttpRequestMessage request;
 
-        if (config.HttpMethod?.ToUpper() == "GET")
+        if (apiConfig.HttpMethod?.ToUpper() == "GET")
         {
             var queryParameters = JsonSerializer.Deserialize<Dictionary<string, string>>(resolvedParameters);
-            string url = PlaceholderResolver.BuildUrlWithQuery(config.Path, queryParameters);
+            string url = PlaceholderResolver.BuildUrlWithQuery(apiConfig.Path, queryParameters);
             request = new HttpRequestMessage(HttpMethod.Get, url);
         }
         else
         {
-            request = new HttpRequestMessage(HttpMethod.Post, config.Path);
+            request = new HttpRequestMessage(HttpMethod.Post, apiConfig.Path);
             request.Content = new StringContent(resolvedParameters, Encoding.UTF8, "application/json");
         }
 
-        if (!string.IsNullOrWhiteSpace(config.AuthorizationHeader))
-            request.Headers.Add(config.AuthorizationHeader, config.AuthorizationToken);
+        if (!string.IsNullOrWhiteSpace(apiConfig.AuthorizationHeader))
+            request.Headers.Add(apiConfig.AuthorizationHeader, apiConfig.AuthorizationToken);
 
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         string body = await response.Content.ReadAsStringAsync();
 
-        return config.ExpectedDataType switch
+        return apiConfig.ExpectedDataType switch
         {
             "decimal" => decimal.Parse(body),
             "int" => Convert.ToDecimal(int.Parse(body)),
-            var s when s.StartsWith("json-path:") =>
-                PlaceholderResolver.ExtractFromJson(body, s.Substring("json-path:$.".Length).Trim()),
+            var stringType when stringType.StartsWith("json-path:") =>
+                PlaceholderResolver.ExtractFromJson(body, stringType.Substring("json-path:$.".Length).Trim()),
             _ => throw new NotSupportedException("Unsupported type")
         };
     }
