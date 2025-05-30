@@ -1,12 +1,11 @@
 ﻿using System.Data;
-using System.Text.Json;
 using Kaizen.Server.Application.Dtos.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 
-public class BenefitRepository : IBenefitRepository
+public class BenefitRepository : IApiBenefitRepository
 {
     private readonly SqlConnection _connection;
 
@@ -16,12 +15,12 @@ public class BenefitRepository : IBenefitRepository
     }
 
 
-    public async Task<List<BenefitDto>> GetBenefitsAsync(Guid companyId)
+    public async Task<List<APIsDto>> GetBenefitsAsync(Guid companyId)
     {
         if (_connection.State != ConnectionState.Open)
             await _connection.OpenAsync();
 
-        var benefits = new List<BenefitDto>();
+        var benefits = new List<APIsDto>();
         const string query = @"SELECT 
             adc.Id, 
             adc.Name, 
@@ -42,7 +41,7 @@ public class BenefitRepository : IBenefitRepository
 
         while (await reader.ReadAsync())
         {
-            benefits.Add(new BenefitDto
+            benefits.Add(new APIsDto
             {
                 ID = reader.GetInt32(0),
                 Name = reader.GetString(1),

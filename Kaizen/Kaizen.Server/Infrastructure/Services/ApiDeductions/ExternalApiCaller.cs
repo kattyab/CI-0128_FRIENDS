@@ -10,7 +10,7 @@ public class ExternalApiCaller : IExternalApiCaller
 {
     private readonly HttpClient _httpClient = new();
 
-    public async Task<decimal> FetchDeductionAsync(BenefitDto config, Dictionary<string, string> runtimeParams)
+    public async Task<decimal> FetchDeductionAsync(APIsDto config, Dictionary<string, string> runtimeParams)
     {
         string resolvedParams = PlaceholderResolver.Resolve(config.ParametersJson, runtimeParams);
         HttpRequestMessage request;

@@ -1,6 +1,6 @@
 ﻿namespace Kaizen.Server.Application.Dtos.ApiDeductions;
 
-public class BenefitDto
+public class APIsDto
 {
     public int ID { get; set; }
     public string Name { get; set; }

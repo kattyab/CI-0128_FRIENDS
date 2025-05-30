@@ -2,13 +2,13 @@
 
 namespace Kaizen.Server.Application.Services.ApiDeductions;
 
-public class DeductionService : IDeductionService
+public class ApiDeductionService : IApiDeductionService
 {
     private readonly Guid _companyId;
-    private readonly IBenefitRepository _repository;
+    private readonly IApiBenefitRepository _repository;
     private readonly IExternalApiCaller _apiCaller;
 
-    public DeductionService(Guid companyId, IBenefitRepository repository, IExternalApiCaller apiCaller)
+    public ApiDeductionService(Guid companyId, IApiBenefitRepository repository, IExternalApiCaller apiCaller)
     {
         _companyId = companyId;
         _repository = repository;
@@ -33,7 +33,6 @@ public class DeductionService : IDeductionService
         {
             if (!groupedParams.TryGetValue(benefit.ID, out var paramDict))
             {
-                result[benefit.Name] = -1;
                 continue;
             }
 
@@ -44,7 +43,7 @@ public class DeductionService : IDeductionService
             }
             catch
             {
-                result[benefit.Name] = -1;
+                continue;
             }
         }
 

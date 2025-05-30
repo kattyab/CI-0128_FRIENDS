@@ -7,19 +7,19 @@ namespace Kaizen.Server.Tests.Application.Services
 {
     public class ApiDeductionTest
     {
-        private Mock<IBenefitRepository> _mockRepository;
+        private Mock<IApiBenefitRepository> _mockRepository;
         private Mock<IExternalApiCaller> _mockApiCaller;
-        private DeductionService _service;
+        private ApiDeductionService _service;
         private Guid _companyId;
 
         [SetUp]
         public void Setup()
         {
-            _mockRepository = new Mock<IBenefitRepository>();
+            _mockRepository = new Mock<IApiBenefitRepository>();
             _mockApiCaller = new Mock<IExternalApiCaller>();
             _companyId = Guid.NewGuid();
 
-            _service = new DeductionService(_companyId, _mockRepository.Object, _mockApiCaller.Object);
+            _service = new ApiDeductionService(_companyId, _mockRepository.Object, _mockApiCaller.Object);
         }
 
         [Test]
@@ -28,10 +28,10 @@ namespace Kaizen.Server.Tests.Application.Services
             // Arrange
             var employeeId = Guid.NewGuid();
 
-            var benefits = new List<BenefitDto>
+            var benefits = new List<APIsDto>
             {
-                new BenefitDto { ID = Guid.NewGuid(), Name = "BenefitA" },
-                new BenefitDto { ID = Guid.NewGuid(), Name = "BenefitB" }
+                new APIsDto { ID = 1, Name = "BenefitA" },
+                new APIsDto { ID = 2, Name = "BenefitB" }
             };
 
             var parameters = new List<EmployeeBenefitParameterDto>
@@ -74,18 +74,17 @@ namespace Kaizen.Server.Tests.Application.Services
         }
 
         [Test]
-        public async Task GetDeductionsForEmployeeAsyncMissingParametersReturnsMinusOne()
+        public async Task GetDeductionsForEmployeeAsyncMissingParametersOmitsBenefit()
         {
             // Arrange
             var employeeId = Guid.NewGuid();
 
-            var benefit = new BenefitDto { ID = Guid.NewGuid(), Name = "BenefitA" };
-            var benefits = new List<BenefitDto> { benefit };
+            var benefit = new APIsDto { ID = 1, Name = "BenefitA" };
+            var benefits = new List<APIsDto> { benefit };
 
             _mockRepository.Setup(r => r.GetBenefitsAsync(_companyId))
                 .ReturnsAsync(benefits);
 
-            // Return empty parameters, simulating missing param for benefit
             _mockRepository.Setup(r => r.GetParametersForEmployeeAsync(employeeId))
                 .ReturnsAsync(new List<EmployeeBenefitParameterDto>());
 
@@ -93,18 +92,18 @@ namespace Kaizen.Server.Tests.Application.Services
             var result = await _service.GetDeductionsForEmployeeAsync(employeeId);
 
             // Assert
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(-1m, result["BenefitA"]);
+            Assert.AreEqual(0, result.Count);
+            Assert.IsFalse(result.ContainsKey("BenefitA"));
         }
 
         [Test]
-        public async Task GetDeductionsForEmployeeAsyncApiCallerThrowsReturnsMinusOne()
+        public async Task GetDeductionsForEmployeeAsyncApiCallerThrowsOmitsBenefit()
         {
             // Arrange
             var employeeId = Guid.NewGuid();
 
-            var benefit = new BenefitDto { ID = Guid.NewGuid(), Name = "BenefitA" };
-            var benefits = new List<BenefitDto> { benefit };
+            var benefit = new APIsDto { ID = 1, Name = "BenefitA" };
+            var benefits = new List<APIsDto> { benefit };
 
             var parameters = new List<EmployeeBenefitParameterDto>
             {
@@ -129,8 +128,8 @@ namespace Kaizen.Server.Tests.Application.Services
             var result = await _service.GetDeductionsForEmployeeAsync(employeeId);
 
             // Assert
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(-1m, result["BenefitA"]);
+            Assert.AreEqual(0, result.Count);
+            Assert.IsFalse(result.ContainsKey("BenefitA"));
         }
     }
 }

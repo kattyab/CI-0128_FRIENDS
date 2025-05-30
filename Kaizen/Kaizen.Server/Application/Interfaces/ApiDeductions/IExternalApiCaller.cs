@@ -4,5 +4,5 @@ namespace Kaizen.Server.Application.Interfaces.ApiDeductions;
 
 public interface IExternalApiCaller
 {
-    Task<decimal> FetchDeductionAsync(BenefitDto config, Dictionary<string, string> runtimeParams);
+    Task<decimal> FetchDeductionAsync(APIsDto config, Dictionary<string, string> runtimeParams);
 }

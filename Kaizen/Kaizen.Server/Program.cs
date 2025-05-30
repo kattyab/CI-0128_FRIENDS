@@ -10,6 +10,9 @@ using Kaizen.Server.Infrastructure.Services.CCSS;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Infrastructure.Services.ApiDeductions;
 using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
+using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Application.Services.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -45,8 +48,12 @@ builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 
-builder.Services.AddScoped<IBenefitRepository, BenefitRepository>();
+builder.Services.AddScoped<IApiBenefitRepository, BenefitRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
+
+builder.Services.AddScoped<IBenefitDeductionService, BenefitDeductionCalculator>();
+builder.Services.AddScoped<IEmployeeRepository, SqlEmployeeRepository>();
+builder.Services.AddScoped<IBenefitRepository, SqlBenefitRepository>();
 
 
 builder.Services.AddMediatR(cfg =>

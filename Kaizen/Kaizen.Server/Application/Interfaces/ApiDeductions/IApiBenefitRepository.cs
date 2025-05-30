@@ -2,8 +2,8 @@
 
 namespace Kaizen.Server.Application.Interfaces.ApiDeductions;
 
-public interface IBenefitRepository
+public interface IApiBenefitRepository
 {
-    Task<List<BenefitDto>> GetBenefitsAsync(Guid companyId);
+    Task<List<APIsDto>> GetBenefitsAsync(Guid companyId);
     Task<List<EmployeeBenefitParameterDto>> GetParametersForEmployeeAsync(Guid employeeId);
 }
