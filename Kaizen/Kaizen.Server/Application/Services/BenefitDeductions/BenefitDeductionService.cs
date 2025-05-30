@@ -26,7 +26,7 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
         public List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID)
         {
             if (_companyBenefits == null)
-                _companyBenefits = _benefitRepo.GetNonApiBenefitsByCompany(_companyID);
+                _companyBenefits = _benefitRepo.GetBenefitsByCompany(_companyID);
 
             if (_employeeData == null)
                 _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
@@ -41,11 +41,11 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             var employee = _employeeData[employeeID];
 
             return _companyBenefits
-                .Where(b => chosenBenefitIDs.Contains(b.BenefitID) && IsEligible(employee, b))
-                .Select(b => new BenefitDeductionResult
+                .Where(benefit => chosenBenefitIDs.Contains(benefit.BenefitID) && IsEligible(employee, benefit))
+                .Select(benefit => new BenefitDeductionResult
                 {
-                    BenefitName = b.Name,
-                    DeductionValue = CalculateDeduction(b, employee.BruteSalary)
+                    BenefitName = benefit.Name,
+                    DeductionValue = CalculateDeduction(benefit, employee.BruteSalary)
                 })
                 .ToList();
         }

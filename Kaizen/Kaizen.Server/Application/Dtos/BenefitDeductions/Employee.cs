@@ -2,7 +2,7 @@
 {
     public class Employee
     {
-        public Guid EmpID { get; set; }
+        public Guid EmployeeId { get; set; }
         public string ContractType { get; set; } = "";
         public DateTime StartDate { get; set; }
         public decimal BruteSalary { get; set; }

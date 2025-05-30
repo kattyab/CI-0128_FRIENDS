@@ -56,7 +56,7 @@ public class BenefitDeductionResultServiceTests
         { _employeeId, new List<Guid> { benefitId } }
     };
         _mockBenefitRepo
-            .Setup(r => r.GetNonApiBenefitsByCompany(_companyId))
+            .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(benefits);
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
@@ -123,7 +123,7 @@ public class BenefitDeductionResultServiceTests
     };
 
         _mockBenefitRepo
-            .Setup(r => r.GetNonApiBenefitsByCompany(_companyId))
+            .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(benefits);
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
@@ -153,7 +153,7 @@ public class BenefitDeductionResultServiceTests
     public void GetDeductionsForEmployeeWhenEmployeeHasNoChosenBenefitsReturnsEmptyList()
     {
         _mockBenefitRepo
-            .Setup(r => r.GetNonApiBenefitsByCompany(_companyId))
+            .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(new List<Benefit>
             {
             new Benefit
@@ -178,7 +178,7 @@ public class BenefitDeductionResultServiceTests
     {
         var benefitId = Guid.NewGuid();
         _mockBenefitRepo
-            .Setup(r => r.GetNonApiBenefitsByCompany(_companyId))
+            .Setup(r => r.GetBenefitsByCompany(_companyId))
             .Returns(new List<Benefit>
             {
             new Benefit

@@ -6,8 +6,8 @@ public class APIsDto
     public string Name { get; set; }
     public string Path { get; set; }
     public string HttpMethod { get; set; }
-    public string AuthHeaderName { get; set; }
-    public string AuthToken { get; set; }
+    public string AuthorizationHeader { get; set; }
+    public string AuthorizationToken { get; set; }
     public string ParametersJson { get; set; }
     public string ExpectedDataType { get; set; }
 }

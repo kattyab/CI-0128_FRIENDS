@@ -47,8 +47,8 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
                 Name = reader.GetString(1),
                 Path = reader.IsDBNull(2) ? null : reader.GetString(2),
                 HttpMethod = reader.IsDBNull(3) ? null : reader.GetString(3),
-                AuthHeaderName = reader.IsDBNull(4) ? null : reader.GetString(4),
-                AuthToken = reader.IsDBNull(5) ? null : reader.GetString(5),
+                AuthorizationHeader = reader.IsDBNull(4) ? null : reader.GetString(4),
+                AuthorizationToken = reader.IsDBNull(5) ? null : reader.GetString(5),
                 ParametersJson = reader.IsDBNull(6) ? null : reader.GetString(6),
                 ExpectedDataType = reader.IsDBNull(7) ? null : reader.GetString(7)
             });

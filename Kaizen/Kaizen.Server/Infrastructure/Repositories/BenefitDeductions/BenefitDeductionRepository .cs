@@ -13,7 +13,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
             _connection = connection;
         }
 
-        public List<Benefit> GetNonApiBenefitsByCompany(Guid companyID)
+        public List<Benefit> GetBenefitsByCompany(Guid companyID)
         {
             var benefits = new List<Benefit>();
 
@@ -25,15 +25,15 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
                 WHERE OfferedBy = @CompanyID AND IsAPI = 0;
             ";
 
-            using var cmd = new SqlCommand(sql, _connection);
-            cmd.Parameters.AddWithValue("@CompanyID", companyID);
+            using var command = new SqlCommand(sql, _connection);
+            command.Parameters.AddWithValue("@CompanyID", companyID);
 
             if (_connection.State != System.Data.ConnectionState.Open)
             {
                 _connection.Open();
             }
 
-            using var reader = cmd.ExecuteReader();
+            using var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 benefits.Add(new Benefit

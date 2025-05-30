@@ -23,19 +23,19 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 WHERE WorksFor = @CompanyID;
             ";
 
-            using var cmd = new SqlCommand(sql, _connection);
-            cmd.Parameters.AddWithValue("@CompanyID", companyID);
+            using var command = new SqlCommand(sql, _connection);
+            command.Parameters.AddWithValue("@CompanyID", companyID);
 
             if (_connection.State != System.Data.ConnectionState.Open)
                 _connection.Open();
 
-            using var reader = cmd.ExecuteReader();
+            using var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 var empID = reader.GetGuid(0);
                 employees[empID] = new Employee
                 {
-                    EmpID = empID,
+                    EmployeeId = empID,
                     ContractType = reader.GetString(1),
                     StartDate = reader.GetDateTime(2),
                     BruteSalary = reader.GetDecimal(3)
@@ -55,13 +55,13 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 WHERE e.WorksFor = @CompanyID;
             ";
 
-            using var cmd = new SqlCommand(sql, _connection);
-            cmd.Parameters.AddWithValue("@CompanyID", companyID);
+            using var command = new SqlCommand(sql, _connection);
+            command.Parameters.AddWithValue("@CompanyID", companyID);
 
             if (_connection.State != System.Data.ConnectionState.Open)
                 _connection.Open();
 
-            using var reader = cmd.ExecuteReader();
+            using var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 var employeeID = reader.GetGuid(0);

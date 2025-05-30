@@ -31,14 +31,14 @@ public class ApiDeductionService : IApiDeductionService
 
         foreach (var benefit in benefits)
         {
-            if (!groupedParams.TryGetValue(benefit.ID, out var paramDict))
+            if (!groupedParams.TryGetValue(benefit.ID, out var parameterDictionary))
             {
                 continue;
             }
 
             try
             {
-                var deduction = await _apiCaller.FetchDeductionAsync(benefit, paramDict);
+                var deduction = await _apiCaller.FetchDeductionAsync(benefit, parameterDictionary);
                 result[benefit.Name] = deduction;
             }
             catch

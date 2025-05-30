@@ -10,25 +10,25 @@ public class ExternalApiCaller : IExternalApiCaller
 {
     private readonly HttpClient _httpClient = new();
 
-    public async Task<decimal> FetchDeductionAsync(APIsDto config, Dictionary<string, string> runtimeParams)
+    public async Task<decimal> FetchDeductionAsync(APIsDto config, Dictionary<string, string> runtimeParameters)
     {
-        string resolvedParams = PlaceholderResolver.Resolve(config.ParametersJson, runtimeParams);
+        string resolvedParameters = PlaceholderResolver.Resolve(config.ParametersJson, runtimeParameters);
         HttpRequestMessage request;
 
         if (config.HttpMethod?.ToUpper() == "GET")
         {
-            var queryParams = JsonSerializer.Deserialize<Dictionary<string, string>>(resolvedParams);
-            string url = PlaceholderResolver.BuildUrlWithQuery(config.Path, queryParams);
+            var queryParameters = JsonSerializer.Deserialize<Dictionary<string, string>>(resolvedParameters);
+            string url = PlaceholderResolver.BuildUrlWithQuery(config.Path, queryParameters);
             request = new HttpRequestMessage(HttpMethod.Get, url);
         }
         else
         {
             request = new HttpRequestMessage(HttpMethod.Post, config.Path);
-            request.Content = new StringContent(resolvedParams, Encoding.UTF8, "application/json");
+            request.Content = new StringContent(resolvedParameters, Encoding.UTF8, "application/json");
         }
 
-        if (!string.IsNullOrWhiteSpace(config.AuthHeaderName))
-            request.Headers.Add(config.AuthHeaderName, config.AuthToken);
+        if (!string.IsNullOrWhiteSpace(config.AuthorizationHeader))
+            request.Headers.Add(config.AuthorizationHeader, config.AuthorizationToken);
 
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
