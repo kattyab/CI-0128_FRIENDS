@@ -6,6 +6,8 @@ using Kaizen.Server.Application.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.CCSS;
 using Kaizen.Server.Application.Services.CCSS;
 using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Application.Interfaces.Services.Auth;
+using Kaizen.Server.Infrastructure.Services.Auth;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,10 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
     .AddUserSecrets(Assembly.GetExecutingAssembly())
     .AddEnvironmentVariables();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<Login>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
 builder.Services.AddScoped<RegisterCompanyRepository>();
@@ -30,7 +35,6 @@ builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvid
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
-
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
