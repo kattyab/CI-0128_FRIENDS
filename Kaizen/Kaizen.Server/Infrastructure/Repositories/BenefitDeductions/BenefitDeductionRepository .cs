@@ -4,30 +4,34 @@ using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
 {
-    public class SqlBenefitRepository : IBenefitRepository
+    public class BenefitDeductionRepository : IBenefitDeductionRepository
     {
         private readonly SqlConnection _connection;
 
-        public SqlBenefitRepository(SqlConnection connection)
+        public BenefitDeductionRepository(SqlConnection connection)
         {
             _connection = connection;
         }
 
-        public List<Benefit> GetCompanyBenefits(Guid companyID)
+        public List<Benefit> GetNonApiBenefitsByCompany(Guid companyID)
         {
             var benefits = new List<Benefit>();
-            using var conn = new SqlConnection(_connection.ConnectionString);
-            conn.Open();
 
             const string sql = @"
-            SELECT ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
-                   IsPercetange, PercentageValue, IsFullTime, IsPartTime,
-                   IsByHours, IsByService
-            FROM dbo.Benefits
-            WHERE OfferedBy = @CompanyID AND IsAPI = 0";
+                SELECT 
+                    ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
+                    IsPercetange, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
+                FROM dbo.Benefits
+                WHERE OfferedBy = @CompanyID AND IsAPI = 0;
+            ";
 
-            using var cmd = new SqlCommand(sql, conn);
+            using var cmd = new SqlCommand(sql, _connection);
             cmd.Parameters.AddWithValue("@CompanyID", companyID);
+
+            if (_connection.State != System.Data.ConnectionState.Open)
+            {
+                _connection.Open();
+            }
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -47,7 +51,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
                     IsByService = reader.GetBoolean(10)
                 });
             }
-
             return benefits;
         }
     }

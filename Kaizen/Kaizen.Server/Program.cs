@@ -48,13 +48,16 @@ builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 
-builder.Services.AddScoped<IApiBenefitRepository, BenefitRepository>();
+builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 
-builder.Services.AddScoped<IBenefitDeductionService, BenefitDeductionCalculator>();
-builder.Services.AddScoped<IEmployeeRepository, SqlEmployeeRepository>();
-builder.Services.AddScoped<IBenefitRepository, SqlBenefitRepository>();
+builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
+builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
 
+//builder.Services.AddScoped<IBenefitDeductionService, BenefitDeductionService>();
+
+builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
+builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));

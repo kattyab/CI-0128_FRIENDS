@@ -2,8 +2,8 @@
 
 namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
 {
-    public interface IBenefitRepository
+    public interface IBenefitDeductionRepository
     {
-        List<Benefit> GetCompanyBenefits(Guid companyID);
+        List<Benefit> GetNonApiBenefitsByCompany(Guid companyID);
     }
 }

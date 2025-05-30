@@ -4,6 +4,6 @@ namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
 {
     public interface IBenefitDeductionService
     {
-        List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID);
+        List<DeductionResult> GetDeductionsForEmployee(Guid employeeID);
     }
 }

@@ -6,6 +6,5 @@
         public string ContractType { get; set; } = "";
         public DateTime StartDate { get; set; }
         public decimal BruteSalary { get; set; }
-        public Guid WorksFor { get; set; }
     }
 }

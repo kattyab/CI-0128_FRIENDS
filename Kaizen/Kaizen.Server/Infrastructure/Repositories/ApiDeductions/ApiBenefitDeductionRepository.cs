@@ -5,11 +5,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 
-public class BenefitRepository : IApiBenefitRepository
+public class ApiBenefitDeductionRepository : IApiBenefitRepository
 {
     private readonly SqlConnection _connection;
 
-    public BenefitRepository(SqlConnection connection)
+    public ApiBenefitDeductionRepository(SqlConnection connection)
     {
         _connection = connection;
     }
