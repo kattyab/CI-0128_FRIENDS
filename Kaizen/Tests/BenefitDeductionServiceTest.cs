@@ -7,9 +7,9 @@ namespace Kaizen.Tests.Application.Services.BenefitDeductionResults;
 
 public class BenefitDeductionResultServiceTests
 {
-    private Mock<IBenefitDeductionRepository> _mockBenefitRepo = null!;
-    private Mock<IEmployeeDeductionRepository> _mockEmployeeRepo = null!;
-    private BenefitDeductionService _service = null!;
+    private Mock<IBenefitDeductionRepository> _mockBenefitRepo;
+    private Mock<IEmployeeDeductionRepository> _mockEmployeeRepo;
+    private BenefitDeductionService _service;
     private Guid _companyId;
     private Guid _employeeId;
 
