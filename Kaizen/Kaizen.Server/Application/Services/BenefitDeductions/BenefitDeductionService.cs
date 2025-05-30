@@ -19,7 +19,7 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             _employeeRepo = employeeRepo;
         }
 
-        public List<DeductionResult> GetDeductionsForEmployee(Guid employeeID)
+        public List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID)
         {
             // Load data fresh inside the method (could be cached if needed)
             var companyBenefits = _benefitRepo.GetNonApiBenefitsByCompany(_companyID);
@@ -27,14 +27,14 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             var employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
 
             if (!employeeChosenBenefits.ContainsKey(employeeID) || !employeeData.ContainsKey(employeeID))
-                return new List<DeductionResult>();
+                return new List<BenefitDeductionResult>();
 
             var chosenBenefitIDs = employeeChosenBenefits[employeeID];
             var employee = employeeData[employeeID];
 
             return companyBenefits
                 .Where(b => chosenBenefitIDs.Contains(b.BenefitID) && IsEligible(employee, b))
-                .Select(b => new DeductionResult
+                .Select(b => new BenefitDeductionResult
                 {
                     BenefitName = b.Name,
                     DeductionValue = CalculateDeduction(b, employee.BruteSalary)
