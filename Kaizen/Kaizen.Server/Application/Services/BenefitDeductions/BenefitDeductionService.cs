@@ -9,6 +9,10 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
         private readonly IBenefitDeductionRepository _benefitRepo;
         private readonly IEmployeeDeductionRepository _employeeRepo;
 
+        private List<Benefit>? _companyBenefits;
+        private Dictionary<Guid, Employee>? _employeeData;
+        private Dictionary<Guid, List<Guid>>? _employeeChosenBenefits;
+
         public BenefitDeductionService(
             Guid companyID,
             IBenefitDeductionRepository benefitRepo,
@@ -21,18 +25,22 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
 
         public List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID)
         {
-            // Load data fresh inside the method (could be cached if needed)
-            var companyBenefits = _benefitRepo.GetNonApiBenefitsByCompany(_companyID);
-            var employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
-            var employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
+            if (_companyBenefits == null)
+                _companyBenefits = _benefitRepo.GetNonApiBenefitsByCompany(_companyID);
 
-            if (!employeeChosenBenefits.ContainsKey(employeeID) || !employeeData.ContainsKey(employeeID))
+            if (_employeeData == null)
+                _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
+
+            if (_employeeChosenBenefits == null)
+                _employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
+
+            if (!_employeeChosenBenefits.ContainsKey(employeeID) || !_employeeData.ContainsKey(employeeID))
                 return new List<BenefitDeductionResult>();
 
-            var chosenBenefitIDs = employeeChosenBenefits[employeeID];
-            var employee = employeeData[employeeID];
+            var chosenBenefitIDs = _employeeChosenBenefits[employeeID];
+            var employee = _employeeData[employeeID];
 
-            return companyBenefits
+            return _companyBenefits
                 .Where(b => chosenBenefitIDs.Contains(b.BenefitID) && IsEligible(employee, b))
                 .Select(b => new BenefitDeductionResult
                 {
