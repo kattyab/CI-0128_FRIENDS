@@ -10,3 +10,7 @@ Add FireDate date;
 UPDATE Employees
 SET RegistersHours = 0
 WHERE RegistersHours IS NULL;
+
+ALTER TABLE Employees
+ALTER COLUMN RegistersHours bit NOT NULL;
+
