@@ -7,6 +7,8 @@ using Kaizen.Server.Application.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.CCSS;
 using Kaizen.Server.Application.Services.CCSS;
 using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Application.Interfaces.Services.Auth;
+using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Infrastructure.Services.ApiDeductions;
 using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
@@ -23,6 +25,7 @@ builder.Configuration
     .AddUserSecrets(Assembly.GetExecutingAssembly())
     .AddEnvironmentVariables();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SqlConnection>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
@@ -31,6 +34,7 @@ builder.Services.AddScoped<SqlConnection>(sp =>
 });
 
 builder.Services.AddScoped<Login>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
 builder.Services.AddScoped<CompaniesRepository>();
 builder.Services.AddScoped<RegisterCompanyRepository>();
