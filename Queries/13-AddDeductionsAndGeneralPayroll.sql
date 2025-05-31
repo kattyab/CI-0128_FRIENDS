@@ -14,3 +14,22 @@ drop column SolidarityAssociationFund;
 
 Alter table Payrolls
 drop column LifeInsurancePlan;
+
+
+CREATE TABLE dbo.GeneralPayrolls (
+    GeneralPayrollsID UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    PaidBy UNIQUEIDENTIFIER NOT NULL,
+    TotalDeductionsBenefits DECIMAL(19,4),
+    TotalObligatoryDeductions DECIMAL(19,4),
+    TotalLaborCharges DECIMAL(19,4),
+    TotalMoneyPaid DECIMAL(19,4),
+    StartDate DATE
+);
+
+ALTER TABLE dbo.Payrolls
+ADD GeneralPayrollPk UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID();
+
+ALTER TABLE dbo.Payrolls
+ADD CONSTRAINT FK_Payrolls_GeneralPayrolls
+FOREIGN KEY (GeneralPayrollPk)
+REFERENCES dbo.GeneralPayrolls(GeneralPayrollsID);
