@@ -9,3 +9,8 @@ CREATE TABLE dbo.OptionalDeductions (
         REFERENCES dbo.Payrolls(PayrollID)
 );
 
+Alter table Payrolls
+drop column SolidarityAssociationFund;
+
+Alter table Payrolls
+drop column LifeInsurancePlan;
