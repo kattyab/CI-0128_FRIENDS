@@ -102,7 +102,7 @@
 
   onMounted(async () => {
     try {
-      const response = await axios.get('/api/login/authenticate', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, {
         withCredentials: true
       });
       emailComponent.value = response.data.email;

@@ -10,4 +10,6 @@ public class EmployeeDto
     public string Id { get; set; } = default!;
     public string JobPosition { get; set; } = default!;
     public string ContractType { get; set; } = default!;
+    public DateTime StartDate { get; set; } = default!;
+    public decimal BruteSalary { get; set; } = default!;
 }

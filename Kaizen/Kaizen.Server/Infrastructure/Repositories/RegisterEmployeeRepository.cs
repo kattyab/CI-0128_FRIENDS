@@ -13,9 +13,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
         {
             _connectionString = configuration.GetConnectionString("KaizenDb")
                 ?? throw new InvalidOperationException(
-                    "La cadena de conexion 'KaizenDb' no est� definida en appsettings.json");
+                    "La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
         }
-
         public async Task<bool> CreateEmployee(RegisterEmployeeDto employee)
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -31,7 +30,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     FROM Admins A
                     JOIN Users U ON A.AdminPK = U.PersonPK
                     WHERE U.Email = @AdminEmail;",
-                        "Due�o" => @"
+                        "Dueño" => @"
                     SELECT C.CompanyPK
                     FROM Companies C
                     JOIN Persons P ON C.OwnerPK = P.PersonPK
@@ -66,8 +65,8 @@ VALUES (@Email, @PasswordHash, 1, @Role, @PersonPK);
 INSERT INTO PersonPhoneNumbers (PersonPK, Number)
 VALUES (@PersonPK, @PhoneNumber);
 
-INSERT INTO Employees (PersonPK, WorksFor, JobPosition, ContractType, WorkHours, ExtraHours, StartDate, BankAccount, BruteSalary, PayCycleType)
-VALUES (@PersonPK, @CompanyPK, @JobPosition, @ContractType, 0, 0, @StartDate, @BankAccount, @BruteSalary, @PayCycleType);
+INSERT INTO Employees (PersonPK, WorksFor, JobPosition, ContractType, WorkHours, StartDate, BankAccount, BruteSalary, PayCycleType)
+VALUES (@PersonPK, @CompanyPK, @JobPosition, @ContractType, 0, @StartDate, @BankAccount, @BruteSalary, @PayCycleType);
 ";
 
                     if (employee.Role == "Administrador")
@@ -109,6 +108,5 @@ VALUES (@PersonPK, @CompanyPK);";
                 }
             }
         }
-
     }
 }

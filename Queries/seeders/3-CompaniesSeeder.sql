@@ -56,3 +56,25 @@ VALUES
         ),
         'admin@kaizen.com'
     );
+
+INSERT INTO
+    Admins (AdminPK, CompanyPK)
+VALUES
+    (
+        (
+            SELECT
+                PersonPK
+            FROM
+                Persons
+            WHERE
+                Id = '4-5678-9876'
+        ),
+        (
+            SELECT
+                CompanyPK
+            FROM
+                Companies
+            WHERE
+                CompanyID = '4-000-000019'
+        )
+    );

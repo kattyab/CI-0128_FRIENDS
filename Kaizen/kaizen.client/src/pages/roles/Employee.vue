@@ -86,7 +86,7 @@
 
     try {
       const email = userData.value.email;
-      const response = await axios.get(`/api/CommonHomepage/${email}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/CommonHomepage/${email}`);
       const data = response.data;
 
       if (response) {
@@ -121,7 +121,7 @@
 
   onMounted(async () => {
     try {
-      const response = await axios.get('/api/login/authenticate', { withCredentials: true });
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true });
       userData.value = response.data;
 
       await fetchEmployeeData();
@@ -186,4 +186,3 @@
       color: #003c63;
     }
 </style>
-
