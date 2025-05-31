@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.Data.SqlClient;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.IncomeTax;
 using Kaizen.Server.Infrastructure.Repositories;
@@ -8,15 +9,29 @@ using Kaizen.Server.Application.Services.CCSS;
 using Kaizen.Server.Infrastructure.Services.CCSS;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.Auth;
+using Kaizen.Server.Application.Interfaces.ApiDeductions;
+using Kaizen.Server.Infrastructure.Services.ApiDeductions;
+using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
+using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Application.Services.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
+using Kaizen.Server.Application.Services.ApiDeductions;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddUserSecrets(Assembly.GetExecutingAssembly())
     .AddEnvironmentVariables();
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<SqlConnection>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connStr = config.GetConnectionString("KaizenDb");
+    return new SqlConnection(connStr);
+});
 
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -31,14 +46,25 @@ builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
+
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
+
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
+
+builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
+builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
+
+builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServiceFactory>();
+builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
+builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -75,9 +101,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors(MyAllowSpecificOrigins);
-
 app.UseAuthentication();
 app.UseAuthorization();
 
