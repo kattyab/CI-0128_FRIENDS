@@ -28,7 +28,7 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
             adc.HttpMethod, 
             adc.AuthHeaderName,
             adc.AuthToken, 
-            dbo.GetParametersJsonTemplate(adc.Id) AS ParametersJson,
+            dbo.GetParametersJsonTemplate(adc.Endpoint) AS ParametersJson,
             adc.ExpectedDataType
         FROM dbo.Companies c
         INNER JOIN dbo.OffersAPIs oa ON oa.CompanyPK = c.CompanyPK
