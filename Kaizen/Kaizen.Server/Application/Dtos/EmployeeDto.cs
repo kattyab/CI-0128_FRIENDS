@@ -1,4 +1,4 @@
-﻿namespace Kaizen.Server.Application.Dtos;
+namespace Kaizen.Server.Application.Dtos;
 
 public class EmployeeDto
 {
@@ -12,4 +12,6 @@ public class EmployeeDto
     public string ContractType { get; set; } = default!;
     public DateTime StartDate { get; set; } = default!;
     public decimal BruteSalary { get; set; } = default!;
+    public DateTime? FireDate { get; set; }
+    public bool RegistersHours { get; set; }
 }

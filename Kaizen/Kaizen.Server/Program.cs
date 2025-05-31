@@ -16,6 +16,7 @@ using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
 using Kaizen.Server.Application.Services.ApiDeductions;
+using Kaizen.Server.Application.Services.Payroll;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +61,9 @@ builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServiceFactory>();
 builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
 builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
+
+builder.Services.AddScoped <PayrollCalculator>();
+builder.Services.AddScoped <IPayrollProcessingService, PayrollProcessingService>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
