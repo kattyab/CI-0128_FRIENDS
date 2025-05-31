@@ -1,154 +1,197 @@
 <template>
-  <div class="p-6 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-center mb-6 text-sky-900">Registro de horas</h1>
+  <div class="contenedor-principal">
+    <h1 class="text-center">Registro de horas semanal</h1>
 
-    <!-- Registros existentes -->
-    <div v-if="registers.length > 0" class="space-y-4">
-      <div v-for="(reg, index) in registers"
-           :key="index"
-           class="flex justify-between items-center border-b pb-4">
-        <!-- Parte izquierda -->
-        <div class="text-sky-900">
-          <p class="text-sm font-medium">
-            {{ reg.label || 'Semana' }}
-          </p>
-          <p>{{ formatDate(reg.start) }} - {{ formatDate(reg.end) }}</p>
-        </div>
+    <!-- Tabla de registros -->
+    <div v-if="registros.length > 0" class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Semana</th>
+            <th>Horas Trabajadas</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <tr v-for="(registro, index) in registros" :key="index">
+            <td>{{ formatoSemana(registro.fechaInicio, registro.fechaFin) }}</td>
+            <td>{{ registro.horas }}</td>
+            <td>
+              <button v-if="!registro.enRevision"
+                      class="btn btn-sm btn-revision me-2"
+                      @click="enviarRevision(index)">
+                Enviar a revisión
+              </button>
+              <span v-else
+                    class="btn btn-sm btn-
+                    disabled">
+                En revisión
+              </span>
 
-        <!-- Centro -->
-        <div class="text-center text-sky-900">
-          <p class="text-sm font-medium">Horas Trabajadas</p>
-          <p>{{ reg.hours }}</p>
-        </div>
+              <button class="btn btn-sm btn-outline-dark"
+                      @click="eliminarRegistro(index)"
+                      v-show="!registro.enRevision">
+                <span class="material-icons">delete</span>
+              </button>
 
-        <!-- Derecha -->
-        <div>
-          <button v-if="reg.status === 'draft'"
-                  @click="sendReview(index)"
-                  class="bg-sky-900 text-white px-4 py-2 rounded hover:bg-sky-800 transition">
-            Enviar a revisión
-          </button>
-          <div v-else
-               class="bg-teal-500 text-white px-4 py-2 rounded text-center">
-            En revisión
-          </div>
-        </div>
-      </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Botón añadir -->
-    <div class="mt-10 text-center">
-      <button @click="showForm = !showForm"
-              class="text-xl font-semibold text-gray-400 flex items-center justify-center space-x-2 hover:text-gray-600 transition">
-        <span>Añadir registro de horas</span>
-        <span class="text-2xl font-bold">+</span>
+    <!-- Mensaje si no hay registros -->
+    <div v-else class="text-muted text-center my-4">
+      No hay registros pendientes.
+    </div>
+
+    <!-- Botón para añadir registro -->
+    <div class="text-start mt-3">
+      <button class="btn btn-primary" @click="mostrarFormulario = !mostrarFormulario">
+        Añadir registro
       </button>
     </div>
 
-    <!-- Formulario -->
-    <div v-if="showForm" class="mt-6 border-t pt-6">
-      <div class="flex flex-col md:flex-row md:items-end md:space-x-4 space-y-4 md:space-y-0">
-        <!-- Semana -->
-        <div class="flex-1">
-          <label class="block mb-2 text-sm font-medium text-gray-700">Semana trabajada</label>
-          <Datepicker v-model="selectedDate"
-                      :enable-time-picker="false"
-                      :format="formatDate"
-                      :auto-apply="true"
-                      :week-picker="true"
-                      :start-week-on="1"
-                      class="w-full bg-white"
-                      placeholder="Selecciona una semana" />
+    <!-- Formulario para añadir nuevo registro -->
+    <div v-if="mostrarFormulario" class="mt-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-auto">
+          <label>Semana</label>
+          <flat-pickr class="form-control"
+                      v-model="nuevaFecha"
+                      :config="{
+                  locale: Spanish,
+                  dateFormat: 'd/m/Y',
+                  allowInput: true
+                }"
+                      @on-change="ajustarSemana" />
         </div>
 
-        <!-- Horas -->
-        <div class="w-full md:w-1/3">
-          <label class="block mb-2 text-sm font-medium text-gray-700">Horas trabajadas</label>
+        <div class="col-auto">
+          <label>Horas Trabajadas</label>
           <input type="number"
-                 v-model="newRegister.hours"
-                 class="border rounded p-2 w-full"
-                 min="0" />
+                 class="form-control"
+                 v-model.number="nuevasHoras"
+                 :max="48"
+                 :min="1"
+                 @keydown="blockArrows"
+                 @input="validarHoras" />
         </div>
-
-        <!-- Guardar -->
-        <div>
-          <button @click="addRegister"
-                  class="bg-sky-800 text-white px-4 py-2 rounded hover:bg-sky-700 transition">
-            Guardar
-          </button>
+        <div class="col-auto">
+          <button class="btn btn-success" @click="confirmarRegistro">Confirmar</button>
         </div>
+      </div>
+      <div class="text-muted mt-1" v-if="fechaInicio && fechaFin">
+        Rango ajustado: {{ formatoSemana(fechaInicio, fechaFin) }}
       </div>
     </div>
   </div>
 </template>
 
+<script>
+  import flatPickr from 'vue-flatpickr-component';
+  import 'flatpickr/dist/flatpickr.min.css';
+  import { Spanish } from 'flatpickr/dist/l10n/es.js';
 
+  export default {
+    data() {
+      return {
+        registros: [],
+        mostrarFormulario: false,
+        nuevaFecha: null,
+        nuevasHoras: null,
+        fechaInicio: null,
+        fechaFin: null,
+      };
+    },
+    components: {
+      flatPickr,
+    },
+    methods: {
+      ajustarSemana(selectedDates) {
+        const seleccion = selectedDates[0];
+        if (seleccion) {
+          const day = seleccion.getDay(); // domingo = 0
+          const monday = new Date(seleccion);
+          monday.setDate(seleccion.getDate() - ((day + 6) % 7));
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 6);
 
-
-<script setup>
-  import { ref, watch } from 'vue'
-  import Datepicker from '@vuepic/vue-datepicker'
-  import '@vuepic/vue-datepicker/dist/main.css'
-
-  const registers = ref([])
-  const showForm = ref(false)
-  const selectedDate = ref(null)
-
-  const newRegister = ref({
-    start: '',
-    end: '',
-    hours: '',
-    status: 'draft',
-  })
-
-  // Cuando seleccionas una fecha, se calcula la semana completa (lunes a domingo)
-  watch(selectedDate, (date) => {
-    if (!date) return
-    const selected = new Date(date)
-    const day = selected.getDay()
-    const diffToMonday = day === 0 ? -6 : 1 - day
-    const monday = new Date(selected)
-    monday.setDate(selected.getDate() + diffToMonday)
-
-    const sunday = new Date(monday)
-    sunday.setDate(monday.getDate() + 6)
-
-    newRegister.value.start = monday
-    newRegister.value.end = sunday
-  })
-
-  // Función para agregar registro
-  const addRegister = () => {
-    if (newRegister.value.start && newRegister.value.end && newRegister.value.hours) {
-      registers.value.push({ ...newRegister.value })
-      newRegister.value = { start: '', end: '', hours: '', status: 'draft' }
-      selectedDate.value = null
-      showForm.value = false
-    }
-  }
-
-  const sendReview = (index) => {
-    registers.value[index].status = 'reviewing'
-  }
-
-  // Mostrar fecha como dd/mm/yyyy
-  const formatDate = (date) => {
-    if (!(date instanceof Date)) return ''
-    const d = new Date(date)
-    const day = String(d.getDate()).padStart(2, '0')
-    const month = String(d.getMonth() + 1).padStart(2, '0')
-    const year = d.getFullYear()
-    return `${day}/${month}/${year}`
-  }
+          this.fechaInicio = monday.toISOString().split('T')[0];
+          this.fechaFin = sunday.toISOString().split('T')[0];
+        }
+      },
+      confirmarRegistro() {
+        if (!this.fechaInicio || !this.nuevasHoras) return;
+        this.registros.push({
+          fechaInicio: this.fechaInicio,
+          fechaFin: this.fechaFin,
+          horas: this.nuevasHoras,
+          enRevision: false,
+        });
+        this.resetFormulario();
+      },
+      enviarRevision(index) {
+        this.registros[index].enRevision = true;
+      },
+      eliminarRegistro(index) {
+        if (!this.registros[index].enRevision) {
+          this.registros.splice(index, 1);
+        }
+      },
+      resetFormulario() {
+        this.nuevaFecha = null;
+        this.nuevasHoras = null;
+        this.fechaInicio = null;
+        this.fechaFin = null;
+        this.mostrarFormulario = false;
+      },
+      formatoSemana(inicio, fin) {
+        return `${this.formatoFecha(inicio)} - ${this.formatoFecha(fin)}`;
+      },
+      formatoFecha(fecha) {
+        const [a, m, d] = fecha.split('-');
+        return `${d}/${m}/${a.slice(2)}`;
+      },
+      blockArrows(event) {
+        // Evita flechas ↑ ↓ del teclado
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          event.preventDefault();
+        }
+      },
+      validarHoras(event) {
+        const valor = parseInt(event.target.value, 10);
+        if (valor > 48) {
+          this.nuevasHoras = 48;
+        } else if (valor < 1) {
+          this.nuevasHoras = 1;
+        }
+      },
+    },
+  };
 </script>
 
-<style>
-  :root {
-    --dp-background-color: white;
-    --dp-text-color: #0f172a;
-    --dp-border-color: #e5e7eb;
-    --dp-border-radius: 8px;
-    --dp-hover-color: #e0f2fe;
-    --dp-primary-color: #0369a1;
+<style scoped>
+  .material-icons {
+    font-size: 20px;
+    vertical-align: middle;
   }
+  .contenedor-principal {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 25px;
+  }
+  .btn-primary {
+    background-color: #003c63;
+    border-color: #003c63;
+    font-weight: bold;
+  }
+  .btn-revision {
+    background-color: #00796B;
+    color: white;
+    font-family: 'Arial';
+    font-weight: bold;
+    border: none;
+  }
+
 </style>
