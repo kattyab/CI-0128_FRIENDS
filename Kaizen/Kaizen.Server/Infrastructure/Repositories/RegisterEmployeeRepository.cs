@@ -15,7 +15,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 ?? throw new InvalidOperationException(
                     "La cadena de conexion 'KaizenDb' no est� definida en appsettings.json");
         }
-
         public async Task<bool> CreateEmployee(RegisterEmployeeDto employee)
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -31,7 +30,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     FROM Admins A
                     JOIN Users U ON A.AdminPK = U.PersonPK
                     WHERE U.Email = @AdminEmail;",
-                        "Due�o" => @"
+                        "Dueño" => @"
                     SELECT C.CompanyPK
                     FROM Companies C
                     JOIN Persons P ON C.OwnerPK = P.PersonPK
@@ -109,6 +108,5 @@ VALUES (@PersonPK, @CompanyPK);";
                 }
             }
         }
-
     }
 }
