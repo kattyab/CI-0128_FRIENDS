@@ -23,6 +23,8 @@ const router = createRouter({
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true, requiredRoles: ['Supervisor'] } },
         { path: 'addbenefits', name: 'Benefit Creation', component: () => import('./pages/benefit-creation.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] },
+        },
       ]
     },
     {
