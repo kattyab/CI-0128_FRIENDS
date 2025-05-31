@@ -13,7 +13,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
         {
             _connectionString = configuration.GetConnectionString("KaizenDb")
                 ?? throw new InvalidOperationException(
-                    "La cadena de conexion 'KaizenDb' no est� definida en appsettings.json");
+                    "La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
         }
         public async Task<bool> CreateEmployee(RegisterEmployeeDto employee)
         {
