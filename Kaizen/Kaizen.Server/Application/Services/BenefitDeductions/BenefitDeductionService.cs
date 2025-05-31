@@ -1,4 +1,5 @@
-﻿using Kaizen.Server.Application.Dtos.BenefitDeductions;
+﻿using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 
 namespace Kaizen.Server.Application.Services.BenefitDeductions
@@ -10,7 +11,7 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
         private readonly IEmployeeDeductionRepository _employeeRepo;
 
         private List<Benefit>? _companyBenefits;
-        private Dictionary<Guid, Employee>? _employeeData;
+        private Dictionary<Guid, EmployeeDto>? _employeeData;
         private Dictionary<Guid, List<Guid>>? _employeeChosenBenefits;
 
         private static readonly decimal _percentageDivider = 100m;
@@ -45,7 +46,7 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             var employee = _employeeData[employeeID];
 
             return _companyBenefits
-                .Where(benefit => chosenBenefitIDs.Contains(benefit.BenefitID) && IsEligible(employee, benefit))
+                .Where(benefit => chosenBenefitIDs.Contains(benefit.BenefitID) && MeetsMinMonths(employee, benefit))
                 .Select(benefit => new BenefitDeductionResult
                 {
                     BenefitName = benefit.Name,
@@ -65,22 +66,7 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
 
             return 0;
         }
-
-        private static bool IsEligible(Employee emp, Benefit benefit)
-        {
-            return MatchesContractType(emp, benefit) && MeetsMinMonths(emp, benefit);
-        }
-
-        private static bool MatchesContractType(Employee emp, Benefit benefit)
-        {
-            return
-                (benefit.IsFullTime && emp.ContractType == "Tiempo Completo") ||
-                (benefit.IsPartTime && emp.ContractType == "Medio Tiempo") ||
-                (benefit.IsByHours && emp.ContractType == "Por Horas") ||
-                (benefit.IsByService && emp.ContractType == "Servicios Profesionales");
-        }
-
-        private static bool MeetsMinMonths(Employee emp, Benefit benefit)
+        private static bool MeetsMinMonths(EmployeeDto emp, Benefit benefit)
         {
             var now = DateTime.Now;
             var months = ((now.Year - emp.StartDate.Year) * _monthsInYear) + now.Month - emp.StartDate.Month;

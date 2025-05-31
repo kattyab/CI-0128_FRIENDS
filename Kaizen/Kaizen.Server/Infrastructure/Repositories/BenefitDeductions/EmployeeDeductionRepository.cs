@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
-using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Application.Dtos;
 
 namespace Kaizen.Server.Infrastructure.Repositories
 {
@@ -13,12 +13,12 @@ namespace Kaizen.Server.Infrastructure.Repositories
             _connection = connection;
         }
 
-        public Dictionary<Guid, Employee> GetEmployeesByCompany(Guid companyID)
+        public Dictionary<Guid, EmployeeDto> GetEmployeesByCompany(Guid companyID)
         {
-            var employees = new Dictionary<Guid, Employee>();
+            var employees = new Dictionary<Guid, EmployeeDto>();
 
             const string sql = @"
-                SELECT EmpID, ContractType, StartDate, BruteSalary
+                SELECT EmpID, StartDate, BruteSalary
                 FROM dbo.Employees
                 WHERE WorksFor = @CompanyID;
             ";
@@ -33,12 +33,11 @@ namespace Kaizen.Server.Infrastructure.Repositories
             while (reader.Read())
             {
                 var empID = reader.GetGuid(0);
-                employees[empID] = new Employee
+                employees[empID] = new EmployeeDto
                 {
-                    EmployeeId = empID,
-                    ContractType = reader.GetString(1),
-                    StartDate = reader.GetDateTime(2),
-                    BruteSalary = reader.GetDecimal(3)
+                    EmpID = empID,
+                    StartDate = reader.GetDateTime(1),
+                    BruteSalary = reader.GetDecimal(2)
                 };
             }
             return employees;
