@@ -64,23 +64,6 @@
           </div>
         </div>
 
-        <!-- Servicios profesionales -->
-        <div v-else-if="payrollType === 'servicios_profesionales'"
-             class="row g-3">
-          <div class="col-auto">
-            <label class="form-label small">Inicio</label>
-            <input type="date" class="form-control" v-model="psStartDate" />
-          </div>
-          <div class="col-auto">
-            <label class="form-label small">Fin</label>
-            <input type="date" class="form-control" v-model="psEndDate" />
-          </div>
-          <div class="col-auto"
-               v-if="psStartDate && psEndDate && psStartDate > psEndDate">
-            <span class="text-danger small">Inicio no puede ser posterior a fin</span>
-          </div>
-        </div>
-
         <!-- Vista previa -->
         <div class="mt-2" v-if="periodPreview">
           <span class="badge bg-secondary">{{ periodPreview }}</span>
@@ -174,7 +157,6 @@
     { value: 'semanal', label: 'Semanal' },
     { value: 'quincenal', label: 'Quincenal' },
     { value: 'mensual', label: 'Mensual' },
-    { value: 'servicios_profesionales', label: 'Servicios profesionales' }
   ]
 
   /* ===== UTILIDADES ===== */
