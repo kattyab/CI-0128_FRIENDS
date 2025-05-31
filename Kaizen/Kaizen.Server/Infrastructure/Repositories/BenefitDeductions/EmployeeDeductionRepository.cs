@@ -18,7 +18,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
             var employees = new Dictionary<Guid, Employee>();
 
             const string sql = @"
-                SELECT EmpID, ContractType, StartDate, BruteSalary
+                SELECT EmpID, StartDate, BruteSalary
                 FROM dbo.Employees
                 WHERE WorksFor = @CompanyID;
             ";
@@ -36,9 +36,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 employees[empID] = new Employee
                 {
                     EmployeeId = empID,
-                    ContractType = reader.GetString(1),
-                    StartDate = reader.GetDateTime(2),
-                    BruteSalary = reader.GetDecimal(3)
+                    StartDate = reader.GetDateTime(1),
+                    BruteSalary = reader.GetDecimal(2)
                 };
             }
             return employees;

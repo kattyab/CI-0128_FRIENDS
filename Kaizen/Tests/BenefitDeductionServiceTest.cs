@@ -68,7 +68,6 @@ public class BenefitDeductionResultServiceTests
         };
         var employee = new Employee
         {
-            ContractType = "Tiempo Completo",
             StartDate = DateTime.Now.AddMonths(EmployeeSeniorityMonths),
             BruteSalary = BruteSalaryLow
         };
@@ -133,7 +132,6 @@ public class BenefitDeductionResultServiceTests
 
         var employee = new Employee
         {
-            ContractType = "Tiempo Completo",
             StartDate = DateTime.Now.AddMonths(EmployeeSeniorityMonths),
             BruteSalary = BruteSalaryHigh
         };
