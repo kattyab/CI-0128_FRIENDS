@@ -1,10 +1,10 @@
-﻿using Kaizen.Server.Application.Dtos.BenefitDeductions;
+﻿using Kaizen.Server.Application.Dtos;
 
 namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
 {
     public interface IEmployeeDeductionRepository
     {
-        Dictionary<Guid, Employee> GetEmployeesByCompany(Guid companyID);
+        Dictionary<Guid, EmployeeDto> GetEmployeesByCompany(Guid companyID);
         Dictionary<Guid, List<Guid>> GetChosenBenefitsByCompany(Guid companyID);
     }
 }

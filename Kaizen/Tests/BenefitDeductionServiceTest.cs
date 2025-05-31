@@ -2,6 +2,7 @@
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
+using Kaizen.Server.Application.Dtos;
 
 namespace Kaizen.Tests.Application.Services.BenefitDeductionResults;
 
@@ -66,7 +67,7 @@ public class BenefitDeductionResultServiceTests
                 MinWorkDurationMonths = DentistMinMonths
             }
         };
-        var employee = new Employee
+        var employee = new EmployeeDto
         {
             StartDate = DateTime.Now.AddMonths(EmployeeSeniorityMonths),
             BruteSalary = BruteSalaryLow
@@ -80,7 +81,7 @@ public class BenefitDeductionResultServiceTests
             .Returns(benefits);
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
-            .Returns(new Dictionary<Guid, Employee> { { _employeeId, employee } });
+            .Returns(new Dictionary<Guid, EmployeeDto> { { _employeeId, employee } });
         _mockEmployeeRepo
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
             .Returns(chosenBenefits);
@@ -130,7 +131,7 @@ public class BenefitDeductionResultServiceTests
             }
         };
 
-        var employee = new Employee
+        var employee = new EmployeeDto
         {
             StartDate = DateTime.Now.AddMonths(EmployeeSeniorityMonths),
             BruteSalary = BruteSalaryHigh
@@ -146,7 +147,7 @@ public class BenefitDeductionResultServiceTests
             .Returns(benefits);
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
-            .Returns(new Dictionary<Guid, Employee> { { _employeeId, employee } });
+            .Returns(new Dictionary<Guid, EmployeeDto> { { _employeeId, employee } });
         _mockEmployeeRepo
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
             .Returns(chosenBenefits);
@@ -216,9 +217,9 @@ public class BenefitDeductionResultServiceTests
             });
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
-            .Returns(new Dictionary<Guid, Employee>
+            .Returns(new Dictionary<Guid, EmployeeDto>
             {
-                { _employeeId, new Employee { BruteSalary = BruteSalaryLow } }
+                { _employeeId, new EmployeeDto { BruteSalary = BruteSalaryLow } }
             });
 
         var result = _service.GetDeductionsForEmployee(_employeeId);
