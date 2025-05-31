@@ -31,7 +31,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     FROM Admins A
                     JOIN Users U ON A.AdminPK = U.PersonPK
                     WHERE U.Email = @AdminEmail;",
-                        "Due�o" => @"
+                        "Dueño" => @"
                     SELECT C.CompanyPK
                     FROM Companies C
                     JOIN Persons P ON C.OwnerPK = P.PersonPK
