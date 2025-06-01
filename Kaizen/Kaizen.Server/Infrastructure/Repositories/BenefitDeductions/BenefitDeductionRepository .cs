@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos.BenefitDeductions;
+using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Microsoft.Data.SqlClient;
 
@@ -20,7 +20,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
             const string sql = @"
                 SELECT 
                     ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
-                    IsPercetange, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
+                    IsPercentage, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
                 FROM dbo.Benefits
                 WHERE OfferedBy = @CompanyID AND IsAPI = 0;
             ";
