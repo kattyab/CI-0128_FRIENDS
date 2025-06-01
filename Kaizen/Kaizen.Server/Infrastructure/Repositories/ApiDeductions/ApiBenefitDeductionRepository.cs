@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Kaizen.Server.Application.Dtos.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Microsoft.Data.SqlClient;
@@ -28,7 +28,7 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
             adc.HttpMethod, 
             adc.AuthHeaderName,
             adc.AuthToken, 
-            adc.ParametersJson, 
+            dbo.GetParametersJsonTemplate(adc.Endpoint) AS ParametersJson,
             adc.ExpectedDataType
         FROM dbo.Companies c
         INNER JOIN dbo.OffersAPIs oa ON oa.CompanyPK = c.CompanyPK
