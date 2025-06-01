@@ -35,7 +35,7 @@ builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 
 builder.Services.AddScoped<IEmployeeBenefitListRepository, EmployeeBenefitListRepository>();
-
+builder.Services.AddScoped<IOfferedBenefitsRepository, OfferedBenefitsRepository>();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 

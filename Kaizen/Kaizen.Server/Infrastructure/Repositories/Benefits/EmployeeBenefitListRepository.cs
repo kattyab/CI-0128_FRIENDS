@@ -39,9 +39,9 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                             ELSE 'Other'
                         END AS Type,
                         CASE 
-                            WHEN b.IsFixed = 1 THEN CAST(b.FixedValue AS NVARCHAR(50))
-                            WHEN b.IsPercetange = 1 THEN CAST(b.PercentageValue AS NVARCHAR(50)) + '%'
-                            ELSE 'N/A'
+                            WHEN b.IsFixed = 1 THEN b.FixedValue
+                            WHEN b.IsPercetange = 1 THEN b.PercentageValue
+                            ELSE 0
                         END AS Value,
                         b.MinWorkDurationMonths AS MinMonths,
                         0 AS IsApi
@@ -56,9 +56,9 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     SELECT 
                         adc.Name,
                         'IsApi' AS Type,
-                        'API' AS Value,
+                        0 AS Value,
                         0 AS MinMonths,
-                        1 AS IsApi -- Flag to identify source
+                        1 AS IsApi
                     FROM Users u
                     INNER JOIN Employees e ON u.PersonPK = e.PersonPK
                     INNER JOIN ChosenAPIs capi ON e.EmpID = capi.EmployeePK
@@ -77,7 +77,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                 {
                     Name = reader.GetString("Name"),
                     Type = reader.GetString("Type"),
-                    Value = reader.GetString("Value"),
+                    Value = reader.GetDecimal("Value"),
                     MinMonths = reader.GetInt32("MinMonths")
                 });
             }
