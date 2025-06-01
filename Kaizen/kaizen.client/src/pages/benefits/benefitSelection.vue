@@ -94,19 +94,36 @@
             <div class="modal-body">
               <p>Select the benefit you want to subscribe to:</p>
 
-              <table class="table table-hover">
+              <!-- Loading state for available benefits -->
+              <div v-if="isLoadingAvailableBenefits" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading available benefits...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading available benefits...</p>
+              </div>
+
+              <!-- Error state for available benefits -->
+              <div v-else-if="availableBenefitsError" class="alert alert-danger">
+                <strong>Error:</strong> {{ availableBenefitsError }}
+                <button class="btn btn-outline-primary btn-sm ms-2" @click="loadAvailableBenefits">
+                  <span class="material-icons align-middle me-1" style="font-size: 14px;">refresh</span>
+                  Retry
+                </button>
+              </div>
+
+              <!-- Available benefits table -->
+              <table v-else class="table table-hover">
                 <thead>
                   <tr>
                     <th scope="col">Select</th>
                     <th scope="col">Benefit Name</th>
                     <th scope="col">Method</th>
-                    <th scope="col">Details</th>
                     <th scope="col">Min. Months</th>
                     <th scope="col">State</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(benefit, index) in availableBenefits" :key="index" :class="{
+                  <tr v-for="(benefit, index) in availableBenefits" :key="benefit.id || index" :class="{
                   'table-light': benefit.state === 'Available',
                   'table-secondary': benefit.state === 'Not Available'
                 }">
@@ -125,7 +142,6 @@
                       <span v-else-if="benefit.method.type === 'fixed'">${{ benefit.method.value }}</span>
                       <span v-else>{{ benefit.method.value }}</span>
                     </td>
-                    <td>{{ benefit.details }}</td>
                     <td>{{ benefit.minimumMonths }}</td>
                     <td>
                       <span :class="{
@@ -181,30 +197,28 @@
                   <div v-else>
                     <p><strong>Benefit Type:</strong> {{ selectedBenefit.method.value }}</p>
 
-                    <!-- Display user parameters used for calculation -->
-                    <div class="mt-3">
-                      <h6>Calculation Parameters:</h6>
-                      <div class="row">
-                        <div class="col-md-6">
-                          <small class="text-muted">Gender:</small> {{ userProfile.gender }}<br>
-                          <small class="text-muted">Salary Rate:</small> ${{ userProfile.salaryRate.toLocaleString() }}/year<br>
-                          <small class="text-muted">Years of Service:</small> {{ userProfile.yearsOfService }} years
-                        </div>
-                        <div class="col-md-6">
-                          <small class="text-muted">Department:</small> {{ userProfile.department }}<br>
-                          <small class="text-muted">Employment Type:</small> {{ userProfile.employmentType }}<br>
-                          <small class="text-muted">Age:</small> {{ userProfile.age }} years
-                        </div>
-                      </div>
+                    <!-- Loading state for calculated value -->
+                    <div v-if="isCalculatingBenefit" class="mt-3 p-3 bg-light rounded text-center">
+                      <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                      <span>Calculating benefit value...</span>
                     </div>
 
-                    <!-- Display calculated value -->
-                    <div class="mt-3 p-3 bg-light rounded">
+                    <!-- Error state for calculation -->
+                    <div v-else-if="calculationError" class="mt-3 p-3 bg-danger bg-opacity-10 rounded">
+                      <h6 class="text-danger">Calculation Error:</h6>
+                      <p class="text-danger mb-2">{{ calculationError }}</p>
+                      <button class="btn btn-outline-danger btn-sm" @click="calculateBenefitValue">
+                        <span class="material-icons align-middle me-1" style="font-size: 14px;">refresh</span>
+                        Retry Calculation
+                      </button>
+                    </div>
+
+                    <!-- Successfully calculated value -->
+                    <div v-else-if="calculatedBenefitValue !== null" class="mt-3 p-3 bg-light rounded">
                       <h6 class="text-success">Calculated Benefit Value:</h6>
                       <p class="h5 text-success mb-0">${{ calculatedBenefitValue.toLocaleString() }}</p>
                       <small class="text-muted">
-                        <!-- TODO: Replace with actual API call logic -->
-                        * This value is calculated based on your profile information
+                        * This value is calculated based on your profile information and benefit parameters
                       </small>
                     </div>
                   </div>
@@ -220,7 +234,7 @@
               <button type="button"
                       class="btn btn-success"
                       @click="confirmFinalSubscription"
-                      :disabled="isProcessingSubscription">
+                      :disabled="isProcessingSubscription || (selectedBenefit?.method.type === 'specific' && calculatedBenefitValue === null && !calculationError)">
                 <span v-if="isProcessingSubscription" class="spinner-border spinner-border-sm me-2"></span>
                 <span class="material-icons align-middle me-1" v-else>check_circle</span>
                 {{ isProcessingSubscription ? 'Processing...' : 'Confirm Subscription' }}
@@ -290,7 +304,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import axios from 'axios';
 
   // Backend-connected active benefits (replaces the old static array)
@@ -298,51 +312,10 @@
   const isLoadingBenefits = ref(false);
   const errorMessage = ref('');
 
-  // Available benefits for subscription in the modal (keep this static for now)
-  const availableBenefits = ref([
-    {
-      name: "Retirement Contribution Match",
-      method: { type: "percentage", value: 5 },
-      minimumMonths: 12,
-      state: "Available",
-      details: "Employer matches up to 5% of your salary contributions to retirement plan"
-    },
-    {
-      name: "Home Office Stipend",
-      method: { type: "fixed", value: 500 },
-      minimumMonths: 6,
-      state: "Available",
-      details: "Monthly stipend for home office equipment and utilities"
-    },
-    {
-      name: "Professional Development",
-      method: { type: "fixed", value: 1000 },
-      minimumMonths: 12,
-      state: "Available",
-      details: "Annual budget for courses, certifications, and training"
-    },
-    {
-      name: "Life Insurance",
-      method: { type: "specific", value: "Calculated Coverage" },
-      minimumMonths: 24,
-      state: "Available",
-      details: "Life insurance coverage calculated based on your profile and salary"
-    },
-    {
-      name: "Executive Health Program",
-      method: { type: "specific", value: "Premium Health Package" },
-      minimumMonths: 36,
-      state: "Not Available",
-      details: "Comprehensive health screening and premium healthcare services"
-    },
-    {
-      name: "Sabbatical Program",
-      method: { type: "specific", value: "Paid Leave Benefit" },
-      minimumMonths: 60,
-      state: "Not Available",
-      details: "Extended paid leave program for long-term employees"
-    }
-  ]);
+  // Available benefits for subscription - now loaded from backend
+  const availableBenefits = ref([]);
+  const isLoadingAvailableBenefits = ref(false);
+  const availableBenefitsError = ref('');
 
   // User profile data (this would typically come from your user management system)
   const userProfile = ref({
@@ -371,6 +344,11 @@
   const benefitIndexToUnsubscribe = ref(null);
   const subscribedBenefitName = ref('');
 
+  // Benefit calculation states
+  const calculatedBenefitValue = ref(null);
+  const isCalculatingBenefit = ref(false);
+  const calculationError = ref('');
+
   const selectedBenefit = computed(() => {
     return selectedBenefitIndex.value !== null ? availableBenefits.value[selectedBenefitIndex.value] : null;
   });
@@ -380,132 +358,168 @@
   });
 
   // Function to load active benefits from backend
- const loadActiveBenefits = async () => {
-  if (!userEmail.value) {
-    console.error('User email is required to load benefits');
-    return;
-  }
-
-  isLoadingBenefits.value = true;
-  errorMessage.value = '';
-
-  try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/by-email/${encodeURIComponent(userEmail.value)}`,
-      { withCredentials: true }
-    );
-
-    console.log('API Response:', response.data); // Debug log
-
-    // Transform backend DTO to frontend format - using correct property names
-    activeBenefits.value = response.data.map(benefit => ({
-      name: benefit.name, // lowercase
-      method: transformBenefitMethod(benefit.type, benefit.value), // lowercase
-      minimumMonths: benefit.minMonths, // camelCase
-      state: 'Active'
-    }));
-
-    console.log('Transformed Benefits:', activeBenefits.value); // Debug log
-
-  } catch (error) {
-    console.error('Error loading benefits:', error);
-    if (error.response?.data) {
-      errorMessage.value = typeof error.response.data === 'string' 
-        ? error.response.data 
-        : 'Failed to load benefits';
-    } else {
-      errorMessage.value = 'Network error. Please try again.';
+  const loadActiveBenefits = async () => {
+    if (!userEmail.value) {
+      console.error('User email is required to load benefits');
+      return;
     }
-  } finally {
-    isLoadingBenefits.value = false;
-  }
-};
 
-// Updated transformation function
-const transformBenefitMethod = (type, value) => {
-  // Add null checks and default handling
-  if (!type) {
-    console.warn('Benefit type is undefined, defaulting to "specific"');
-    return { type: 'specific', value: value || 'N/A' };
-  }
+    isLoadingBenefits.value = true;
+    errorMessage.value = '';
 
-  // Ensure type is string and lowercase
-  const typeStr = String(type).toLowerCase();
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/by-email/${encodeURIComponent(userEmail.value)}`,
+        { withCredentials: true }
+      );
 
-  switch (typeStr) {
-    case 'fixed':
-      try {
-        // Handle both "$500" and "500" formats
-        const numericValue = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
-        return { 
-          type: 'fixed', 
-          value: isNaN(numericValue) ? 0 : numericValue 
-        };
-      } catch (e) {
-        console.warn('Failed to parse fixed value:', value);
-        return { type: 'fixed', value: 0 };
+      console.log('Active Benefits API Response:', response.data);
+
+      // Transform backend DTO to frontend format - using correct property names
+      activeBenefits.value = response.data.map(benefit => ({
+        name: benefit.name,
+        method: transformBenefitMethod(benefit.type, benefit.value),
+        minimumMonths: benefit.minMonths,
+        state: 'Active'
+      }));
+
+      console.log('Transformed Active Benefits:', activeBenefits.value);
+
+    } catch (error) {
+      console.error('Error loading active benefits:', error);
+      if (error.response?.data) {
+        errorMessage.value = typeof error.response.data === 'string' 
+          ? error.response.data 
+          : 'Failed to load benefits';
+      } else {
+        errorMessage.value = 'Network error. Please try again.';
       }
+    } finally {
+      isLoadingBenefits.value = false;
+    }
+  };
 
-    case 'percentage':
-    case 'percetange': // Handle potential typo
-      try {
-        // Handle both "5%" and "5" formats
-        const numericValue = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
-        return { 
-          type: 'percentage', 
-          value: isNaN(numericValue) ? 0 : numericValue 
-        };
-      } catch (e) {
-        console.warn('Failed to parse percentage value:', value);
-        return { type: 'percentage', value: 0 };
+  // Function to load available benefits from backend
+  const loadAvailableBenefits = async () => {
+    if (!userEmail.value) {
+      console.error('User email is required to load available benefits');
+      return;
+    }
+
+    isLoadingAvailableBenefits.value = true;
+    availableBenefitsError.value = '';
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/OfferedBenefits/available/${encodeURIComponent(userEmail.value)}`,
+        { withCredentials: true }
+      );
+
+      console.log('Available Benefits API Response:', response.data);
+
+      // Transform backend DTO to frontend format
+      availableBenefits.value = response.data.map(benefit => ({
+        name: benefit.name,
+        method: transformBenefitMethod(benefit.type, benefit.value),
+        minimumMonths: benefit.minMonths,
+        state: benefit.isAvailable ? 'Available' : 'Not Available',
+        reasonUnavailable: benefit.reasonUnavailable || null
+      }));
+
+      console.log('Transformed Available Benefits:', availableBenefits.value);
+
+    } catch (error) {
+      console.error('Error loading available benefits:', error);
+      if (error.response?.data) {
+        availableBenefitsError.value = typeof error.response.data === 'string' 
+          ? error.response.data 
+          : 'Failed to load available benefits';
+      } else {
+        availableBenefitsError.value = 'Network error. Please try again.';
       }
+    } finally {
+      isLoadingAvailableBenefits.value = false;
+    }
+  };
 
-    case 'api':
-      return { type: 'specific', value: 'API Calculated' };
+  // Updated transformation function
+  const transformBenefitMethod = (type, value) => {
+    const lowerType = type?.toLowerCase();
 
-    default:
-      return { type: 'specific', value: value || 'N/A' };
-  }
-};
+    switch (lowerType) {
+      case 'fixed':
+        return {
+          type: 'fixed',
+          value: typeof value === 'number' ? value.toFixed(2) : '0.00'
+        };
+      case 'percentage':
+        return {
+          type: 'percentage',
+          value: typeof value === 'number' ? value.toFixed(2) : '0.00'
+        };
+      case 'isapi':
+        return { type: 'specific', value: 'Calculated via API' };
+      default:
+        return { type: 'specific', value: value || 'Unknown' };
+    }
+  };
+
+  // Function to calculate benefit value for specific/API benefits
+  const calculateBenefitValue = async () => {
+    if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') {
+      calculatedBenefitValue.value = null;
+      return;
+    }
+
+    isCalculatingBenefit.value = true;
+    calculationError.value = '';
+    calculatedBenefitValue.value = null;
+
+    try {
+      // TODO: Replace with actual API call to calculate benefit value
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/BenefitCalculation/calculate`,
+        {
+          benefitId: selectedBenefit.value.id,
+          userEmail: userEmail.value,
+          userProfile: userProfile.value
+        },
+        { withCredentials: true }
+      );
+
+      console.log('Benefit calculation response:', response.data);
+      
+      // Assuming the API returns { calculatedValue: number }
+      calculatedBenefitValue.value = response.data.calculatedValue || 0;
+
+    } catch (error) {
+      console.error('Error calculating benefit value:', error);
+      calculationError.value = error.response?.data?.message || 'Failed to calculate benefit value';
+      calculatedBenefitValue.value = null;
+    } finally {
+      isCalculatingBenefit.value = false;
+    }
+  };
 
   // Function to refresh benefits (can be called after subscribe/unsubscribe)
   const refreshBenefits = () => {
     loadActiveBenefits();
+    loadAvailableBenefits();
   };
 
-  // Calculate benefit value for specific/calculated benefits
-  const calculatedBenefitValue = computed(() => {
-    if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') {
-      return 0;
-    }
-
-    // TODO: Replace this mock calculation with actual API call logic
-    const benefit = selectedBenefit.value;
-    let calculatedValue = 0;
-
-    if (benefit.name === "Life Insurance") {
-      calculatedValue = (userProfile.value.salaryRate * 2) +
-        (userProfile.value.age * 100) +
-        (userProfile.value.yearsOfService * 500);
-    } else if (benefit.name === "Executive Health Program") {
-      const baseCost = 5000;
-      const salaryFactor = userProfile.value.salaryRate * 0.05;
-      const departmentMultiplier = userProfile.value.department === "Engineering" ? 1.2 : 1.0;
-      calculatedValue = (baseCost + salaryFactor) * departmentMultiplier;
-    } else if (benefit.name === "Sabbatical Program") {
-      calculatedValue = (userProfile.value.salaryRate / 12) * 3;
+  // Watch for selected benefit changes to trigger calculation
+  watch(selectedBenefit, (newBenefit) => {
+    if (newBenefit && newBenefit.method.type === 'specific') {
+      calculateBenefitValue();
     } else {
-      calculatedValue = userProfile.value.salaryRate * 0.1;
+      calculatedBenefitValue.value = null;
+      calculationError.value = '';
     }
-
-    return Math.round(calculatedValue);
   });
 
-  // API call function placeholder
-  const calculateBenefitValue = async (benefitData, userProfileData) => {
-    // TODO: Implement actual API call here
-    return calculatedBenefitValue.value;
-  };
+  watch(showSubscribeModal, (newVal) => {
+    if (newVal) loadAvailableBenefits();
+  });
 
   // Event handlers
   const unsubscribeBenefit = (index) => {
@@ -568,15 +582,20 @@ const transformBenefitMethod = (type, value) => {
 
     try {
       // TODO: Make actual API call to subscribe
-      // await axios.post(`${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/subscribe`, {
-      //   email: userEmail.value,
-      //   benefitId: selectedBenefit.value.id
-      // }, { withCredentials: true });
+      const subscriptionData = {
+        email: userEmail.value,
+        benefitId: selectedBenefit.value.id
+      };
 
-      // For specific benefits, calculate the final value
-      if (selectedBenefit.value.method.type === 'specific') {
-        await calculateBenefitValue(selectedBenefit.value, userProfile.value);
+      // For specific benefits, include the calculated value
+      if (selectedBenefit.value.method.type === 'specific' && calculatedBenefitValue.value !== null) {
+        subscriptionData.calculatedValue = calculatedBenefitValue.value;
       }
+
+      // await axios.post(`${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/subscribe`, 
+      //   subscriptionData, 
+      //   { withCredentials: true }
+      // );
 
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -611,11 +630,21 @@ const transformBenefitMethod = (type, value) => {
     showSuccessModal.value = false;
     subscribedBenefitName.value = '';
     isProcessingSubscription.value = false;
+    calculatedBenefitValue.value = null;
+    calculationError.value = '';
   };
+
+  // Load available benefits when subscribe modal is opened
+  watch(showSubscribeModal, (isOpen) => {
+    if (isOpen && availableBenefits.value.length === 0) {
+      loadAvailableBenefits();
+    }
+  });
 
   // Load benefits when component mounts
   onMounted(() => {
     loadActiveBenefits();
+    loadAvailableBenefits();
   });
 </script>
 
