@@ -1,9 +1,9 @@
-﻿using Kaizen.Server.Application.Dtos.ApiDeductions;
+using Kaizen.Server.Application.Dtos.ApiDeductions;
 
 namespace Kaizen.Server.Application.Interfaces.ApiDeductions;
 
 public interface IApiBenefitRepository
 {
     Task<List<APIsDto>> GetBenefitsAsync(Guid companyId);
-    Task<List<EmployeeBenefitParameterDto>> GetParametersForEmployeeAsync(Guid employeeId);
+    Task<List<EmployeeBenefitParameterDto>> GetParametersForCompanyAsync(Guid companyId);
 }

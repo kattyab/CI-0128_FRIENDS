@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Interfaces.ApiDeductions;
+using Kaizen.Server.Application.Interfaces.ApiDeductions;
 
 namespace Kaizen.Server.Application.Services.ApiDeductions;
 
@@ -18,9 +18,10 @@ public class ApiDeductionService : IApiDeductionService
     public async Task<Dictionary<string, decimal>> GetDeductionsForEmployeeAsync(Guid employeeId)
     {
         var benefits = await _repository.GetBenefitsAsync(_companyId);
-        var parameters = await _repository.GetParametersForEmployeeAsync(employeeId);
+        var allParameters = await _repository.GetParametersForCompanyAsync(_companyId);
+        var employeeParameters = allParameters.Where(p => p.EmployeeId == employeeId).ToList();
 
-        var groupedParams = parameters
+        var groupedParams = employeeParameters
             .GroupBy(p => p.BenefitId)
             .ToDictionary(
                 g => g.Key,
@@ -28,14 +29,12 @@ public class ApiDeductionService : IApiDeductionService
             );
 
         var result = new Dictionary<string, decimal>();
-
         foreach (var benefit in benefits)
         {
             if (!groupedParams.TryGetValue(benefit.ID, out var parameterDictionary))
             {
                 continue;
             }
-
             try
             {
                 var deduction = await _apiCaller.FetchDeductionAsync(benefit, parameterDictionary);
@@ -46,7 +45,6 @@ public class ApiDeductionService : IApiDeductionService
                 continue;
             }
         }
-
         return result;
     }
 }

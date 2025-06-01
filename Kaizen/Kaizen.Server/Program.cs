@@ -34,6 +34,8 @@ builder.Services.AddScoped<SqlConnection>(sp =>
     return new SqlConnection(connStr);
 });
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
@@ -55,7 +57,9 @@ builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
-builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
+//builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<IApiBenefitRepository, CachedApiBenefitRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 
 builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServiceFactory>();
