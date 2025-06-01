@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
@@ -52,7 +52,7 @@ public class BenefitDeductionResultServiceTests
     }
 
     [Test]
-    public void GetDeductionsForEmployeeWhenEmployeeHasChosenBenefitsReturnsCorrectDeductionCalculations()
+    public async Task GetDeductionsForEmployeeWhenEmployeeHasChosenBenefitsReturnsCorrectDeductionCalculations()
     {
         var benefitId = Guid.NewGuid();
         var benefits = new List<Benefit>
@@ -76,9 +76,10 @@ public class BenefitDeductionResultServiceTests
         {
             { _employeeId, new List<Guid> { benefitId } }
         };
+
         _mockBenefitRepo
-            .Setup(r => r.GetBenefitsByCompany(_companyId))
-            .Returns(benefits);
+            .Setup(r => r.GetBenefitsByCompanyAsync(_companyId))
+            .ReturnsAsync(benefits);
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
             .Returns(new Dictionary<Guid, EmployeeDto> { { _employeeId, employee } });
@@ -86,7 +87,7 @@ public class BenefitDeductionResultServiceTests
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
             .Returns(chosenBenefits);
 
-        var result = _service.GetDeductionsForEmployee(_employeeId);
+        var result = await _service.GetBenefitDeductionsForEmployeeAsync(_employeeId);
 
         Assert.That(result, Has.Count.EqualTo(1));
         Assert.That(result[0].BenefitName, Is.EqualTo("Dentista"));
@@ -94,7 +95,7 @@ public class BenefitDeductionResultServiceTests
     }
 
     [Test]
-    public void GetDeductionsForEmployee_WhenEmployeeHasMultipleChosenBenefits_ReturnsAllDeductionCalculations()
+    public async Task GetDeductionsForEmployee_WhenEmployeeHasMultipleChosenBenefits_ReturnsAllDeductionCalculations()
     {
         var dentalBenefitId = Guid.NewGuid();
         var visionBenefitId = Guid.NewGuid();
@@ -143,8 +144,8 @@ public class BenefitDeductionResultServiceTests
         };
 
         _mockBenefitRepo
-            .Setup(r => r.GetBenefitsByCompany(_companyId))
-            .Returns(benefits);
+            .Setup(r => r.GetBenefitsByCompanyAsync(_companyId))
+            .ReturnsAsync(benefits);
         _mockEmployeeRepo
             .Setup(r => r.GetEmployeesByCompany(_companyId))
             .Returns(new Dictionary<Guid, EmployeeDto> { { _employeeId, employee } });
@@ -152,7 +153,7 @@ public class BenefitDeductionResultServiceTests
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
             .Returns(chosenBenefits);
 
-        var result = _service.GetDeductionsForEmployee(_employeeId);
+        var result = await _service.GetBenefitDeductionsForEmployeeAsync(_employeeId);
 
         Assert.That(result, Has.Count.EqualTo(3));
 
@@ -170,11 +171,11 @@ public class BenefitDeductionResultServiceTests
     }
 
     [Test]
-    public void GetDeductionsForEmployeeWhenEmployeeHasNoChosenBenefitsReturnsEmptyList()
+    public async Task GetDeductionsForEmployeeWhenEmployeeHasNoChosenBenefitsReturnsEmptyList()
     {
         _mockBenefitRepo
-            .Setup(r => r.GetBenefitsByCompany(_companyId))
-            .Returns(new List<Benefit>
+            .Setup(r => r.GetBenefitsByCompanyAsync(_companyId))
+            .ReturnsAsync(new List<Benefit>
             {
                 new Benefit
                 {
@@ -188,18 +189,18 @@ public class BenefitDeductionResultServiceTests
             .Setup(r => r.GetChosenBenefitsByCompany(_companyId))
             .Returns(new Dictionary<Guid, List<Guid>>());
 
-        var result = _service.GetDeductionsForEmployee(_employeeId);
+        var result = await _service.GetBenefitDeductionsForEmployeeAsync(_employeeId);
 
         Assert.That(result, Is.Empty);
     }
 
     [Test]
-    public void GetDeductionsForEmployeeWhenEmployeeChosenBenefitsListIsEmptyReturnsEmptyList()
+    public async Task GetDeductionsForEmployeeWhenEmployeeChosenBenefitsListIsEmptyReturnsEmptyList()
     {
         var benefitId = Guid.NewGuid();
         _mockBenefitRepo
-            .Setup(r => r.GetBenefitsByCompany(_companyId))
-            .Returns(new List<Benefit>
+            .Setup(r => r.GetBenefitsByCompanyAsync(_companyId))
+            .ReturnsAsync(new List<Benefit>
             {
                 new Benefit
                 {
@@ -222,7 +223,7 @@ public class BenefitDeductionResultServiceTests
                 { _employeeId, new EmployeeDto { BruteSalary = BruteSalaryLow } }
             });
 
-        var result = _service.GetDeductionsForEmployee(_employeeId);
+        var result = await _service.GetBenefitDeductionsForEmployeeAsync(_employeeId);
 
         Assert.That(result, Is.Empty);
     }

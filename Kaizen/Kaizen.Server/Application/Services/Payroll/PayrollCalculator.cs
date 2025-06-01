@@ -40,7 +40,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             var isBiweekly = employee.PayrollTypeDescription.Equals("Biweekly", StringComparison.OrdinalIgnoreCase);
 
             var apiDeductions = await apiDeductionService.GetDeductionsForEmployeeAsync(employee.EmpID);
-            var benefitDeductions = benefitDeductionService.GetDeductionsForEmployee(employee.EmpID);
+            var benefitDeductions = await benefitDeductionService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID);
 
             if (isBiweekly)
             {

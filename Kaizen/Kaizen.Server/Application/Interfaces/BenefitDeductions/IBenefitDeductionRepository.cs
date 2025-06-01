@@ -1,9 +1,9 @@
-﻿using Kaizen.Server.Application.Dtos.BenefitDeductions;
+using Kaizen.Server.Application.Dtos.BenefitDeductions;
 
 namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
 {
     public interface IBenefitDeductionRepository
     {
-        List<Benefit> GetBenefitsByCompany(Guid companyID);
+        Task<List<Benefit>> GetBenefitsByCompanyAsync(Guid companyID);
     }
 }

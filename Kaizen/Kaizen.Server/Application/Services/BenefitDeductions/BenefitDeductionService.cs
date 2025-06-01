@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 
@@ -28,10 +28,10 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             _employeeRepo = employeeRepo;
         }
 
-        public List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID)
+        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID)
         {
             if (_companyBenefits == null)
-                _companyBenefits = _benefitRepo.GetBenefitsByCompany(_companyID);
+                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID);
 
             if (_employeeData == null)
                 _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);

@@ -13,28 +13,26 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
             _connection = connection;
         }
 
-        public List<Benefit> GetBenefitsByCompany(Guid companyID)
+        public async Task<List<Benefit>> GetBenefitsByCompanyAsync(Guid companyID)
         {
             var benefits = new List<Benefit>();
-
             const string sql = @"
-                SELECT 
-                    ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
-                    IsPercentage, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
-                FROM dbo.Benefits
-                WHERE OfferedBy = @CompanyID AND IsAPI = 0;
-            ";
-
+        SELECT 
+            ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
+            IsPercentage, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
+        FROM dbo.Benefits
+        WHERE OfferedBy = @CompanyID AND IsAPI = 0;
+    ";
             using var command = new SqlCommand(sql, _connection);
             command.Parameters.AddWithValue("@CompanyID", companyID);
 
             if (_connection.State != System.Data.ConnectionState.Open)
             {
-                _connection.Open();
+                await _connection.OpenAsync();
             }
 
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
             {
                 benefits.Add(new Benefit
                 {
@@ -43,7 +41,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
                     MinWorkDurationMonths = reader.GetInt32(2),
                     IsFixed = reader.GetBoolean(3),
                     FixedValue = reader.IsDBNull(4) ? null : reader.GetDecimal(4),
-                    IsPercetange = reader.GetBoolean(5),
+                    IsPercetange = reader.GetBoolean(5), // Note: typo in original
                     PercentageValue = reader.IsDBNull(6) ? null : reader.GetDecimal(6),
                     IsFullTime = reader.GetBoolean(7),
                     IsPartTime = reader.GetBoolean(8),

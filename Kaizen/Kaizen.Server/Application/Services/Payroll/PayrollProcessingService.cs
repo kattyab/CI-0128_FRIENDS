@@ -156,7 +156,6 @@ namespace Kaizen.Server.Application.Services.Payroll
             var connectionString = _configuration.GetConnectionString("KaizenDb");
             await using var conn = new SqlConnection(connectionString);
             await conn.OpenAsync();
-
             var generalPayrollId = Guid.NewGuid();
             var generalData = BuildGeneralPayrollData(companyId, generalPayrollId, summaries);
             var payrollsTable = BuildPayrollsTable(generalPayrollId, summaries);
@@ -173,7 +172,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             cmd.Parameters.AddWithValue("@TotalObligatoryDeductions", generalData.TotalObligatoryDeductions);
             cmd.Parameters.AddWithValue("@TotalLaborCharges", generalData.TotalLaborCharges);
             cmd.Parameters.AddWithValue("@TotalMoneyPaid", generalData.TotalMoneyPaid);
-            cmd.Parameters.AddWithValue("@StartDate", generalData.StartDate);
+            cmd.Parameters.AddWithValue("@ExecutedOn", DateTime.Now);
 
             var payrollsParam = cmd.Parameters.AddWithValue("@Payrolls", payrollsTable);
             payrollsParam.SqlDbType = SqlDbType.Structured;
