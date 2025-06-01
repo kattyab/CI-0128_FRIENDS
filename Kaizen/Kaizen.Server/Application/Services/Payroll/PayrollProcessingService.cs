@@ -36,13 +36,14 @@ namespace Kaizen.Server.Application.Services.Payroll
         {
             var payrollResults = await CalculateCompanyPayrollAsync(companyId);
 
-            var failedPayrolls = payrollResults.Where(p => p.NetSalary < 0).ToList();
+            var failedPayrolls = payrollResults.Where(payrollSummary => payrollSummary.NetSalary < 0).ToList();
 
-            if (failedPayrolls.Any())
+
+            /*if (failedPayrolls.Any())
             {
                 var failedIds = string.Join(", ", failedPayrolls.Select(p => p.EmployeeId));
-                return $"Failed {failedIds}";
-            }
+                return $"Failed, {failedIds}";
+            }*/
 
             await SavePayrollAsync(companyId, payrollResults);
 
@@ -99,7 +100,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var empId = reader.GetGuid(0);
+                var EmployeeId = reader.GetGuid(0);
                 var salary = reader.GetDecimal(1);
                 var startDate = reader.GetDateTime(2);
                 var fireDate = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3);
@@ -108,7 +109,7 @@ namespace Kaizen.Server.Application.Services.Payroll
 
                 employeeData.Add(new EmployeeDto
                 {
-                    EmpID = empId,
+                    EmpID = EmployeeId,
                     BruteSalary = salary,
                     StartDate = startDate,
                     FireDate = fireDate,
@@ -230,20 +231,20 @@ namespace Kaizen.Server.Application.Services.Payroll
             // LOOK HERE!
             var hardcodedExecutorPersonPk = new Guid("23681BFF-82CB-4663-BA5E-16E6A5EA599D");
 
-            foreach (var s in summaries)
+            foreach (var employeePayroll in summaries)
             {
-                s.PayrollId = Guid.NewGuid();
+                employeePayroll.PayrollId = Guid.NewGuid();
                 table.Rows.Add(
-                    s.PayrollId,
-                    s.EmployeeId,
+                    employeePayroll.PayrollId,
+                    employeePayroll.EmployeeId,
                     hardcodedExecutorPersonPk, // HARDCODED HERE!!
-                    false,
-                    s.IncomeTax,
-                    s.CCSSDeduction,
+                    false, // IsClosed Nani??
+                    employeePayroll.IncomeTax,
+                    employeePayroll.CCSSDeduction,
                     DBNull.Value,
                     generalPayrollId,
-                    s.GrossSalary,
-                    s.NetSalary);
+                    employeePayroll.GrossSalary,
+                    employeePayroll.NetSalary);
             }
 
             return table;
@@ -257,13 +258,13 @@ namespace Kaizen.Server.Application.Services.Payroll
             table.Columns.Add("Amount", typeof(decimal));
             table.Columns.Add("PayrollId", typeof(Guid));
 
-            foreach (var s in summaries)
+            foreach (var payrollSummary in summaries)
             {
-                foreach (var kv in s.ApiDeductions)
-                    table.Rows.Add(Guid.NewGuid(), kv.Key, kv.Value, s.PayrollId);
+                foreach (var apiDeduction in payrollSummary.ApiDeductions)
+                    table.Rows.Add(Guid.NewGuid(), apiDeduction.Key, apiDeduction.Value, payrollSummary.PayrollId);
 
-                foreach (var b in s.BenefitDeductions)
-                    table.Rows.Add(Guid.NewGuid(), b.BenefitName, b.DeductionValue, s.PayrollId);
+                foreach (var benefitDeduction in payrollSummary.BenefitDeductions)
+                    table.Rows.Add(Guid.NewGuid(), benefitDeduction.BenefitName, benefitDeduction.DeductionValue, payrollSummary.PayrollId);
             }
 
             return table;
@@ -285,7 +286,7 @@ namespace Kaizen.Server.Application.Services.Payroll
         public Guid PayrollId { get; set; }
     }
 
-    public class EmployeeData
+    /*public class EmployeeData
     {
         public Guid EmpID { get; set; }
         public decimal BruteSalary { get; set; }
@@ -293,7 +294,7 @@ namespace Kaizen.Server.Application.Services.Payroll
         public DateTime? FireDate { get; set; }
         public string ContractType { get; set; } = string.Empty;
         public bool RegistersHours { get; set; }
-    }
+    }*/
 
     public class GeneralPayrollData
     {
