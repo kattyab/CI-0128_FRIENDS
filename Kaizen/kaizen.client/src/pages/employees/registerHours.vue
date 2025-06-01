@@ -86,9 +86,13 @@
       </div>
     </div>
   </div>
+  <div class="mt-4 p-2 bg-light border rounded">
+    <strong>Debug:</strong> UserPK = {{ userPK }}
+  </div>
 </template>
 
 <script>
+  import axios from 'axios';
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.min.css';
   import { Spanish } from 'flatpickr/dist/l10n/es.js';
@@ -102,7 +106,17 @@
         nuevasHoras: null,
         fechaInicio: null,
         fechaFin: null,
+        userPK: null,
       };
+    },
+    mounted() {
+      axios.get('/api/Auth/me')
+        .then(response => {
+          this.userPK = response.data.userPK;
+        })
+        .catch(error => {
+          console.error('Error al obtener userPK:', error);
+        });
     },
     components: {
       flatPickr,
