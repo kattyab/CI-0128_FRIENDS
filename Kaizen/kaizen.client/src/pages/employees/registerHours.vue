@@ -69,14 +69,22 @@
 
         <div class="col-auto">
           <label>Horas Trabajadas</label>
-          <input type="number"
-                 class="form-control"
-                 v-model.number="nuevasHoras"
-                 :max="48"
-                 :min="1"
-                 @keydown="blockArrows"
-                 @input="validarHoras" />
+
+          <div v-if="registersHours">
+            <input type="number"
+                   class="form-control"
+                   v-model.number="nuevasHoras"
+                   :max="48"
+                   :min="1"
+                   @keydown="blockArrows"
+                   @input="validarHoras" />
+          </div>
+
+          <div v-else class="form-control-plaintext">
+            {{ nuevasHoras }}
+          </div>
         </div>
+
         <div class="col-auto">
           <button class="btn btn-success" @click="confirmarRegistro">Confirmar</button>
         </div>
@@ -86,8 +94,10 @@
       </div>
     </div>
   </div>
-  <div class="mt-4 p-2 bg-light border rounded">
-    <strong>Debug:</strong> UserPK = {{ userPK }}
+  <div class="mt-3">
+    <p><strong>UserPK:</strong> {{ userPK }}</p>
+    <p><strong>RegistersHours:</strong> {{ registersHours }}</p>
+    <p><strong>PayrollType:</strong> {{ payrollType }}</p>
   </div>
 </template>
 
@@ -106,20 +116,17 @@
         nuevasHoras: null,
         fechaInicio: null,
         fechaFin: null,
+        // nuevas variables para mostrar datos del usuario
         userPK: null,
+        registersHours: null,
+        payrollType: null,
       };
-    },
-    mounted() {
-      axios.get('/api/Auth/me')
-        .then(response => {
-          this.userPK = response.data.userPK;
-        })
-        .catch(error => {
-          console.error('Error al obtener userPK:', error);
-        });
     },
     components: {
       flatPickr,
+    },
+    mounted() {
+      this.obtenerInfoUsuario();
     },
     methods: {
       ajustarSemana(selectedDates) {
@@ -133,6 +140,19 @@
 
           this.fechaInicio = monday.toISOString().split('T')[0];
           this.fechaFin = sunday.toISOString().split('T')[0];
+
+          // Si registersHours es false, calculamos automáticamente las horas
+          if (this.registersHours === false) {
+            let horas = 0;
+            for (let i = 0; i < 7; i++) {
+              const dia = new Date(monday);
+              dia.setDate(monday.getDate() + i);
+              if (dia.getDay() !== 0) { // Excluir domingos
+                horas += 8;
+              }
+            }
+            this.nuevasHoras = horas;
+          }
         }
       },
       confirmarRegistro() {
@@ -181,6 +201,21 @@
           this.nuevasHoras = 1;
         }
       },
+      async obtenerInfoUsuario() {
+        try {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/userinfo`);
+          const data = response.data;
+
+          console.log("User info:", data);
+
+          // Aquí puedes guardarlos en variables reactivas si quieres usarlos en el template
+          this.userPK = data.userPK;
+          this.registersHours = data.registersHours;
+          this.payrollType = data.payrollType;
+        } catch (error) {
+          console.error("Error al obtener información del usuario:", error);
+        }
+      }
     },
   };
 </script>
@@ -190,16 +225,19 @@
     font-size: 20px;
     vertical-align: middle;
   }
+
   .contenedor-principal {
     max-width: 1300px;
     margin: 0 auto;
     padding: 25px;
   }
+
   .btn-primary {
     background-color: #003c63;
     border-color: #003c63;
     font-weight: bold;
   }
+
   .btn-revision {
     background-color: #00796B;
     color: white;
@@ -207,5 +245,4 @@
     font-weight: bold;
     border: none;
   }
-
 </style>

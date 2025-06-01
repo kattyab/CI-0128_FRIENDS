@@ -1,34 +1,46 @@
 using Kaizen.Server.Application.Dtos.Auth;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
+using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kaizen.Server.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, UserInfoRepository userInfoRepo) : ControllerBase
 {
-    private readonly IAuthService _authService = authService;
-
     /// <summary>
-    /// Devuelve información del usuario autenticado, incluyendo su UserPK.
+    /// Devuelve información del usuario autenticado.
     /// </summary>
+    [HttpGet("userinfo")]
+    public IActionResult GetUserInfo()
+    {
+        if (!authService.IsAuthenticated())
+            return Unauthorized(new { message = "Usuario no autenticado." });
+
+        var user = authService.GetAuthUser();
+        var userInfo = userInfoRepo.GetUserInfo(user.UserPK);
+
+        if (userInfo == null)
+            return NotFound(new { message = "No se encontró información del usuario." });
+
+        return Ok(userInfo);
+    }
+
     [HttpGet("me")]
     public IActionResult GetCurrentUser()
     {
-        if (!_authService.IsAuthenticated())
-        {
+        if (!authService.IsAuthenticated())
             return Unauthorized(new { message = "Usuario no autenticado." });
-        }
 
         try
         {
-            AuthUserDto authUser = _authService.GetAuthUser();
+            var user = authService.GetAuthUser();
             return Ok(new
             {
-                userPK = authUser.UserPK,
-                email = authUser.Email, 
-                personPK=authUser.PersonPK,
+                userPK = user.UserPK,
+                email = user.Email,
+                personPK = user.PersonPK,
             });
         }
         catch (Exception ex)
