@@ -67,10 +67,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             foreach (var employee in employeeData)
             {
                 var payrollSummary = await _payrollCalculator.CalculatePayrollAsync(
-                    employee.EmpID,
-                    employee.BruteSalary,
-                    employee.ContractType,
-                    employee.RegistersHours,
+                    employee,
                     apiDeductionService,
                     benefitDeductionService);
 
@@ -80,19 +77,22 @@ namespace Kaizen.Server.Application.Services.Payroll
             return payrollResults;
         }
 
-        private async Task<List<EmployeeDto>> GetEmployeeDataAsync(Guid companyId)
+        private async Task<List<EmployeePayroll>> GetEmployeeDataAsync(Guid companyId)
         {
-            var employeeData = new List<EmployeeDto>();
+            var employeeData = new List<EmployeePayroll>();
             var connectionString = _configuration.GetConnectionString("KaizenDb");
 
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
             var cmdText = @"
-            SELECT E.EmpID, E.BruteSalary, E.StartDate, E.FireDate, E.ContractType, E.RegistersHours
-            FROM dbo.Employees E
-            INNER JOIN dbo.Companies C ON E.WorksFor = C.CompanyPK
-            WHERE C.CompanyPK = @CompanyID";
+                SELECT 
+                    E.EmpID, E.BruteSalary, E.StartDate, E.FireDate, 
+                    E.ContractType, E.RegistersHours,
+                    dbo.GetPayrollTypeDescription(C.PayrollType) AS PayrollTypeDescription
+                FROM dbo.Employees E
+                INNER JOIN dbo.Companies C ON E.WorksFor = C.CompanyPK
+                WHERE C.CompanyPK = @CompanyID";
 
             await using var command = new SqlCommand(cmdText, connection);
             command.Parameters.AddWithValue("@CompanyID", companyId.ToString());
@@ -100,21 +100,23 @@ namespace Kaizen.Server.Application.Services.Payroll
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var EmployeeId = reader.GetGuid(0);
+                var employeeId = reader.GetGuid(0);
                 var salary = reader.GetDecimal(1);
                 var startDate = reader.GetDateTime(2);
                 var fireDate = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3);
                 var contractType = reader.GetString(4);
                 var registersHours = reader.GetBoolean(5);
+                var payrollTypeDesc = reader.IsDBNull(6) ? null : reader.GetString(6);
 
-                employeeData.Add(new EmployeeDto
+                employeeData.Add(new EmployeePayroll
                 {
-                    EmpID = EmployeeId,
+                    EmpID = employeeId,
                     BruteSalary = salary,
                     StartDate = startDate,
                     FireDate = fireDate,
                     ContractType = contractType,
-                    RegistersHours = registersHours
+                    RegistersHours = registersHours,
+                    PayrollTypeDescription = payrollTypeDesc
                 });
             }
 
@@ -286,15 +288,20 @@ namespace Kaizen.Server.Application.Services.Payroll
         public Guid PayrollId { get; set; }
     }
 
-    /*public class EmployeeData
+    public class EmployeePayroll
     {
         public Guid EmpID { get; set; }
         public decimal BruteSalary { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? FireDate { get; set; }
-        public string ContractType { get; set; } = string.Empty;
+        public string ContractType { get; set; }
         public bool RegistersHours { get; set; }
-    }*/
+        /// <summary>
+        /// Returns "Monthly", "Biweekly", "Weekly"
+        /// </summary>
+        public string PayrollTypeDescription { get; set; }
+    }
+
 
     public class GeneralPayrollData
     {

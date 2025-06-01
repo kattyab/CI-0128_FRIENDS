@@ -33,36 +33,57 @@ namespace Kaizen.Server.Application.Services.Payroll
         }
 
         public async Task<PayrollSummary> CalculatePayrollAsync(
-            Guid employeeId,
-            decimal grossSalary,
-            string contractType,
-            bool registersHours,
+            EmployeePayroll employee,
             IApiDeductionService apiDeductionService,
             IBenefitDeductionService benefitDeductionService)
         {
-            var apiDeductions = await apiDeductionService.GetDeductionsForEmployeeAsync(employeeId);
-            var benefitDeductions = benefitDeductionService.GetDeductionsForEmployee(employeeId);
+            var isBiweekly = employee.PayrollTypeDescription.Equals("Biweekly", StringComparison.OrdinalIgnoreCase);
 
-            var ccss = contractType == "Servicios Profesionales" ? 0m : _ccssCalculator.CalculateDeduction(grossSalary);
-            var tax = contractType == "Servicios Profesionales" ? 0m : _incomeTaxCalculator.Calculate(grossSalary);
+            var apiDeductions = await apiDeductionService.GetDeductionsForEmployeeAsync(employee.EmpID);
+            var benefitDeductions = benefitDeductionService.GetDeductionsForEmployee(employee.EmpID);
+
+            if (isBiweekly)
+            {
+                apiDeductions = apiDeductions.ToDictionary(
+                    deductionEntry => deductionEntry.Key,
+                    deductionEntry => deductionEntry.Value / 2m
+                );
+
+                foreach (var benefitDeduction in benefitDeductions)
+                {
+                    benefitDeduction.DeductionValue /= 2m;
+                }
+            }
+
+            decimal salaryForDeductions = isBiweekly ? employee.BruteSalary * 2 : employee.BruteSalary;
+
+            var ccssDeduction = employee.ContractType == "Servicios Profesionales" ? 0m : _ccssCalculator.CalculateDeduction(salaryForDeductions);
+            var incomeTaxDeduction = employee.ContractType == "Servicios Profesionales" ? 0m : _incomeTaxCalculator.Calculate(salaryForDeductions);
+
+            if (isBiweekly)
+            {
+                ccssDeduction /= 2m;
+                incomeTaxDeduction /= 2m;
+            }
 
             var totalDeductions = apiDeductions.Values.Sum()
-                                 + benefitDeductions.Sum(d => d.DeductionValue)
-                                 + ccss + tax;
-            var netSalary = grossSalary - totalDeductions;
+                                 + benefitDeductions.Sum(benefitDeduction => benefitDeduction.DeductionValue)
+                                 + ccssDeduction + incomeTaxDeduction;
+
+            var netSalary = employee.BruteSalary - totalDeductions;
 
             return new PayrollSummary
             {
-                EmployeeId = employeeId,
-                ContractType = contractType,
-                RegistersHours = registersHours,
-                GrossSalary = grossSalary,
+                EmployeeId = employee.EmpID,
+                ContractType = employee.ContractType,
+                RegistersHours = employee.RegistersHours,
+                GrossSalary = employee.BruteSalary,
                 NetSalary = netSalary,
                 TotalDeductions = totalDeductions,
                 ApiDeductions = apiDeductions,
                 BenefitDeductions = benefitDeductions,
-                CCSSDeduction = ccss,
-                IncomeTax = tax
+                CCSSDeduction = ccssDeduction,
+                IncomeTax = incomeTaxDeduction
             };
         }
     }
