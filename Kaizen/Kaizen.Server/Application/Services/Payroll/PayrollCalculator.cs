@@ -44,21 +44,13 @@ namespace Kaizen.Server.Application.Services.Payroll
 
             if (isBiweekly)
             {
-                apiDeductions = apiDeductions.ToDictionary(
-                    deductionEntry => deductionEntry.Key,
-                    deductionEntry => deductionEntry.Value / 2m
-                );
-
-                foreach (var benefitDeduction in benefitDeductions)
-                {
-                    benefitDeduction.DeductionValue /= 2m;
-                }
+                apiDeductions = AdjustDeductionsForBiweekly(apiDeductions, benefitDeductions);
             }
 
             decimal salaryForDeductions = isBiweekly ? employee.BruteSalary * 2 : employee.BruteSalary;
 
-            var ccssDeduction = employee.ContractType == "Servicios Profesionales" ? 0m : _ccssCalculator.CalculateDeduction(salaryForDeductions);
-            var incomeTaxDeduction = employee.ContractType == "Servicios Profesionales" ? 0m : _incomeTaxCalculator.Calculate(salaryForDeductions);
+            var ccssDeduction = GetCcssDeduction(employee, salaryForDeductions);
+            var incomeTaxDeduction = GetIncomeTaxDeduction(employee, salaryForDeductions);
 
             if (isBiweekly)
             {
@@ -66,9 +58,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                 incomeTaxDeduction /= 2m;
             }
 
-            var totalDeductions = apiDeductions.Values.Sum()
-                                 + benefitDeductions.Sum(benefitDeduction => benefitDeduction.DeductionValue)
-                                 + ccssDeduction + incomeTaxDeduction;
+            var totalDeductions = GetTotalDeductions(apiDeductions, benefitDeductions, ccssDeduction, incomeTaxDeduction);
 
             var netSalary = employee.BruteSalary - totalDeductions;
 
@@ -85,6 +75,38 @@ namespace Kaizen.Server.Application.Services.Payroll
                 CCSSDeduction = ccssDeduction,
                 IncomeTax = incomeTaxDeduction
             };
+        }
+
+        private static decimal GetTotalDeductions(Dictionary<string, decimal> apiDeductions, List<Dtos.BenefitDeductions.BenefitDeductionResult> benefitDeductions, decimal ccssDeduction, decimal incomeTaxDeduction)
+        {
+            return apiDeductions.Values.Sum()
+                                             + benefitDeductions.Sum(benefitDeduction => benefitDeduction.DeductionValue)
+                                             + ccssDeduction + incomeTaxDeduction;
+        }
+
+        private decimal GetIncomeTaxDeduction(EmployeePayroll employee, decimal salaryForDeductions)
+        {
+            return employee.ContractType == "Servicios Profesionales" ? 0m : _incomeTaxCalculator.Calculate(salaryForDeductions);
+        }
+
+        private decimal GetCcssDeduction(EmployeePayroll employee, decimal salaryForDeductions)
+        {
+            return employee.ContractType == "Servicios Profesionales" ? 0m : _ccssCalculator.CalculateDeduction(salaryForDeductions);
+        }
+
+        private static Dictionary<string, decimal> AdjustDeductionsForBiweekly(Dictionary<string, decimal> apiDeductions, List<Dtos.BenefitDeductions.BenefitDeductionResult> benefitDeductions)
+        {
+            apiDeductions = apiDeductions.ToDictionary(
+                                deductionEntry => deductionEntry.Key,
+                                deductionEntry => deductionEntry.Value / 2m
+                            );
+
+            foreach (var benefitDeduction in benefitDeductions)
+            {
+                benefitDeduction.DeductionValue /= 2m;
+            }
+
+            return apiDeductions;
         }
     }
 }
