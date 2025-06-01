@@ -1,5 +1,4 @@
 using System.Data;
-using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
@@ -15,6 +14,7 @@ namespace Kaizen.Server.Application.Services.Payroll
 
     public class PayrollProcessingService : IPayrollProcessingService
     {
+        private const decimal LaborChargeRate = 0.2667m;
         private readonly IConfiguration _configuration;
         private readonly PayrollCalculator _payrollCalculator;
         private readonly IApiDeductionServiceFactory _apiDeductionServiceFactory;
@@ -92,7 +92,9 @@ namespace Kaizen.Server.Application.Services.Payroll
                     dbo.GetPayrollTypeDescription(C.PayrollType) AS PayrollTypeDescription
                 FROM dbo.Employees E
                 INNER JOIN dbo.Companies C ON E.WorksFor = C.CompanyPK
-                WHERE C.CompanyPK = @CompanyID";
+                WHERE 
+                    C.CompanyPK = @CompanyID
+                AND (E.IsDeleted = 0 OR E.IsDeleted IS NULL);";
 
             await using var command = new SqlCommand(cmdText, connection);
             command.Parameters.AddWithValue("@CompanyID", companyId.ToString());
@@ -154,46 +156,46 @@ namespace Kaizen.Server.Application.Services.Payroll
         private async Task SavePayrollAsync(Guid companyId, List<PayrollSummary> summaries)
         {
             var connectionString = _configuration.GetConnectionString("KaizenDb");
-            await using var conn = new SqlConnection(connectionString);
-            await conn.OpenAsync();
+            await using var sqlConnection = new SqlConnection(connectionString);
+            await sqlConnection.OpenAsync();
             var generalPayrollId = Guid.NewGuid();
             var generalData = BuildGeneralPayrollData(companyId, generalPayrollId, summaries);
             var payrollsTable = BuildPayrollsTable(generalPayrollId, summaries);
             var deductionsTable = BuildOptionalDeductionsTable(summaries);
 
-            await using var cmd = new SqlCommand("SaveFullPayroll", conn)
+            await using var sqlCommand = new SqlCommand("SaveFullPayroll", sqlConnection)
             {
                 CommandType = CommandType.StoredProcedure
             };
 
-            cmd.Parameters.AddWithValue("@GeneralPayrollsID", generalPayrollId);
-            cmd.Parameters.AddWithValue("@PaidBy", companyId);
-            cmd.Parameters.AddWithValue("@TotalDeductionsBenefits", generalData.TotalDeductionsBenefits);
-            cmd.Parameters.AddWithValue("@TotalObligatoryDeductions", generalData.TotalObligatoryDeductions);
-            cmd.Parameters.AddWithValue("@TotalLaborCharges", generalData.TotalLaborCharges);
-            cmd.Parameters.AddWithValue("@TotalMoneyPaid", generalData.TotalMoneyPaid);
-            cmd.Parameters.AddWithValue("@ExecutedOn", DateTime.Now);
+            sqlCommand.Parameters.AddWithValue("@GeneralPayrollsID", generalPayrollId);
+            sqlCommand.Parameters.AddWithValue("@PaidBy", companyId);
+            sqlCommand.Parameters.AddWithValue("@TotalDeductionsBenefits", generalData.TotalDeductionsBenefits);
+            sqlCommand.Parameters.AddWithValue("@TotalObligatoryDeductions", generalData.TotalObligatoryDeductions);
+            sqlCommand.Parameters.AddWithValue("@TotalLaborCharges", generalData.TotalLaborCharges);
+            sqlCommand.Parameters.AddWithValue("@TotalMoneyPaid", generalData.TotalMoneyPaid);
+            sqlCommand.Parameters.AddWithValue("@ExecutedOn", DateTime.Now);
 
-            var payrollsParam = cmd.Parameters.AddWithValue("@Payrolls", payrollsTable);
+            var payrollsParam = sqlCommand.Parameters.AddWithValue("@Payrolls", payrollsTable);
             payrollsParam.SqlDbType = SqlDbType.Structured;
             payrollsParam.TypeName = "dbo.PayrollsType";
 
-            var deductionsParam = cmd.Parameters.AddWithValue("@OptionalDeductions", deductionsTable);
+            var deductionsParam = sqlCommand.Parameters.AddWithValue("@OptionalDeductions", deductionsTable);
             deductionsParam.SqlDbType = SqlDbType.Structured;
             deductionsParam.TypeName = "dbo.OptionalDeductionsType";
 
-            await cmd.ExecuteNonQueryAsync();
+            await sqlCommand.ExecuteNonQueryAsync();
         }
 
         private static GeneralPayrollData BuildGeneralPayrollData(Guid companyId, Guid generalPayrollId, List<PayrollSummary> summaries)
         {
-            var totalOptionalDeductions = summaries.Sum(s =>
-                s.ApiDeductions.Values.Sum() + s.BenefitDeductions.Sum(b => b.DeductionValue));
+            var totalOptionalDeductions = summaries.Sum(summary =>
+                summary.ApiDeductions.Values.Sum() + summary.BenefitDeductions.Sum(b => b.DeductionValue));
 
-            var totalObligatoryDeductions = summaries.Sum(s =>
-                s.CCSSDeduction + s.IncomeTax);
+            var totalObligatoryDeductions = summaries.Sum(summary =>
+                summary.CCSSDeduction + summary.IncomeTax);
 
-            var totalLaborCharges = summaries.Sum(s => s.GrossSalary) * 0.2667m;
+            var totalLaborCharges = summaries.Sum(s => s.GrossSalary) * LaborChargeRate;
             var totalMoneyPaid = totalLaborCharges + summaries.Sum(s => s.GrossSalary);
 
             var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time");
@@ -234,21 +236,26 @@ namespace Kaizen.Server.Application.Services.Payroll
 
             foreach (var employeePayroll in summaries)
             {
-                employeePayroll.PayrollId = Guid.NewGuid();
-                table.Rows.Add(
-                    employeePayroll.PayrollId,
-                    employeePayroll.EmployeeId,
-                    hardcodedExecutorPersonPk, // HARDCODED HERE!!
-                    false, // IsClosed Nani??
-                    employeePayroll.IncomeTax,
-                    employeePayroll.CCSSDeduction,
-                    DBNull.Value,
-                    generalPayrollId,
-                    employeePayroll.GrossSalary,
-                    employeePayroll.NetSalary);
+                AddPayrollRowToTable(generalPayrollId, table, hardcodedExecutorPersonPk, employeePayroll);
             }
 
             return table;
+        }
+
+        private static void AddPayrollRowToTable(Guid generalPayrollId, DataTable table, Guid hardcodedExecutorPersonPk, PayrollSummary employeePayroll)
+        {
+            employeePayroll.PayrollId = Guid.NewGuid();
+            table.Rows.Add(
+                employeePayroll.PayrollId,
+                employeePayroll.EmployeeId,
+                hardcodedExecutorPersonPk, // HARDCODED HERE!!
+                false, // IsClosed Nani??
+                employeePayroll.IncomeTax,
+                employeePayroll.CCSSDeduction,
+                DBNull.Value,
+                generalPayrollId,
+                employeePayroll.GrossSalary,
+                employeePayroll.NetSalary);
         }
 
         private static DataTable BuildOptionalDeductionsTable(List<PayrollSummary> summaries)
@@ -261,14 +268,29 @@ namespace Kaizen.Server.Application.Services.Payroll
 
             foreach (var payrollSummary in summaries)
             {
-                foreach (var apiDeduction in payrollSummary.ApiDeductions)
-                    table.Rows.Add(Guid.NewGuid(), apiDeduction.Key, apiDeduction.Value, payrollSummary.PayrollId);
-
-                foreach (var benefitDeduction in payrollSummary.BenefitDeductions)
-                    table.Rows.Add(Guid.NewGuid(), benefitDeduction.BenefitName, benefitDeduction.DeductionValue, payrollSummary.PayrollId);
+                AddOptionalDeductionsToTable(table, payrollSummary);
             }
 
             return table;
+        }
+
+        private static void AddOptionalDeductionsToTable(DataTable table, PayrollSummary payrollSummary)
+        {
+            foreach (var apiDeduction in payrollSummary.ApiDeductions)
+                AddApiDeductionToTable(table, payrollSummary, apiDeduction);
+
+            foreach (var benefitDeduction in payrollSummary.BenefitDeductions)
+                AddBenefitDeductionToTable(table, payrollSummary, benefitDeduction);
+        }
+
+        private static void AddBenefitDeductionToTable(DataTable table, PayrollSummary payrollSummary, BenefitDeductionResult benefitDeduction)
+        {
+            table.Rows.Add(Guid.NewGuid(), benefitDeduction.BenefitName, benefitDeduction.DeductionValue, payrollSummary.PayrollId);
+        }
+
+        private static void AddApiDeductionToTable(DataTable table, PayrollSummary payrollSummary, KeyValuePair<string, decimal> apiDeduction)
+        {
+            table.Rows.Add(Guid.NewGuid(), apiDeduction.Key, apiDeduction.Value, payrollSummary.PayrollId);
         }
     }
 
@@ -293,6 +315,9 @@ namespace Kaizen.Server.Application.Services.Payroll
         public decimal BruteSalary { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? FireDate { get; set; }
+        /// <summary>
+        /// Returns "Tiempo Completo", "Medio Tiempo", "Por Horas", "Servicios Profesionales"
+        /// </summary>
         public string ContractType { get; set; }
         public bool RegistersHours { get; set; }
         /// <summary>
