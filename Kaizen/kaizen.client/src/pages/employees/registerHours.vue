@@ -1,13 +1,14 @@
 <template>
   <div class="contenedor-principal">
-    <h1 class="text-center">Registro de horas semanal</h1>
+    <h1 class="text-center">Registro de horas {{ tipoPagoTexto }}</h1>
+
 
     <!-- Tabla de registros -->
     <div v-if="registros.length > 0" class="table-responsive" style="max-height: 300px; overflow-y: auto;">
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Semana</th>
+            <th>{{ tipoPagoTextoCorto }}</th>
             <th>Horas Trabajadas</th>
             <th>Acciones</th>
           </tr>
@@ -56,7 +57,7 @@
     <div v-if="mostrarFormulario" class="mt-3">
       <div class="row g-3 align-items-end">
         <div class="col-auto">
-          <label>Semana</label>
+          <label>{{ tipoPagoTextoCorto }}</label>
           <flat-pickr class="form-control"
                       v-model="nuevaFecha"
                       :config="{
@@ -87,7 +88,11 @@
 
         <div class="col-auto">
           <button class="btn btn-success" @click="confirmarRegistro">Confirmar</button>
+          <div v-if="mensajeAdvertencia" class="text-danger mt-2">
+            {{ mensajeAdvertencia }}
+          </div>
         </div>
+
       </div>
       <div class="text-muted mt-1" v-if="fechaInicio && fechaFin">
         Rango ajustado: {{ formatoSemana(fechaInicio, fechaFin) }}
@@ -120,6 +125,8 @@
         userPK: null,
         registersHours: null,
         payrollType: null,
+        mensajeAdvertencia: null,
+
       };
     },
     components: {
@@ -128,10 +135,82 @@
     mounted() {
       this.obtenerInfoUsuario();
     },
+    computed: {
+      tipoPagoTexto() {
+        switch (this.payrollType) {
+          case 'W':
+            return 'semanal';
+          case 'B':
+            return 'quincenal';
+          case 'M':
+            return 'mensual';
+          default:
+            return 'semanal'; // o cualquier texto por defecto
+        }
+      },
+
+       tipoPagoTextoCorto() {
+        switch (this.payrollType) {
+          case 'W':
+            return 'Semana';
+          case 'B':
+            return 'Quincena';
+          case 'M':
+            return 'Mes';
+          default:
+            return 'Semana'; // o cualquier texto por defecto
+        }
+      }
+    },
     methods: {
       ajustarSemana(selectedDates) {
         const seleccion = selectedDates[0];
-        if (seleccion) {
+        if (!seleccion) return;
+
+        const año = seleccion.getFullYear();
+        const mes = seleccion.getMonth(); // 0-indexed
+        const dia = seleccion.getDate();
+
+        if (this.payrollType === 'M') {
+          const inicio = new Date(año, mes, 1);
+          const fin = new Date(año, mes + 1, 0); // último día del mes
+
+          this.fechaInicio = inicio.toISOString().split('T')[0];
+          this.fechaFin = fin.toISOString().split('T')[0];
+
+          if (this.registersHours === false) {
+            let horas = 0;
+            for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
+              if (d.getDay() !== 0) horas += 8; // excluir domingos
+            }
+            this.nuevasHoras = horas;
+          }
+
+        } else if (this.payrollType === 'B') {
+          let inicio, fin;
+          const ultimoDia = new Date(año, mes + 1, 0);
+
+          if (dia <= 15) {
+            inicio = new Date(año, mes, 1);
+            fin = new Date(año, mes, 15);
+          } else {
+            inicio = new Date(año, mes, 16);
+            fin = ultimoDia;
+          }
+
+          this.fechaInicio = inicio.toISOString().split('T')[0];
+          this.fechaFin = fin.toISOString().split('T')[0];
+
+          if (this.registersHours === false) {
+            let horas = 0;
+            for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
+              if (d.getDay() !== 0) horas += 8;
+            }
+            this.nuevasHoras = horas;
+          }
+
+        } else {
+          // Caso 'W' por defecto (semanal)
           const day = seleccion.getDay(); // domingo = 0
           const monday = new Date(seleccion);
           monday.setDate(seleccion.getDate() - ((day + 6) % 7));
@@ -141,15 +220,12 @@
           this.fechaInicio = monday.toISOString().split('T')[0];
           this.fechaFin = sunday.toISOString().split('T')[0];
 
-          // Si registersHours es false, calculamos automáticamente las horas
           if (this.registersHours === false) {
             let horas = 0;
             for (let i = 0; i < 7; i++) {
               const dia = new Date(monday);
               dia.setDate(monday.getDate() + i);
-              if (dia.getDay() !== 0) { // Excluir domingos
-                horas += 8;
-              }
+              if (dia.getDay() !== 0) horas += 8;
             }
             this.nuevasHoras = horas;
           }
@@ -157,12 +233,34 @@
       },
       confirmarRegistro() {
         if (!this.fechaInicio || !this.nuevasHoras) return;
+
+        const fechaActual = new Date(this.fechaInicio);
+
+        // Validación 1: No permitir duplicados (fechaInicio ya existe)
+        const yaExiste = this.registros.some(reg => reg.fechaInicio === this.fechaInicio);
+        if (yaExiste) {
+          this.mostrarAdvertencia('Ya existe un registro para este período.');
+          return;
+        }
+
+        // Validación 2: No permitir períodos anteriores al último registrado
+        const fechasRegistradas = this.registros.map(r => new Date(r.fechaInicio));
+        if (fechasRegistradas.length > 0) {
+          const maxFechaRegistrada = new Date(Math.max(...fechasRegistradas));
+          if (fechaActual <= maxFechaRegistrada) {
+            this.mostrarAdvertencia('No puedes registrar períodos anteriores al último registrado.');
+            return;
+          }
+        }
+
+        // Si pasa las validaciones, se agrega el registro
         this.registros.push({
           fechaInicio: this.fechaInicio,
           fechaFin: this.fechaFin,
           horas: this.nuevasHoras,
           enRevision: false,
         });
+
         this.resetFormulario();
       },
       enviarRevision(index) {
@@ -200,6 +298,12 @@
         } else if (valor < 1) {
           this.nuevasHoras = 1;
         }
+      },
+      mostrarAdvertencia(msg) {
+        this.mensajeAdvertencia = msg;
+        setTimeout(() => {
+          this.mensajeAdvertencia = null;
+        }, 5000);
       },
       async obtenerInfoUsuario() {
         try {
