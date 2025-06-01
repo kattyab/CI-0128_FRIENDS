@@ -50,10 +50,10 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
                     // Insert into the new Benefits table
                     string insertSql = @"
-INSERT INTO Benefits (Name, MinWorkDurationMonths, OfferedBy, IsFixed, FixedValue, IsPercetange, PercentageValue, 
+INSERT INTO Benefits (Name, MinWorkDurationMonths, OfferedBy, IsFixed, FixedValue, IsPercentage, PercentageValue,
     IsAPI, Path, NumParameters, IsFullTime, IsPartTime, IsByHours, IsByService
 )
-VALUES (@Name, @MinWorkDurationMonths, @OfferedBy, @IsFixed, @FixedValue, @IsPercentage, @PercentageValue, 
+VALUES (@Name, @MinWorkDurationMonths, @OfferedBy, @IsFixed, @FixedValue, @IsPercentage, @PercentageValue,
     @IsAPI, @Path, @NumParameters, @IsFullTime, @IsPartTime, @IsByHours, @IsByService
 );";
 
