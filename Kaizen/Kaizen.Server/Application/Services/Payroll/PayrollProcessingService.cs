@@ -9,7 +9,7 @@ namespace Kaizen.Server.Application.Services.Payroll
 {
     public interface IPayrollProcessingService
     {
-        Task ProcessCompanyPayrollAsync(Guid companyId);
+        Task<string> ProcessCompanyPayrollAsync(Guid companyId);
         Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(Guid companyId);
     }
 
@@ -32,9 +32,17 @@ namespace Kaizen.Server.Application.Services.Payroll
             _benefitDeductionServiceFactory = benefitDeductionServiceFactory;
         }
 
-        public async Task ProcessCompanyPayrollAsync(Guid companyId)
+        public async Task<string> ProcessCompanyPayrollAsync(Guid companyId)
         {
             var payrollResults = await CalculateCompanyPayrollAsync(companyId);
+
+            var failedPayrolls = payrollResults.Where(p => p.NetSalary < 0).ToList();
+
+            if (failedPayrolls.Any())
+            {
+                var failedIds = string.Join(", ", failedPayrolls.Select(p => p.EmployeeId));
+                return $"Failed {failedIds}";
+            }
 
             await SavePayrollAsync(companyId, payrollResults);
 
@@ -42,7 +50,10 @@ namespace Kaizen.Server.Application.Services.Payroll
             {
                 PrintPayrollSummary(payrollSummary);
             }
+
+            return "Success";
         }
+
 
         public async Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(Guid companyId)
         {
@@ -172,7 +183,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             await cmd.ExecuteNonQueryAsync();
         }
 
-        private static (decimal TotalDeductionsBenefits, decimal TotalObligatoryDeductions, decimal TotalLaborCharges, decimal TotalMoneyPaid, DateTime StartDate) BuildGeneralPayrollData(Guid companyId, Guid generalPayrollId, List<PayrollSummary> summaries)
+        private static GeneralPayrollData BuildGeneralPayrollData(Guid companyId, Guid generalPayrollId, List<PayrollSummary> summaries)
         {
             var totalOptionalDeductions = summaries.Sum(s =>
                 s.ApiDeductions.Values.Sum() + s.BenefitDeductions.Sum(b => b.DeductionValue));
@@ -183,11 +194,25 @@ namespace Kaizen.Server.Application.Services.Payroll
             var totalLaborCharges = summaries.Sum(s => s.GrossSalary) * 0.2667m;
             var totalMoneyPaid = totalLaborCharges + summaries.Sum(s => s.GrossSalary);
 
-            var startDate = DateTime.UtcNow;
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time");
+            var startDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
 
-            return (totalOptionalDeductions, totalObligatoryDeductions, totalLaborCharges, totalMoneyPaid, startDate);
+            return new GeneralPayrollData
+            {
+                TotalDeductionsBenefits = totalOptionalDeductions,
+                TotalObligatoryDeductions = totalObligatoryDeductions,
+                TotalLaborCharges = totalLaborCharges,
+                TotalMoneyPaid = totalMoneyPaid,
+                StartDate = startDate
+            };
         }
 
+        /// <summary>
+        /// LOOK AT THIS FUNCTION PLEASE DONT FORGET TO CHANGE THIS
+        /// </summary>
+        /// <param name="generalPayrollId"></param>
+        /// <param name="summaries"></param>
+        /// <returns></returns>
         private static DataTable BuildPayrollsTable(Guid generalPayrollId, List<PayrollSummary> summaries)
         {
             var table = new DataTable();
@@ -268,5 +293,14 @@ namespace Kaizen.Server.Application.Services.Payroll
         public DateTime? FireDate { get; set; }
         public string ContractType { get; set; } = string.Empty;
         public bool RegistersHours { get; set; }
+    }
+
+    public class GeneralPayrollData
+    {
+        public decimal TotalDeductionsBenefits { get; set; }
+        public decimal TotalObligatoryDeductions { get; set; }
+        public decimal TotalLaborCharges { get; set; }
+        public decimal TotalMoneyPaid { get; set; }
+        public DateTime StartDate { get; set; }
     }
 }
