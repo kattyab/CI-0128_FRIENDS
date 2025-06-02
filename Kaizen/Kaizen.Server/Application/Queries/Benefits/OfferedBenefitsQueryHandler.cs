@@ -19,7 +19,7 @@ namespace Kaizen.Server.Application.Queries.Benefits
 
             if (!request.IncludeUnavailable)
             {
-                benefits = benefits.Where(b => b.IsAvailable).ToList();
+                benefits = benefits.ToList();
             }
 
             return benefits;

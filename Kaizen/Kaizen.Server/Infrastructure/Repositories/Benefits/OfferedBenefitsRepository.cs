@@ -13,7 +13,6 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
     }
 
     public async Task<List<OfferedBenefitDto>> GetAvailableBenefitsForEmployee(string email)
-    
     {
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -94,26 +93,25 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
             while (await reader.ReadAsync())
             {
                 var minMonths = reader.GetInt32(reader.GetOrdinal("MinWorkDurationMonths"));
+                var benefitName = reader.IsDBNull(reader.GetOrdinal("Name")) ? "NULL" : reader.GetString(reader.GetOrdinal("Name"));
+                var benefitType = reader.IsDBNull(reader.GetOrdinal("Type")) ? "NULL" : reader.GetString(reader.GetOrdinal("Type"));
+
+                var isPartTime = reader.GetInt32(reader.GetOrdinal("IsPartTime")) == 1;
+                var isFullTime = reader.GetInt32(reader.GetOrdinal("IsFullTime")) == 1;
+                var isByHours = reader.GetInt32(reader.GetOrdinal("IsByHours")) == 1;
+                var isByService = reader.GetInt32(reader.GetOrdinal("IsByService")) == 1;
 
                 var isEligible = IsContractTypeEligible(
                     contractType,
-                    isPartTime: reader.GetInt32(reader.GetOrdinal("IsPartTime")) == 1,
-                    isFullTime: reader.GetInt32(reader.GetOrdinal("IsFullTime")) == 1,
-                    isByHours: reader.GetInt32(reader.GetOrdinal("IsByHours")) == 1,
-                    isByService: reader.GetInt32(reader.GetOrdinal("IsByService")) == 1
+                    isPartTime: isPartTime,
+                    isFullTime: isFullTime,
+                    isByHours: isByHours,
+                    isByService: isByService
                 );
 
                 var isTenureEligible = monthsInCompany >= minMonths;
                 var available = isEligible && isTenureEligible;
 
-                var reason = string.Empty;
-                if (!available)
-                {
-                    var reasons = new List<string>();
-                    if (!isEligible) reasons.Add("Contract type not eligible");
-                    if (!isTenureEligible) reasons.Add($"Requires {minMonths} months (has {monthsInCompany})");
-                    reason = string.Join(", ", reasons);
-                }
 
                 benefits.Add(new OfferedBenefitDto
                 {
@@ -125,21 +123,14 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
                         ? (int?)null
                         : reader.GetInt32(reader.GetOrdinal("APIId")),
 
-                    Name = reader.IsDBNull(reader.GetOrdinal("Name"))
-                        ? null
-                        : reader.GetString(reader.GetOrdinal("Name")),
-
-                    Type = reader.IsDBNull(reader.GetOrdinal("Type"))
-                        ? null
-                        : reader.GetString(reader.GetOrdinal("Type")),
-
+                    Name = benefitName,
+                    Type = benefitType,
                     MinMonths = minMonths,
                     IsAvailable = available,
-                    ReasonUnavailable = available ? null : reason,
 
                     Value = reader.IsDBNull(reader.GetOrdinal("Value"))
-        ? 0
-        : reader.GetDecimal(reader.GetOrdinal("Value"))
+                        ? 0
+                        : reader.GetDecimal(reader.GetOrdinal("Value"))
                 });
             }
         }
@@ -149,7 +140,8 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
 
     private bool IsContractTypeEligible(string contractType, bool isPartTime, bool isFullTime, bool isByHours, bool isByService)
     {
-        return contractType switch
+
+        var result = contractType switch
         {
             "Medio Tiempo" => isPartTime,             // Part-Time
             "Tiempo Completo" => isFullTime,          // Full-Time
@@ -157,6 +149,7 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
             "Servicios Profesionales" => isByService, // By Service
             _ => false
         };
-    }
 
+        return result;
+    }
 }

@@ -2,17 +2,15 @@
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10 justify-content-center">
-      <h1 class="text-center my-4">Benefits</h1>
+      <h1 class="text-center my-4">Beneficios</h1>
 
-      <!-- Subscribe button at the top with right alignment -->
       <div class="mx-5 mb-3 d-flex justify-content-end">
         <button class="btn btn-primary btn-lg" @click="showSubscribeModal = true">
-          <!--<span class="material-icons align-middle me-1">add_circle</span>-->
-          Subscribe to another benefit
+          Suscribir Beneficio
         </button>
       </div>
 
-      <!-- Add this right after the "Subscribe to another benefit" button -->
+      <!--TODO: CLEAN OR ELIMINATE COMPLETELY THIS ERROR SHOWCASE-->
       <div class="mx-5 mb-3" v-if="errorMessage">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <strong>Error:</strong> {{ errorMessage }}
@@ -20,38 +18,32 @@
         </div>
       </div>
 
-      <!-- Add loading spinner for the table -->
       <div class="mx-5">
-        <!-- Loading state -->
         <div v-if="isLoadingBenefits" class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading benefits...</span>
+            <span class="visually-hidden">Cargando beneficios...</span>
           </div>
-          <p class="mt-2 text-muted">Loading your benefits...</p>
+          <p class="mt-2 text-muted">Cargando beneficios...</p>
         </div>
 
-        <!-- Error state -->
         <div v-else-if="errorMessage && activeBenefits.length === 0" class="text-center py-5">
           <div class="text-muted">
             <i class="material-icons" style="font-size: 3rem;">error_outline</i>
-            <p class="mt-2">Unable to load benefits</p>
+            <p class="mt-2">Incapaz de cargar los beneficios</p>
             <button class="btn btn-outline-primary" @click="refreshBenefits">
-              <span class="material-icons align-middle me-1" style="font-size: 16px;">refresh</span>
-              Try Again
+              Inténtelo de nuevo.
             </button>
           </div>
         </div>
 
-        <!-- Empty state -->
         <div v-else-if="!isLoadingBenefits && activeBenefits.length === 0" class="text-center py-5">
           <div class="text-muted">
             <i class="material-icons" style="font-size: 3rem;">inbox</i>
             <p class="mt-2">No benefits found</p>
-            <p class="small">You haven't subscribed to any benefits yet.</p>
+            <p class="small">No se ha suscrito a ningún beneficio todavía.</p>
           </div>
         </div>
 
-        <!-- Table with benefits (your existing table) -->
         <table v-else class="table table-hover">
           <thead>
             <tr>
@@ -66,16 +58,16 @@
               <td>{{ benefit.name }}</td>
               <td>
                 <span v-if="benefit.method.type === 'percentage'">{{ benefit.method.value }}%</span>
-                <span v-else-if="benefit.method.type === 'fixed'">${{ benefit.method.value }}</span>
+                <span v-else-if="benefit.method.type === 'fixed'">₡{{ benefit.method.value }}</span>
                 <span v-else>{{ benefit.method.value }}</span>
               </td>
               <td>{{ benefit.minimumMonths }}</td>
               <td>
+                <!--TODO: CLEAN unsubscribeBenefit(index) FUNCTIONALITY AS IT IS NOT SPRINT NEEDED-->
                 <button class="btn btn-outline-danger btn-sm"
                         @click="unsubscribeBenefit(index)"
                         :disabled="benefit.state === 'Expired' || isLoadingBenefits">
-                  <span class="material-icons align-middle me-1" style="font-size: 16px;">cancel</span>
-                  Unsubscribe
+                  Cancelar Suscripción
                 </button>
               </td>
             </tr>
@@ -94,7 +86,6 @@
             <div class="modal-body">
               <p>Seleccione un beneficio:</p>
 
-              <!-- Loading state for available benefits -->
               <div v-if="isLoadingAvailableBenefits" class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Cargando beneficios disponibles...</span>
@@ -102,16 +93,25 @@
                 <p class="mt-2 text-muted">Cargando beneficios disponibles...</p>
               </div>
 
-              <!-- Error state for available benefits -->
+              <!--TODO: CONTROL OR ELIMINATE COMPLETELY ERROR STATE-->
               <div v-else-if="availableBenefitsError" class="alert alert-danger">
                 <strong>Error:</strong> {{ availableBenefitsError }}
                 <button class="btn btn-outline-primary btn-sm ms-2" @click="loadAvailableBenefits">
-                  <span class="material-icons align-middle me-1" style="font-size: 14px;">refresh</span>
                   Reintentar
                 </button>
               </div>
 
-              <!-- Available benefits table -->
+              <div v-else-if="availableBenefits.length === 0" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                  <p class="mt-2">No hay beneficios disponibles</p>
+                  <p class="small">Actualmente no hay beneficios disponibles para suscribir.</p>
+                  <button class="btn btn-outline-primary mt-3" @click="closeSubscribeModal">
+                    Volver
+                  </button>
+                </div>
+              </div>
+
               <table v-else class="table table-hover">
                 <thead>
                   <tr>
@@ -139,7 +139,7 @@
                     <td>{{ benefit.name }}</td>
                     <td>
                       <span v-if="benefit.method.type === 'percentage'">{{ benefit.method.value }}%</span>
-                      <span v-else-if="benefit.method.type === 'fixed'">${{ benefit.method.value }}</span>
+                      <span v-else-if="benefit.method.type === 'fixed'">₡{{ benefit.method.value }}</span>
                       <span v-else>{{ benefit.method.value }}</span>
                     </td>
                     <td>{{ benefit.minimumMonths }}</td>
@@ -182,17 +182,14 @@
                 <div class="alert alert-info">
                   <h6 class="mb-3"><strong>{{ selectedBenefit.name }}</strong></h6>
 
-                  <!-- Fixed Value Benefits -->
                   <div v-if="selectedBenefit.method.type === 'fixed'">
-                    <p><strong>Valor del Beneficio:</strong> ${{ selectedBenefit.method.value }}</p>
+                    <p><strong>Valor del Beneficio:</strong> ₡{{ selectedBenefit.method.value }}</p>
                   </div>
 
-                  <!-- Percentage Benefits -->
                   <div v-else-if="selectedBenefit.method.type === 'percentage'">
                     <p><strong>Porcentaje del Beneficio:</strong> {{ selectedBenefit.method.value }}%</p>
                   </div>
 
-                  <!-- API Benefits -->
                   <div v-else>
                     <p><strong>Tipo de Beneficio:</strong> {{ selectedBenefit.method.value }}</p>
                   </div>
@@ -209,7 +206,7 @@
                       <h6 class="mb-0">Información Adicional Requerida</h6>
                     </div>
                     <div class="card-body">
-                      <!-- Asociación Solidarista Input (ID 2) -->
+                      <!-- Asociación Solidarista Input-->
                       <div v-if="selectedBenefit && selectedBenefit.apiId === 2">
                         <label for="assocName" class="form-label">
                           <strong>Nombre de la Asociación Solidarista:</strong>
@@ -225,7 +222,7 @@
                         </div>
                       </div>
 
-                      <!-- MediSeguro Dependents Input (ID 3) -->
+                      <!-- MediSeguro Dependents Input-->
                       <div v-if="selectedBenefit && selectedBenefit.apiId === 3">
                         <label for="dependents" class="form-label">
                           <strong>Información de Dependientes:</strong>
@@ -243,27 +240,9 @@
                     </div>
                   </div>
 
-                  <!-- Global Input Validation Error -->
+                  <!--TODO: CHECK FOR ERRORS OR ELIMINATE COMPLETELY-->
                   <div v-if="inputValidationError" class="alert alert-warning mt-3">
                     <strong>Atención:</strong> {{ inputValidationError }}
-                  </div>
-                </div>
-
-                <!-- Show user inputs for API benefits (display only) -->
-                <div v-if="selectedBenefit.method.type === 'specific' && (assocName || dependents)" class="mb-3">
-                  <div v-if="selectedBenefit.apiId === 2 && assocName" class="p-3 bg-light rounded mb-2">
-                    <h6 class="text-info">Información de Asociación Solidarista:</h6>
-                    <p class="mb-0"><strong>Nombre:</strong> {{ assocName }}</p>
-                  </div>
-
-                  <div v-if="selectedBenefit.apiId === 3 && dependents" class="p-3 bg-light rounded mb-2">
-                    <h6 class="text-info">Información de Dependientes:</h6>
-                    <p class="mb-0"><strong>Dependientes:</strong> {{ dependents }}</p>
-                  </div>
-
-                  <div v-if="selectedBenefit.apiId === 1" class="p-3 bg-light rounded mb-2">
-                    <h6 class="text-info">Beneficio Básico:</h6>
-                    <p class="mb-0">No requiere información adicional</p>
                   </div>
                 </div>
 
@@ -366,14 +345,12 @@ const hasBenefitSelected = computed(() => {
   return selectedBenefitIndex.value !== null && selectedBenefit.value?.state === 'Disponible';
 });
 
-// Check if selected benefit requires additional input
 const requiresAdditionalInput = computed(() => {
   if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return false;
   const apiId = selectedBenefit.value.apiId;
   return apiId === 2 || apiId === 3;
 });
 
-// Validate required inputs for API benefits
 const isInputValid = computed(() => {
   if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return true;
 
@@ -385,7 +362,7 @@ const isInputValid = computed(() => {
     return dependents.value.trim().length > 0;
   }
 
-  return true; // For ID 1 or other cases
+  return true;
 });
 
 const loadActiveBenefits = async () => {
@@ -403,10 +380,8 @@ const loadActiveBenefits = async () => {
       { withCredentials: true }
     );
 
-    console.log('Active Benefits API Response:', response.data);
-
     activeBenefits.value = response.data.map(benefit => ({
-      benefitId: benefit.BenefitID,
+      benefitId: benefit.benefitId,
       apiId: benefit.apiId,
       name: benefit.name,
       type: benefit.type,
@@ -415,14 +390,11 @@ const loadActiveBenefits = async () => {
       state: 'Active'
     }));
 
-    console.log('Transformed Active Benefits:', activeBenefits.value);
 
   } catch (error) {
     console.error('Error cargando los beneficios suscritos:', error);
     if (error.response?.data) {
-      errorMessage.value = typeof error.response.data === 'string'
-        ? error.response.data
-        : 'No se pudo cargar los beneficios suscritos';
+      errorMessage.value = 'Hubo un error inesperado.';
     } else {
       errorMessage.value = 'Error de red. Reintentar más tarde.';
     }
@@ -431,49 +403,66 @@ const loadActiveBenefits = async () => {
   }
 };
 
-const loadAvailableBenefits = async () => {
-  if (!userEmail.value) {
-    console.error('User email is required to load available benefits');
-    return;
-  }
-
-  isLoadingAvailableBenefits.value = true;
-  availableBenefitsError.value = '';
-
-  try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/OfferedBenefits/available/${encodeURIComponent(userEmail.value)}`,
-      { withCredentials: true }
-    );
-
-    console.log('Available Benefits API Response:', response.data);
-
-    availableBenefits.value = response.data.map(benefit => ({
-      benefitId: benefit.benefitId,
-      apiId: benefit.apiId,
-      name: benefit.name,
-      type: benefit.type,
-      method: transformBenefitMethod(benefit.type, benefit.value),
-      minimumMonths: benefit.minMonths,
-      state: benefit.isAvailable ? 'Disponible' : 'No Disponible',
-      reasonUnavailable: benefit.reasonUnavailable || null
-    }));
-
-    console.log('Transformed Available Benefits:', availableBenefits.value);
-
-  } catch (error) {
-    console.error('Error cargando beneficios disponibles:', error);
-    if (error.response?.data) {
-      availableBenefitsError.value = typeof error.response.data === 'string'
-        ? error.response.data
-        : 'No se pudo cargar los beneficios disponibles.';
-    } else {
-      availableBenefitsError.value = 'Error de red. Reintentar más tarde.';
+  const loadAvailableBenefits = async () => {
+    if (!userEmail.value) {
+      console.error('User email is required to load available benefits');
+      return;
     }
-  } finally {
-    isLoadingAvailableBenefits.value = false;
-  }
-};
+
+    isLoadingAvailableBenefits.value = true;
+    availableBenefitsError.value = '';
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/OfferedBenefits/available/${encodeURIComponent(userEmail.value)}`,
+        { withCredentials: true }
+      );
+
+      console.log('Available Benefits API Response:', response.data);
+
+      // Transform the benefits first
+      const transformedBenefits = response.data.map(benefit => ({
+        benefitId: benefit.benefitId,
+        apiId: benefit.apiId,
+        name: benefit.name,
+        type: benefit.type,
+        method: transformBenefitMethod(benefit.type, benefit.value),
+        minimumMonths: benefit.minMonths,
+        state: benefit.isAvailable ? 'Disponible' : 'No Disponible',
+        reasonUnavailable: benefit.reasonUnavailable || null
+      }));
+
+      await loadActiveBenefits()
+      console.log(activeBenefits.value)
+      // Filter out benefits that are already subscribed
+      availableBenefits.value = transformedBenefits.filter(availableBenefit => {
+        return !activeBenefits.value.some(activeBenefit => {
+          // For API benefits (type === 'isapi' or method.type === 'specific'), compare apiId
+          if (availableBenefit.type?.toLowerCase() === 'isapi' || availableBenefit.method.type === 'specific') {
+            console.log('Comparison is api', activeBenefit.benefitId, availableBenefit.benefitId)
+            return activeBenefit.apiId === availableBenefit.apiId;
+          }
+          // For regular benefits, compare benefitId
+          else {
+            console.log('Comparison', activeBenefit.benefitId, availableBenefit.benefitId)
+            return activeBenefit.benefitId === availableBenefit.benefitId;
+          }
+        });
+      });
+
+      console.log('Filtered Available Benefits:', availableBenefits.value);
+
+    } catch (error) {
+      console.error('Error cargando beneficios disponibles:', error);
+      if (error.response?.data) {
+        availableBenefitsError.value = 'No se pudo cargar los beneficios disponibles.';
+      } else {
+        availableBenefitsError.value = 'Error de red. Reintentar más tarde.';
+      }
+    } finally {
+      isLoadingAvailableBenefits.value = false;
+    }
+  };
 
 const transformBenefitMethod = (type, value) => {
   const lowerType = type?.toLowerCase();
@@ -490,16 +479,16 @@ const transformBenefitMethod = (type, value) => {
         value: typeof value === 'number' ? value.toFixed(2) : '0.00'
       };
     case 'isapi':
-      return { type: 'specific', value: 'Calculated via API' };
+      return { type: 'specific', value: 'Calculado externamente' };
     default:
       return { type: 'specific', value: value || 'Unknown' };
   }
 };
 
-const refreshBenefits = () => {
-  loadActiveBenefits();
-  loadAvailableBenefits();
-};
+  const refreshBenefits = async () => {
+    await loadActiveBenefits();
+    await loadAvailableBenefits();
+  };
 
 const validateInput = () => {
   inputValidationError.value = '';
@@ -514,7 +503,7 @@ const validateInput = () => {
   }
 
   if (apiId === 3 && dependents.value.trim().length === 0) {
-    inputValidationError.value = 'Por favor ingrese información sobre dependientes';
+    inputValidationError.value = 'Por favor ingrese la cantidad de beneficiarios';
     return false;
   }
 
@@ -527,22 +516,17 @@ const resetInputs = () => {
   inputValidationError.value = '';
 };
 
-// Watch for benefit selection changes
 watch(selectedBenefit, (newBenefit) => {
-  console.log('Selected benefit changed:', newBenefit);
   calculatedBenefitValue.value = null;
   calculationError.value = '';
-  // Clear validation errors when benefit changes
   inputValidationError.value = '';
 });
 
-// Watch for modal state changes
 watch(showSubscribeModal, (newVal) => {
   if (newVal) loadAvailableBenefits();
   if (!newVal) resetInputs();
 });
 
-// Watch for input changes to clear validation errors
 watch([assocName, dependents], () => {
   if (inputValidationError.value) {
     inputValidationError.value = '';
@@ -569,16 +553,15 @@ const closeConfirmationModal = () => {
 const confirmFinalSubscription = async () => {
   if (!selectedBenefit.value) return;
 
-  // Final validation before subscription
   if (!validateInput()) {
-    return; // Stay in confirmation modal to show validation errors
+    return;
   }
 
   isProcessingSubscription.value = true;
 
   try {
     if (selectedBenefit.value.method.type === 'specific') {
-      // API SUBSCRIPTION CALL - Enhanced payload construction
+      // API benefit subscription
       const payload = {
         email: userEmail.value,
         id: selectedBenefit.value.apiId,
@@ -600,8 +583,6 @@ const confirmFinalSubscription = async () => {
     }
 
     subscribedBenefitName.value = selectedBenefit.value.name;
-
-    // Refresh the benefits lists
     await refreshBenefits();
 
     showConfirmationModal.value = false;
@@ -609,20 +590,15 @@ const confirmFinalSubscription = async () => {
 
   } catch (error) {
     console.error('Error al suscribirse al beneficio:', error);
-    
-    // Enhanced error handling
+
     let errorMsg = 'No se pudo suscribir al beneficio. Reintentar más tarde.';
     if (error.response?.data) {
-      if (typeof error.response.data === 'string') {
-        errorMsg = error.response.data;
-      } else if (error.response.data.message) {
-        errorMsg = error.response.data.message;
-      }
+      availableBenefitsError.value = 'No se pudo suscribir el beneficio.';
+    } else {
+      availableBenefitsError.value = 'Error de red. Reintentar más tarde.';
     }
     
     errorMessage.value = errorMsg;
-    
-    // Close confirmation modal on error
     showConfirmationModal.value = false;
   } finally {
     isProcessingSubscription.value = false;
@@ -646,11 +622,8 @@ const closeSubscribeModal = () => {
   resetInputs();
 };
 
-// Unsubscribe functionality (if needed)
+// TODO: Implement unsubscription of benefits
 const unsubscribeBenefit = (index) => {
-  benefitToUnsubscribe.value = activeBenefits.value[index];
-  benefitIndexToUnsubscribe.value = index;
-  showUnsubscribeModal.value = true;
 };
 
 const closeUnsubscribeModal = () => {
@@ -659,7 +632,6 @@ const closeUnsubscribeModal = () => {
   benefitIndexToUnsubscribe.value = null;
 };
 
-// Initialize on component mount
 onMounted(() => {
   loadActiveBenefits();
   loadAvailableBenefits();
