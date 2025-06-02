@@ -13,6 +13,7 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
     }
 
     public async Task<List<OfferedBenefitDto>> GetAvailableBenefitsForEmployee(string email)
+    
     {
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -48,6 +49,8 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
         // 2. Get all benefits for the employee's company
         var benefitQuery = @"
         SELECT 
+            b.Id AS BenefitId,
+            NULL AS APIId,
             b.Name,
             CASE 
                 WHEN b.IsFixed = 1 THEN 'Fixed'
@@ -70,6 +73,8 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
         UNION ALL
 
         SELECT 
+            NULL AS BenefitId,
+            adc.Id AS APIId,
             adc.Name,
             'IsApi' AS Type,
             0 AS MinWorkDurationMonths,
@@ -112,12 +117,29 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
 
                 benefits.Add(new OfferedBenefitDto
                 {
-                    Name = reader.GetString(reader.GetOrdinal("Name")),
-                    Type = reader.GetString(reader.GetOrdinal("Type")),
+                    BenefitId = reader.IsDBNull(reader.GetOrdinal("BenefitId"))
+                        ? (Guid?)null
+                        : reader.GetGuid(reader.GetOrdinal("BenefitId")),
+
+                    APIId = reader.IsDBNull(reader.GetOrdinal("APIId"))
+                        ? (int?)null
+                        : reader.GetInt32(reader.GetOrdinal("APIId")),
+
+                    Name = reader.IsDBNull(reader.GetOrdinal("Name"))
+                        ? null
+                        : reader.GetString(reader.GetOrdinal("Name")),
+
+                    Type = reader.IsDBNull(reader.GetOrdinal("Type"))
+                        ? null
+                        : reader.GetString(reader.GetOrdinal("Type")),
+
                     MinMonths = minMonths,
                     IsAvailable = available,
                     ReasonUnavailable = available ? null : reason,
-                    Value = reader.GetDecimal(reader.GetOrdinal("Value")) // <-- Added
+
+                    Value = reader.IsDBNull(reader.GetOrdinal("Value"))
+        ? 0
+        : reader.GetDecimal(reader.GetOrdinal("Value"))
                 });
             }
         }

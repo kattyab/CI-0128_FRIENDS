@@ -17,6 +17,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
         }
 
         public async Task<List<EmployeeBenefitListDto>> GetEmployeeBenefitList(string email)
+        
         {
             var benefits = new List<EmployeeBenefitListDto>();
 
@@ -25,6 +26,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 
             var query = @"
                 SELECT 
+                    combined.BenefitID,
+                    combined.APIId,
                     combined.Name,
                     combined.Type,
                     combined.Value,
@@ -32,6 +35,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                 FROM (
                     -- Original query for Benefits
                     SELECT 
+                        b.Id AS BenefitID,
+                        NULL as APIId,
                         b.Name,
                         CASE 
                             WHEN b.IsFixed = 1 THEN 'Fixed'
@@ -54,6 +59,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     UNION ALL
     
                     SELECT 
+                        NULL AS BenefitID,
+                        adc.ID as APIId,
                         adc.Name,
                         'IsApi' AS Type,
                         0 AS Value,
@@ -75,10 +82,12 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
             {
                 benefits.Add(new EmployeeBenefitListDto
                 {
-                    Name = reader.GetString("Name"),
-                    Type = reader.GetString("Type"),
-                    Value = reader.GetDecimal("Value"),
-                    MinMonths = reader.GetInt32("MinMonths")
+                    BenefitId = reader.IsDBNull("BenefitId") ? (Guid?)null : reader.GetGuid("BenefitId"),
+                    APIId = reader.IsDBNull("APIId") ? (int?)null : reader.GetInt32("APIId"),
+                    Name = reader.IsDBNull("Name") ? null : reader.GetString("Name"),
+                    Type = reader.IsDBNull("Type") ? null : reader.GetString("Type"),
+                    Value = reader.IsDBNull("Value") ? 0 : reader.GetDecimal("Value"),
+                    MinMonths = reader.IsDBNull("MinMonths") ? 0 : reader.GetInt32("MinMonths")
                 });
             }
 
