@@ -48,6 +48,8 @@ builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
 builder.Services.AddScoped<UserInfoRepository>();
+builder.Services.AddScoped<ApprovedHoursRepository>();
+
 
 
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();

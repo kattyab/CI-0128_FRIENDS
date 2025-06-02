@@ -103,6 +103,7 @@
     <p><strong>UserPK:</strong> {{ userPK }}</p>
     <p><strong>RegistersHours:</strong> {{ registersHours }}</p>
     <p><strong>PayrollType:</strong> {{ payrollType }}</p>
+    <p><strong>EmpID:</strong> {{ empID }}</p>
   </div>
 </template>
 
@@ -125,7 +126,9 @@
         userPK: null,
         registersHours: null,
         payrollType: null,
+        empID: null,
         mensajeAdvertencia: null,
+
 
       };
     },
@@ -231,12 +234,12 @@
           }
         }
       },
-      confirmarRegistro() {
+      async confirmarRegistro() {
         if (!this.fechaInicio || !this.nuevasHoras) return;
 
         const fechaActual = new Date(this.fechaInicio);
 
-        // Validación 1: No permitir duplicados (fechaInicio ya existe)
+        // Validación 1: No permitir duplicados
         const yaExiste = this.registros.some(reg => reg.fechaInicio === this.fechaInicio);
         if (yaExiste) {
           this.mostrarAdvertencia('Ya existe un registro para este período.');
@@ -253,16 +256,34 @@
           }
         }
 
-        // Si pasa las validaciones, se agrega el registro
-        this.registros.push({
-          fechaInicio: this.fechaInicio,
-          fechaFin: this.fechaFin,
-          horas: this.nuevasHoras,
-          enRevision: false,
-        });
+        // ✅ Llamar al backend
+        try {
+          const payload = {
+            empID: this.empID,
+            startDate: this.fechaInicio,
+            endDate: this.fechaFin,
+            hoursWorked: this.nuevasHoras,
+            isSentForApproval: false
+          };
+          console.log('Payload enviado:', payload);
 
-        this.resetFormulario();
-      },
+          await axios.post(`${import.meta.env.VITE_API_URL}/api/ApprovedHours`, payload);
+
+          // Solo si se insertó exitosamente, lo agregamos a la tabla local
+          this.registros.push({
+            fechaInicio: this.fechaInicio,
+            fechaFin: this.fechaFin,
+            horas: this.nuevasHoras,
+            enRevision: false,
+          });
+
+          this.resetFormulario();
+        } catch (error) {
+          console.error("Error al guardar en el backend:", error);
+          this.mostrarAdvertencia("Hubo un error al guardar los datos.");
+        }
+      }
+,
       enviarRevision(index) {
         this.registros[index].enRevision = true;
       },
@@ -316,6 +337,7 @@
           this.userPK = data.userPK;
           this.registersHours = data.registersHours;
           this.payrollType = data.payrollType;
+          this.empID = data.empID; // <-- Aquí lo guardas
         } catch (error) {
           console.error("Error al obtener información del usuario:", error);
         }

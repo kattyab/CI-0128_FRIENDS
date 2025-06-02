@@ -14,16 +14,17 @@ public class UserInfoRepository(IConfiguration configuration)
     public UserInfoDto? GetUserInfo(Guid userPK)
     {
         const string query = @"
-            SELECT 
-                u.UserPK,
-                e.RegistersHours,
-                c.PayrollType
-            FROM Users u
-            LEFT JOIN Persons p ON u.PersonPK = p.PersonPK
-            LEFT JOIN Employees e ON p.PersonPK = e.PersonPK
-            LEFT JOIN Companies c ON e.WorksFor = c.CompanyPK
-            WHERE u.UserPK = @UserPK;
-        ";
+        SELECT 
+            u.UserPK,
+            e.RegistersHours,
+            e.EmpID,
+            c.PayrollType
+        FROM Users u
+        LEFT JOIN Persons p ON u.PersonPK = p.PersonPK
+        LEFT JOIN Employees e ON p.PersonPK = e.PersonPK
+        LEFT JOIN Companies c ON e.WorksFor = c.CompanyPK
+        WHERE u.UserPK = @UserPK;
+    ";
 
         using SqlDataReader reader = SqlHelper.ExecuteReader(
             _connectionString, query, CommandType.Text,
@@ -35,6 +36,7 @@ public class UserInfoRepository(IConfiguration configuration)
             return new UserInfoDto
             {
                 UserPK = reader.GetGuid(reader.GetOrdinal("UserPK")),
+                EmpID = reader.GetGuid(reader.GetOrdinal("EmpID")),
                 RegistersHours = reader.IsDBNull(reader.GetOrdinal("RegistersHours")) ? null : reader.GetBoolean(reader.GetOrdinal("RegistersHours")),
                 PayrollType = reader.IsDBNull(reader.GetOrdinal("PayrollType")) ? null : reader.GetString(reader.GetOrdinal("PayrollType")),
             };

@@ -27,7 +27,7 @@ public class AuthController(IAuthService authService, UserInfoRepository userInf
         return Ok(userInfo);
     }
 
-    [HttpGet("me")]
+    [HttpGet("")]
     public IActionResult GetCurrentUser()
     {
         if (!authService.IsAuthenticated())
