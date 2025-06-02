@@ -87,7 +87,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             result.Type = payrollInformation.Type;
             result.TotalPaid = result.Gross + result.SocialCharges;
 
-            await SavePayrollAsync(payrollInformation.CompanyId, payrollResults);
+            await SavePayrollAsync(payrollInformation.CompanyId, payrollResults, payrollInformation.Email);
 
             foreach (var payrollSummary in payrollResults)
             {
@@ -195,14 +195,14 @@ namespace Kaizen.Server.Application.Services.Payroll
             Console.WriteLine("-------------------------------------");
         }
 
-        private async Task SavePayrollAsync(Guid companyId, List<PayrollSummary> summaries)
+        private async Task SavePayrollAsync(Guid companyId, List<PayrollSummary> summaries, string email)
         {
             var connectionString = _configuration.GetConnectionString("KaizenDb");
             await using var sqlConnection = new SqlConnection(connectionString);
             await sqlConnection.OpenAsync();
             var generalPayrollId = Guid.NewGuid();
             var generalData = BuildGeneralPayrollData(companyId, generalPayrollId, summaries);
-            var payrollsTable = BuildPayrollsTable(generalPayrollId, summaries);
+            var payrollsTable = await BuildPayrollsTableAsync(generalPayrollId, summaries, email, _configuration);
             var deductionsTable = BuildOptionalDeductionsTable(summaries);
 
             await using var sqlCommand = new SqlCommand("SaveFullPayroll", sqlConnection)
@@ -253,13 +253,11 @@ namespace Kaizen.Server.Application.Services.Payroll
             };
         }
 
-        /// <summary>
-        /// LOOK AT THIS FUNCTION PLEASE DONT FORGET TO CHANGE THIS
-        /// </summary>
-        /// <param name="generalPayrollId"></param>
-        /// <param name="summaries"></param>
-        /// <returns></returns>
-        private static DataTable BuildPayrollsTable(Guid generalPayrollId, List<PayrollSummary> summaries)
+        private static async Task<DataTable> BuildPayrollsTableAsync(
+            Guid generalPayrollId,
+            List<PayrollSummary> summaries,
+            string email,
+            IConfiguration configuration)
         {
             var table = new DataTable();
             table.Columns.Add("PayrollID", typeof(Guid));
@@ -273,24 +271,48 @@ namespace Kaizen.Server.Application.Services.Payroll
             table.Columns.Add("BrutePaid", typeof(decimal));
             table.Columns.Add("NetPaid", typeof(decimal));
 
-            // LOOK HERE!
-            var hardcodedExecutorPersonPk = new Guid("23681BFF-82CB-4663-BA5E-16E6A5EA599D");
+            var executorPersonPk = await GetPersonPkByEmailAsync(email, configuration);
 
             foreach (var employeePayroll in summaries)
             {
-                AddPayrollRowToTable(generalPayrollId, table, hardcodedExecutorPersonPk, employeePayroll);
+                AddPayrollRowToTable(generalPayrollId, table, executorPersonPk, employeePayroll);
             }
 
             return table;
         }
 
-        private static void AddPayrollRowToTable(Guid generalPayrollId, DataTable table, Guid hardcodedExecutorPersonPk, PayrollSummary employeePayroll)
+        private static async Task<Guid> GetPersonPkByEmailAsync(string email, IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("KaizenDb");
+
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var cmdText = "SELECT PersonPK FROM dbo.Users WHERE Email = @Email";
+
+            await using var command = new SqlCommand(cmdText, connection);
+            command.Parameters.AddWithValue("@Email", email);
+
+            var result = await command.ExecuteScalarAsync();
+
+            if (result != null && result != DBNull.Value)
+            {
+                return (Guid)result;
+            }
+            else
+            {
+                throw new InvalidOperationException($"No user found with email: {email}");
+            }
+        }
+
+
+        private static void AddPayrollRowToTable(Guid generalPayrollId, DataTable table, Guid executorPersonPk, PayrollSummary employeePayroll)
         {
             employeePayroll.PayrollId = Guid.NewGuid();
             table.Rows.Add(
                 employeePayroll.PayrollId,
                 employeePayroll.EmployeeId,
-                hardcodedExecutorPersonPk, // HARDCODED HERE!!
+                executorPersonPk,
                 false, // IsClosed Nani??
                 employeePayroll.IncomeTax,
                 employeePayroll.CCSSDeduction,
