@@ -377,7 +377,10 @@
 
       // Transform backend DTO to frontend format - using correct property names
       activeBenefits.value = response.data.map(benefit => ({
+        benefitId: benefit.BenefitID,
+        apiId: benefit.APIId,
         name: benefit.name,
+        type: benefit.type,
         method: transformBenefitMethod(benefit.type, benefit.value),
         minimumMonths: benefit.minMonths,
         state: 'Active'
@@ -419,7 +422,10 @@
 
       // Transform backend DTO to frontend format
       availableBenefits.value = response.data.map(benefit => ({
+        benefitId: benefit.benefitId,
+        apiId: benefit.apiId,
         name: benefit.name,
+        type: benefit.type,
         method: transformBenefitMethod(benefit.type, benefit.value),
         minimumMonths: benefit.minMonths,
         state: benefit.isAvailable ? 'Available' : 'Not Available',
@@ -514,7 +520,7 @@
     } else {
       calculatedBenefitValue.value = null;
       calculationError.value = '';
-    }
+    } 
   });
 
   watch(showSubscribeModal, (newVal) => {
@@ -592,13 +598,27 @@
         subscriptionData.calculatedValue = calculatedBenefitValue.value;
       }
 
+      if (selectedBenefit.value.method.type === 'specific') {
+        // API SUBSCRIPTION CALL: IMPLEMENT
+      } else {
+        console.log(userEmail.value)
+        console.log(selectedBenefit.value.benefitId)
+        console.log(selectedBenefit.value)
+
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitSubscription/subscribe`, {
+          email: userEmail.value,
+          benefitId: selectedBenefit.value.benefitId 
+        }, { withCredentials: true });
+      }
+
+
       // await axios.post(`${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/subscribe`, 
       //   subscriptionData, 
       //   { withCredentials: true }
       // );
 
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      //await new Promise(resolve => setTimeout(resolve, 1500));
 
       subscribedBenefitName.value = selectedBenefit.value.name;
 
