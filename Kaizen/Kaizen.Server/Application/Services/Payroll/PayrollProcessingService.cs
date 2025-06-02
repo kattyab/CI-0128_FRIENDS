@@ -1,5 +1,7 @@
 using System.Data;
+using Kaizen.Server.API.Controllers;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
+using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Microsoft.Data.SqlClient;
@@ -8,8 +10,8 @@ namespace Kaizen.Server.Application.Services.Payroll
 {
     public interface IPayrollProcessingService
     {
-        Task<string> ProcessCompanyPayrollAsync(Guid companyId);
-        Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(Guid companyId);
+        Task<PayrollResultSumary> ProcessCompanyPayrollAsync(PayrollRequest payrollInformation);
+        Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(PayrollRequest payrollInformation);
     }
 
     public class PayrollProcessingService : IPayrollProcessingService
@@ -32,18 +34,18 @@ namespace Kaizen.Server.Application.Services.Payroll
             _benefitDeductionServiceFactory = benefitDeductionServiceFactory;
         }
 
-        public async Task<string> ProcessCompanyPayrollAsync(Guid companyId)
+        /*public async Task<PayrollResultSumary> ProcessCompanyPayrollAsync(Guid companyId)
         {
             var payrollResults = await CalculateCompanyPayrollAsync(companyId);
 
             var failedPayrolls = payrollResults.Where(payrollSummary => payrollSummary.NetSalary < 0).ToList();
 
 
-            /*if (failedPayrolls.Any())
+            if (failedPayrolls.Any())
             {
                 var failedIds = string.Join(", ", failedPayrolls.Select(p => p.EmployeeId));
                 return $"Failed, {failedIds}";
-            }*/
+            }
 
             await SavePayrollAsync(companyId, payrollResults);
 
@@ -53,14 +55,54 @@ namespace Kaizen.Server.Application.Services.Payroll
             }
 
             return "Success";
+        }*/
+
+        public async Task<PayrollResultSumary> ProcessCompanyPayrollAsync(PayrollRequest payrollInformation)
+        {
+            var payrollResults = await CalculateCompanyPayrollAsync(payrollInformation);
+            var failedPayrolls = payrollResults.Where(payrollSummary => payrollSummary.NetSalary < 0).ToList();
+
+            var result = new PayrollResultSumary
+            {
+                CompanyId = payrollInformation.CompanyId,
+                IsSuccess = !failedPayrolls.Any(),
+                FailedPayrolls = failedPayrolls.Select(p => p.EmployeeId).ToList()
+            };
+
+            /*if (failedPayrolls.Any())
+            {
+                return result;
+            }*/
+
+            result.Gross = payrollResults.Sum(p => p.GrossSalary);
+            result.Net = payrollResults.Sum(p => p.NetSalary);
+            result.Deductions = payrollResults.Sum(p =>
+               p.ApiDeductions.Values.Sum() +
+               p.BenefitDeductions.Sum(b => b.DeductionValue) +
+               p.CCSSDeduction +
+               p.IncomeTax);
+            result.SocialCharges = result.Gross * LaborChargeRate;
+            result.Manager = payrollInformation.Email;
+            result.Period = $"{payrollInformation.Start:yyyy-MM} → {payrollInformation.End:yyyy-MM}";
+            result.Type = payrollInformation.Type;
+            result.TotalPaid = result.Gross + result.SocialCharges;
+
+            await SavePayrollAsync(payrollInformation.CompanyId, payrollResults);
+
+            foreach (var payrollSummary in payrollResults)
+            {
+                PrintPayrollSummary(payrollSummary);
+            }
+
+            return result;
         }
 
 
-        public async Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(Guid companyId)
+        public async Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(PayrollRequest payrollInformation)
         {
-            var employeeData = await GetEmployeeDataAsync(companyId);
-            var apiDeductionService = _apiDeductionServiceFactory.Create(companyId);
-            var benefitDeductionService = _benefitDeductionServiceFactory.Create(companyId);
+            var employeeData = await GetEmployeeDataAsync(payrollInformation.CompanyId);
+            var apiDeductionService = _apiDeductionServiceFactory.Create(payrollInformation.CompanyId);
+            var benefitDeductionService = _benefitDeductionServiceFactory.Create(payrollInformation.CompanyId);
 
             var payrollResults = new List<PayrollSummary>();
 
@@ -73,12 +115,12 @@ namespace Kaizen.Server.Application.Services.Payroll
 
                 payrollResults.Add(payrollSummary);
             }
-
             return payrollResults;
         }
 
         private async Task<List<EmployeePayroll>> GetEmployeeDataAsync(Guid companyId)
         {
+            Console.WriteLine(companyId);
             var employeeData = new List<EmployeePayroll>();
             var connectionString = _configuration.GetConnectionString("KaizenDb");
 

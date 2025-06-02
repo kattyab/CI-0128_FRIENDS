@@ -1,5 +1,5 @@
 // API/Controllers/PayrollController.cs
-using System;
+using Kaizen.Server.Application.Services.Payroll;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,30 +10,25 @@ namespace Kaizen.Server.API.Controllers
     [Authorize]
     public sealed class PayrollController : ControllerBase
     {
-        [HttpPost("process")]
-        public IActionResult Process([FromBody] PayrollRequest dto)
+        private readonly IConfiguration _configuration;
+        private readonly IPayrollProcessingService _payrollProcessingService;
+
+        public PayrollController(
+            IConfiguration configuration,
+            IPayrollProcessingService payrollProcessingService)
         {
-            // ── Mock calculation ───────────────────────────────
-            var rng = new Random();
-            var gross = rng.Next(800_000, 1_400_000);
-            var deductions = (int)(gross * 0.15);
-            var net = gross - deductions;
+            _configuration = configuration;
+            _payrollProcessingService = payrollProcessingService;
+        }
 
-            string f(DateTime d) => $"{d:dd-MM-yyyy}";
-            var period = $"{f(dto.Start)} → {f(dto.End)}";
+        [HttpPost("process")]
+        public async Task<IActionResult> Process([FromBody] PayrollRequest dto)
+        {
+            Console.WriteLine(dto.CompanyId);
 
-            var result = new
-            {
-                dto.CompanyId,
-                manager = dto.Email,    
-                dto.Type,
-                period,
-                gross,
-                deductions,
-                net
-            };
+            var payrollResult = await _payrollProcessingService.ProcessCompanyPayrollAsync(dto);
 
-            return Ok(result);
+            return Ok(payrollResult);
         }
     }
 
