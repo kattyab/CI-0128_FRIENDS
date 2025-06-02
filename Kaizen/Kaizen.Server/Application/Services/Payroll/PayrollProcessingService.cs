@@ -47,7 +47,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                 FailedNetSalaries = failedPayrolls.Select(p => p.NetSalary).ToList()
             };
 
-            if (failedPayrolls.Any())
+           if (failedPayrolls.Any())
             {
                 return result;
             }
@@ -128,7 +128,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                 var fireDate = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3);
                 var contractType = reader.GetString(4);
                 var registersHours = reader.GetBoolean(5);
-                var payrollTypeDesc = reader.IsDBNull(6) ? null : reader.GetString(6);
+                var PayrollTypeDescription = reader.IsDBNull(6) ? null : reader.GetString(6);
 
                 employeeData.Add(new EmployeePayroll
                 {
@@ -138,7 +138,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                     FireDate = fireDate,
                     ContractType = contractType,
                     RegistersHours = registersHours,
-                    PayrollTypeDescription = payrollTypeDesc
+                    PayrollTypeDescription = PayrollTypeDescription
                 });
             }
 

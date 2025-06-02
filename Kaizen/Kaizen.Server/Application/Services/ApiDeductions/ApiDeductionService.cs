@@ -19,19 +19,19 @@ public class ApiDeductionService : IApiDeductionService
     {
         var benefits = await _repository.GetBenefitsAsync(_companyId);
         var allParameters = await _repository.GetParametersForCompanyAsync(_companyId);
-        var employeeParameters = allParameters.Where(p => p.EmployeeId == employeeId).ToList();
+        var employeeParameters = allParameters.Where(parameter => parameter.EmployeeId == employeeId).ToList();
 
-        var groupedParams = employeeParameters
-            .GroupBy(p => p.BenefitId)
+        var parametersByBenefitId = employeeParameters
+            .GroupBy(parameter => parameter.BenefitId)
             .ToDictionary(
-                g => g.Key,
-                g => g.ToDictionary(p => p.Key, p => p.Value)
+                benefitGroup => benefitGroup.Key,
+                benefitGroup => benefitGroup.ToDictionary(parameter => parameter.Key, parameter => parameter.Value)
             );
 
         var result = new Dictionary<string, decimal>();
         foreach (var benefit in benefits)
         {
-            if (!groupedParams.TryGetValue(benefit.ID, out var parameterDictionary))
+            if (!parametersByBenefitId.TryGetValue(benefit.ID, out var parameterDictionary))
             {
                 continue;
             }
