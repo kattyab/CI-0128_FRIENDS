@@ -1,6 +1,7 @@
-﻿using System.Data;
-using Kaizen.Server.Application.Dtos.Auth;
+﻿using Kaizen.Server.Application.Dtos.Auth;
+using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories
 {
@@ -19,7 +20,9 @@ namespace Kaizen.Server.Infrastructure.Repositories
             using var command = new SqlCommand(sql, connection);
 
             if (parameters is not null)
+            {
                 command.Parameters.AddRange(parameters);
+            }
 
             var table = new DataTable();
             new SqlDataAdapter(command).Fill(table);
@@ -94,6 +97,41 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 PersonPK = (Guid)row["PersonPK"],
                 UserPK = (Guid)row["UserPK"],
             };
+        }
+        
+        public Guid GetAuthUserCompanyPK(AuthUserDto authUser)
+        {
+            string companyPkCommandText = authUser.Role switch
+            {
+                "Administrador" => @"
+                    SELECT A.CompanyPK
+                    FROM Admins A
+                    JOIN Users U ON A.AdminPK = U.PersonPK
+                    WHERE U.UserPK = @UserPK;",
+                "Dueño" => @"
+                    SELECT C.CompanyPK
+                    FROM Companies C
+                    JOIN Persons P ON C.OwnerPK = P.PersonPK
+                    JOIN Users U ON P.PersonPK= U.PersonPK
+                    WHERE U.UserPK = @UserPK;",
+                _ => throw new Exception("Invalid role for retrieving company.")
+            };
+
+            SqlParameter[] companyPKParameters = [
+                new SqlParameter("@UserPK", authUser.UserPK),
+            ];
+
+            object companyPK = SqlHelper.ExecuteScalar(this._connectionString,
+                companyPkCommandText,
+                CommandType.Text,
+                companyPKParameters);
+
+            if (companyPK == null)
+            {
+                throw new Exception("Could not find company");
+            }
+
+            return (Guid)companyPK;
         }
     }
 }
