@@ -3,69 +3,60 @@
   <div class="container-lg py-4">
     <h1 class="text-center mb-5 fw-bold">Procesar planilla</h1>
 
-    <!-- ── FORM CARD ───────────────────────────────────── -->
+    <!-- ── FORM ─────────────────────────────────────────── -->
     <div class="card shadow-sm border-0 mb-5">
       <div class="card-body">
-        <form @submit.prevent="handleProcess">
-          <!-- Payroll type -->
-          <div class="mb-4">
-            <h2 class="h6 fw-bold mb-3">Tipo de planilla</h2>
+        <form @submit.prevent="submit">
+          <!-- tipo -->
+          <fieldset class="mb-4">
+            <legend class="h6 fw-bold mb-3">Tipo de planilla</legend>
             <div class="d-flex flex-wrap gap-4">
-              <div v-for="opt in payrollOptions"
-                   :key="opt.value"
-                   class="form-check form-check-inline">
+              <label v-for="o in options"
+                     :key="o.value"
+                     class="form-check form-check-inline">
                 <input class="form-check-input"
                        type="radio"
-                       :id="`payroll-${opt.value}`"
-                       name="payroll_type"
-                       :value="opt.value"
-                       v-model="payrollType"
-                       :disabled="payrollLocked" />
-                <label class="form-check-label" :for="`payroll-${opt.value}`">
-                  {{ opt.label }}
-                </label>
-              </div>
+                       name="payrollType"
+                       :value="o.value"
+                       v-model="type"
+                       :disabled="locked" />
+                <span class="form-check-label">{{ o.label }}</span>
+              </label>
             </div>
-          </div>
+          </fieldset>
 
-          <!-- Period selector -->
-          <div v-if="payrollType">
-            <h2 class="h6 fw-bold mb-3">Período</h2>
+          <!-- período -->
+          <fieldset v-if="type">
+            <legend class="h6 fw-bold mb-3">Período</legend>
 
-            <!-- weekly -->
-            <div v-if="payrollType === 'weekly'" class="col-auto">
-              <input type="date" class="form-control" v-model="weeklyDate" />
-            </div>
+            <input v-if="type === 'weekly'"
+                   type="date"
+                   class="form-control col-auto"
+                   v-model="weekly" />
+            <input v-else-if="type === 'biweekly'"
+                   type="date"
+                   class="form-control col-auto"
+                   v-model="fortnight" />
+            <input v-else
+                   type="month"
+                   class="form-control col-auto"
+                   v-model="monthly" />
 
-            <!-- bi-weekly -->
-            <div v-else-if="payrollType === 'biweekly'" class="col-auto">
-              <input type="date" class="form-control" v-model="fortnightDate" />
-            </div>
-
-            <!-- monthly -->
-            <div v-else-if="payrollType === 'monthly'" class="col-auto">
-              <input type="month" class="form-control" v-model="monthlyMonth" />
-            </div>
-
-            <!-- preview -->
-            <div v-if="periodPreview" class="mt-3">
-              <span class="badge bg-secondary fs-6">{{ periodPreview }}</span>
-            </div>
-          </div>
+            <span v-if="preview" class="badge bg-secondary mt-3">
+              {{ preview }}
+            </span>
+          </fieldset>
 
           <hr class="my-4" />
-
-          <div class="d-grid">
-            <button class="btn btn-primary btn-lg" :disabled="!formValid">
-              Procesar nueva planilla
-            </button>
-          </div>
+          <button class="btn btn-primary w-100" :disabled="!valid">
+            Procesar nueva planilla
+          </button>
         </form>
       </div>
     </div>
 
-    <!-- ── HISTORY ─────────────────────────────────────── -->
-    <h2 class="h4 mb-3 fw-bold">Historial de planillas</h2>
+    <!-- ── HISTORIAL ─────────────────────────────────────── -->
+    <h2 class="h4 fw-bold mb-3">Historial de planillas</h2>
 
     <div class="table-responsive shadow-sm">
       <table class="table table-hover align-middle mb-0">
@@ -80,18 +71,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in payrollHistory" :key="row.id">
-            <td>{{ row.manager }}</td>
-            <td>{{ row.type }}</td>
-            <td>{{ row.period }}</td>
-            <td class="text-end">₡ {{ row.gross.toLocaleString() }}</td>
-            <td class="text-end">₡ {{ row.deductions.toLocaleString() }}</td>
-            <td class="text-end">₡ {{ row.net.toLocaleString() }}</td>
+          <tr v-for="r in history" :key="r.id">
+            <td>{{ r.manager }}</td>
+            <td>{{ r.type }}</td>
+            <td>{{ r.period }}</td>
+            <td class="text-end">₡ {{ r.gross.toLocaleString() }}</td>
+            <td class="text-end">₡ {{ r.deductions.toLocaleString() }}</td>
+            <td class="text-end">₡ {{ r.net.toLocaleString() }}</td>
           </tr>
-          <tr v-if="!payrollHistory.length">
-            <td colspan="6" class="text-center text-muted py-4">
-              No hay planillas registradas
-            </td>
+          <tr v-if="!history.length">
+            <td colspan="6" class="text-center text-muted py-4">No hay planillas registradas</td>
           </tr>
         </tbody>
       </table>
@@ -102,113 +91,141 @@
 <script setup>
   import { ref, computed, onMounted } from 'vue'
 
-  /* ── state ───────────────────────────────────────────── */
-  const payrollType = ref('')
-  const payrollLocked = ref(false)
-  const weeklyDate = ref('')
-  const fortnightDate = ref('')
-  const monthlyMonth = ref('')
+  /* ── refs ─────────────────────────────────────────────── */
+  const currentUser = ref('')      // correo del usuario
+  const companyId = ref('')
+  const type = ref('')
+  const locked = ref(false)
 
-  /* ── preload payroll type from API ───────────────────── */
-  onMounted(async () => {
-    try {
-      const res = await fetch('/api/Login/payroll-type', { credentials: 'include' })
-      if (!res.ok) throw new Error()
-      const { letter } = await res.json()        // W | B | M
-      const map = { W: 'weekly', B: 'biweekly', M: 'monthly' }
-      payrollType.value = map[letter] ?? ''
-      payrollLocked.value = true
-    } catch {
-      console.warn('Unable to preload payroll type')
-    }
-  })
+  const weekly = ref('')
+  const fortnight = ref('')
+  const monthly = ref('')
 
-  /* ── constants ───────────────────────────────────────── */
-  const payrollOptions = [
+  const history = ref([])
+
+  /* ── radio options ───────────────────────────────────── */
+  const options = [
     { value: 'weekly', label: 'Semanal' },
     { value: 'biweekly', label: 'Quincenal' },
     { value: 'monthly', label: 'Mensual' }
   ]
 
   /* ── helpers ─────────────────────────────────────────── */
-  const formatDMY = d => {
-    const dt = new Date(d)
-    const dd = dt.getDate().toString().padStart(2, '0')
-    const mm = (dt.getMonth() + 1).toString().padStart(2, '0')
-    return `${dd}-${mm}-${dt.getFullYear()}`
-  }
-  const mondayOfWeek = d => {
-    const date = new Date(d)
-    const diff = date.getDay() === 0 ? -6 : 1 - date.getDay()
-    date.setDate(date.getDate() + diff)
-    return date
-  }
-  const lastDayOfMonth = (y, m) => new Date(y, m + 1, 0).getDate()
+  const iso = d => new Date(d).toISOString().substring(0, 10)                 // yyyy-MM-dd
+  const dmy = d => new Date(d).toLocaleDateString('es-CR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const monday = d => { const dt = new Date(d); dt.setDate(dt.getDate() - ((dt.getDay() + 6) % 7)); return dt }
+  const lastOfMonth = (y, m) => new Date(y, m + 1, 0).getDate()
 
-  /* ── computed: preview & form validation ─────────────── */
-  const periodPreview = computed(() => {
-    switch (payrollType.value) {
-      case 'weekly': {
-        if (!weeklyDate.value) return ''
-        const start = mondayOfWeek(weeklyDate.value)
-        const end = new Date(start)
-        end.setDate(start.getDate() + 6)
-        return `${formatDMY(start)} → ${formatDMY(end)}`
-      }
-      case 'biweekly': {
-        if (!fortnightDate.value) return ''
-        const d = new Date(fortnightDate.value)
-        const y = d.getFullYear()
-        const m = d.getMonth() + 1
-        const mm = String(m).padStart(2, '0')
-        if (d.getDate() <= 15) return `01-${mm}-${y} → 15-${mm}-${y}`
-        const last = String(lastDayOfMonth(y, m - 1)).padStart(2, '0')
-        return `16-${mm}-${y} → ${last}-${mm}-${y}`
-      }
-      case 'monthly': {
-        if (!monthlyMonth.value) return ''
-        const [y, m] = monthlyMonth.value.split('-').map(Number)
-        const mm = String(m).padStart(2, '0')
-        const last = String(lastDayOfMonth(y, m - 1)).padStart(2, '0')
-        return `01-${mm}-${y} → ${last}-${mm}-${y}`
-      }
-      default:
-        return ''
+  /* ── load user & payroll info ─────────────────────────── */
+  onMounted(async () => {
+    // email
+    const auth = await fetch('/api/login/authenticate', { credentials: 'include' })
+    if (auth.ok) {
+      const { email } = await auth.json()
+      currentUser.value = email ?? 'usuario@local'
+    }
+    // company + payroll type
+    const pay = await fetch('/api/login/payroll-info', { credentials: 'include' })
+    if (pay.ok) {
+      const { companyId: id, letter } = await pay.json()
+      companyId.value = id
+      type.value = { W: 'weekly', B: 'biweekly', M: 'monthly' }[letter] ?? ''
+      locked.value = true
     }
   })
 
-  const formValid = computed(() => {
-    switch (payrollType.value) {
-      case 'weekly': return !!weeklyDate.value
-      case 'biweekly': return !!fortnightDate.value
-      case 'monthly': return !!monthlyMonth.value
-      default: return false
+  /* ── preview period ──────────────────────────────────── */
+  const preview = computed(() => {
+    if (type.value === 'weekly' && weekly.value) {
+      const s = monday(weekly.value)
+      const e = new Date(s); e.setDate(s.getDate() + 6)
+      return `${dmy(s)} → ${dmy(e)}`
     }
+    if (type.value === 'biweekly' && fortnight.value) {
+      const d = new Date(fortnight.value)
+      const y = d.getFullYear(); const m = d.getMonth() + 1
+      const mm = m.toString().padStart(2, '0')
+      if (d.getDate() <= 15) return `01-${mm}-${y} → 15-${mm}-${y}`
+      const last = lastOfMonth(y, m - 1).toString().padStart(2, '0')
+      return `16-${mm}-${y} → ${last}-${mm}-${y}`
+    }
+    if (type.value === 'monthly' && monthly.value) {
+      const [y, m] = monthly.value.split('-').map(Number)
+      const mm = m.toString().padStart(2, '0')
+      const last = lastOfMonth(y, m - 1).toString().padStart(2, '0')
+      return `01-${mm}-${y} → ${last}-${mm}-${y}`
+    }
+    return ''
   })
 
-  /* ── mock history & submit ───────────────────────────── */
-  const payrollHistory = ref([])
+  /* ── validation ──────────────────────────────────────── */
+  const valid = computed(() =>
+    (type.value === 'weekly' && weekly.value) ||
+    (type.value === 'biweekly' && fortnight.value) ||
+    (type.value === 'monthly' && monthly.value)
+  )
 
-  function handleProcess() {
-    if (!formValid.value) return
+  /* ── submit ──────────────────────────────────────────── */
+  async function submit() {
+    if (!valid.value) return
 
-    const gross = Math.floor(Math.random() * 600_000 + 800_000)
-    const deductions = Math.floor(gross * 0.15)
-    const label = payrollOptions.find(o => o.value === payrollType.value).label
+    /* build start / end ISO */
+    let startISO = '', endISO = ''
 
-    payrollHistory.value.unshift({
+    if (type.value === 'weekly') {
+      const s = monday(weekly.value)
+      const e = new Date(s); e.setDate(s.getDate() + 6)
+      startISO = iso(s); endISO = iso(e)
+    }
+
+    if (type.value === 'biweekly') {
+      const d = new Date(fortnight.value)
+      const y = d.getFullYear(); const mPad = (d.getMonth() + 1).toString().padStart(2, '0')
+      if (d.getDate() <= 15) {
+        startISO = `${y}-${mPad}-01`
+        endISO = `${y}-${mPad}-15`
+      } else {
+        startISO = `${y}-${mPad}-16`
+        const last = lastOfMonth(y, +mPad - 1).toString().padStart(2, '0')
+        endISO = `${y}-${mPad}-${last}`
+      }
+    }
+
+    if (type.value === 'monthly') {
+      const [y, m] = monthly.value.split('-')
+      startISO = `${y}-${m}-01`
+      endISO = `${y}-${m}-${lastOfMonth(+y, +m - 1).toString().padStart(2, '0')}`
+    }
+
+    /* send */
+    const dto = {
+      email: currentUser.value,
+      companyId: companyId.value,
+      start: `${startISO}T00:00:00`,
+      end: `${endISO}T23:59:59`,
+      type: type.value
+    }
+
+    const res = await fetch('/api/payroll/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(dto)
+    })
+    if (!res.ok) return alert('Error al procesar planilla')
+    const data = await res.json()
+
+    history.value.unshift({
       id: Date.now(),
-      manager: 'Yann Sommer',
-      type: label,
-      period: periodPreview.value,
-      gross,
-      deductions,
-      net: gross - deductions
+      manager: currentUser.value,
+      type: options.find(o => o.value === type.value).label,
+      period: data.period,
+      gross: data.gross,
+      deductions: data.deductions,
+      net: data.net
     })
 
-    weeklyDate.value = ''
-    fortnightDate.value = ''
-    monthlyMonth.value = ''
+    weekly.value = fortnight.value = monthly.value = ''
   }
 </script>
 

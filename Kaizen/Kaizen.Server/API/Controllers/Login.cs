@@ -5,6 +5,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Infrastructure.Repositories;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Kaizen.Server.API.Controllers
 {
@@ -83,21 +85,37 @@ namespace Kaizen.Server.API.Controllers
             return Ok(new { message = "Sesión cerrada" });
         }
 
+
         [Authorize]
-        [HttpGet("payroll-type")]
-        public IActionResult GetPayrollType()
+        [HttpGet("payroll-info")]
+        public IActionResult GetPayrollInfo()
         {
-            var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (!Guid.TryParse(userIdClaim, out var userId))
-                return Unauthorized();
+            var userId = Guid.Parse(User.FindFirst("UserId")!.Value);
 
-            var repo = new PayrollRepository(_connectionString);
-            var letter = repo.GetPayrollTypeByUserId(userId);
+            const string sql = @"
+                SELECT c.CompanyPK, c.PayrollType
+                FROM   Users     u
+                JOIN   Companies c ON c.CompanyPK = u.CompanyPK
+                WHERE  u.UserPK = @UserId;";
 
-            if (letter is null)
-                return NotFound(new { message = "No se encontró el tipo de planilla." });
+            using var con = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(sql, con);
+            cmd.Parameters.Add(new SqlParameter("@UserId", SqlDbType.UniqueIdentifier) { Value = userId });
 
-            return Ok(new { letter });
+            con.Open();
+            using var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
+
+            if (!reader.Read())
+                return NotFound(new { message = "Empresa no encontrada." });
+
+            var companyId = (Guid)reader["CompanyPK"];
+            var letter = reader["PayrollType"]?.ToString();   // W | B | M
+
+            return Ok(new
+            {
+                companyId,
+                letter
+            });
         }
     }
 }
