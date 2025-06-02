@@ -38,12 +38,13 @@ namespace Kaizen.Server.Application.Services.Payroll
         {
             var payrollResults = await CalculateCompanyPayrollAsync(payrollInformation);
             var failedPayrolls = payrollResults.Where(payrollSummary => payrollSummary.NetSalary < 0).ToList();
-
+            
             var result = new PayrollResultSumary
             {
                 CompanyId = payrollInformation.CompanyId,
                 IsSuccess = !failedPayrolls.Any(),
-                FailedPayrolls = failedPayrolls.Select(p => p.EmployeeId).ToList()
+                FailedPayrolls = failedPayrolls.Select(p => p.EmployeeId).ToList(),
+                FailedNetSalaries = failedPayrolls.Select(p => p.NetSalary).ToList()
             };
 
             if (failedPayrolls.Any())
@@ -88,7 +89,8 @@ namespace Kaizen.Server.Application.Services.Payroll
                 var payrollSummary = await _payrollCalculator.CalculatePayrollAsync(
                     employee,
                     apiDeductionService,
-                    benefitDeductionService);
+                    benefitDeductionService,
+                    payrollInformation);
 
                 payrollResults.Add(payrollSummary);
             }
@@ -97,7 +99,6 @@ namespace Kaizen.Server.Application.Services.Payroll
 
         private async Task<List<EmployeePayroll>> GetEmployeeDataAsync(Guid companyId)
         {
-            Console.WriteLine(companyId);
             var employeeData = new List<EmployeePayroll>();
             var connectionString = _configuration.GetConnectionString("KaizenDb");
 

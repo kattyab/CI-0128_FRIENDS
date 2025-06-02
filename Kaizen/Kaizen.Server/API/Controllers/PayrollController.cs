@@ -24,8 +24,6 @@ namespace Kaizen.Server.API.Controllers
         [HttpPost("process")]
         public async Task<IActionResult> Process([FromBody] PayrollRequest dto)
         {
-            Console.WriteLine(dto.CompanyId);
-
             var payrollResult = await _payrollProcessingService.ProcessCompanyPayrollAsync(dto);
 
             return Ok(payrollResult);

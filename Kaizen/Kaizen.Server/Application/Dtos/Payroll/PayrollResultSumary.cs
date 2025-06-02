@@ -10,6 +10,10 @@ namespace Kaizen.Server.Application.Dtos.Payroll
         /// List of employee IDs for whom the payroll processing failed.
         /// </summary>
         public List<Guid> FailedPayrolls { get; set; } = default!;
+        /// <summary>
+        /// List of net salaries that failed (negative values).
+        /// </summary>
+        public List<decimal> FailedNetSalaries { get; set; } = default!;
         public Guid CompanyId { get; set; }
         public string Manager { get; set; } = default!;
         public string Type { get; set; } = default!;

@@ -55,6 +55,33 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
                 .ToList();
         }
 
+        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, decimal proporcionalSalary)
+        {
+            if (_companyBenefits == null)
+                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID);
+
+            if (_employeeData == null)
+                _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
+
+            if (_employeeChosenBenefits == null)
+                _employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
+
+            if (!_employeeChosenBenefits.ContainsKey(employeeID) || !_employeeData.ContainsKey(employeeID))
+                return new List<BenefitDeductionResult>();
+
+            var chosenBenefitIDs = _employeeChosenBenefits[employeeID];
+            var employee = _employeeData[employeeID];
+
+            return _companyBenefits
+                .Where(benefit => chosenBenefitIDs.Contains(benefit.BenefitID) && MeetsMinMonths(employee, benefit))
+                .Select(benefit => new BenefitDeductionResult
+                {
+                    BenefitName = benefit.Name,
+                    DeductionValue = CalculateDeduction(benefit, proporcionalSalary)
+                })
+                .ToList();
+        }
+
         private static decimal CalculateDeduction(Benefit benefit, decimal salary)
         {
             if (benefit.IsFixed && benefit.FixedValue.HasValue)

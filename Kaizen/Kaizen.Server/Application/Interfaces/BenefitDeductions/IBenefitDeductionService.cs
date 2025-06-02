@@ -5,5 +5,6 @@ namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
     public interface IBenefitDeductionService
     {
         Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID);
+        Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, decimal proporcionalSalary);
     }
 }
