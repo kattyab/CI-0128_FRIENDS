@@ -1,235 +1,231 @@
-
-<!-- src/components/Payroll.vue -->
 <template>
-  <div class="container py-4">
-    <h1 class="text-center mb-4">Procesar planilla</h1>
+  <div class="container-lg py-4">
+    <h1 class="text-center mb-5 fw-bold">Procesar planilla</h1>
 
-    <!-- === FORMULARIO DE SELECCIÓN === -->
-    <form @submit.prevent="handleProcess">
-      <!-- Tipo de planilla -->
-      <div class="mb-4">
-        <label class="form-label fw-bold mb-2">Tipo de planilla</label>
-        <div class="d-flex gap-3 flex-wrap">
-          <div v-for="opt in payrollOptions"
-               :key="opt.value"
-               class="form-check form-check-inline">
-            <input class="form-check-input"
-                   type="radio"
-                   :id="`payroll-${opt.value}`"
-                   name="payroll_type"
-                   :value="opt.value"
-                   v-model="payrollType" />
-            <label class="form-check-label" :for="`payroll-${opt.value}`">
-              {{ opt.label }}
-            </label>
+    <!-- ── CARD ─────────────────────────────────────────── -->
+    <div class="card shadow-sm border-0 mb-5">
+      <div class="card-body">
+        <form @submit.prevent="handleProcess">
+          <!-- Tipo de planilla -->
+          <div class="mb-4">
+            <h2 class="h6 fw-bold mb-3">Tipo de planilla</h2>
+            <div class="d-flex flex-wrap gap-4">
+              <div v-for="opt in payrollOptions"
+                   :key="opt.value"
+                   class="form-check form-check-inline">
+                <input class="form-check-input"
+                       type="radio"
+                       :id="`payroll-${opt.value}`"
+                       name="payroll_type"
+                       :value="opt.value"
+                       v-model="payrollType"
+                       :disabled="payrollLocked" />
+                <label class="form-check-label" :for="`payroll-${opt.value}`">
+                  {{ opt.label }}
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- Selector de período -->
+          <div v-if="payrollType">
+            <h2 class="h6 fw-bold mb-3">Período</h2>
+
+            <!-- semanal -->
+            <div v-if="payrollType === 'weekly'" class="row g-3 align-items-end">
+              <div class="col-auto">
+                <input type="date"
+                       class="form-control"
+                       v-model="weeklyDate"
+                       :max="maxSunday" />
+              </div>
+              <div v-if="weeklyDate && !isSunday(weeklyDate)"
+                   class="col text-danger small">
+                Seleccione un domingo
+              </div>
+            </div>
+
+            <!-- quincenal -->
+            <div v-else-if="payrollType === 'biweekly'"
+                 class="row g-3 align-items-end">
+              <div class="col-auto">
+                <select class="form-select" v-model="fortnightOption">
+                  <option value="">Seleccione quincena</option>
+                  <option value="first">1ª quincena (01-15)</option>
+                  <option value="second">2ª quincena (16-fin)</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <input type="month" class="form-control" v-model="fortnightMonth" />
+              </div>
+            </div>
+
+            <!-- mensual -->
+            <div v-else-if="payrollType === 'monthly'" class="col-auto">
+              <input type="month" class="form-control" v-model="monthlyMonth" />
+            </div>
+
+            <!-- preview -->
+            <div v-if="periodPreview" class="mt-3">
+              <span class="badge bg-secondary fs-6">{{ periodPreview }}</span>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="d-grid">
+            <button class="btn btn-primary btn-lg" :disabled="!formValid">
+              Procesar nueva planilla
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <!-- Selector dinámico de período -->
-      <div class="mb-4" v-if="payrollType">
-        <label class="form-label fw-bold mb-2">Período</label>
+    <!-- ── HISTORIAL ─────────────────────────────────────── -->
+    <h2 class="h4 mb-3 fw-bold">Historial de planillas</h2>
 
-        <!-- Semanal -->
-        <div v-if="payrollType === 'semanal'" class="row g-3 align-items-end">
-          <div class="col-auto">
-            <input type="date"
-                   class="form-control"
-                   v-model="weeklyDate"
-                   :max="maxSunday" />
-          </div>
-          <div class="col-auto" v-if="weeklyDate && !isSunday(weeklyDate)">
-            <span class="text-danger small">Seleccione un domingo</span>
-          </div>
-        </div>
-
-        <!-- Quincenal -->
-        <div v-else-if="payrollType === 'quincenal'"
-             class="row g-3 align-items-end">
-          <div class="col-auto">
-            <select class="form-select" v-model="quincenaOption">
-              <option value="">Seleccione quincena</option>
-              <option value="primera">1ª quincena (01-15)</option>
-              <option value="segunda">2ª quincena (16-fin)</option>
-            </select>
-          </div>
-          <div class="col-auto">
-            <input type="month" class="form-control" v-model="quincenaMonth" />
-          </div>
-        </div>
-
-        <!-- Mensual -->
-        <div v-else-if="payrollType === 'mensual'"
-             class="row g-3 align-items-end">
-          <div class="col-auto">
-            <input type="month" class="form-control" v-model="monthlyMonth" />
-          </div>
-        </div>
-
-        <!-- Vista previa -->
-        <div class="mt-2" v-if="periodPreview">
-          <span class="badge bg-secondary">{{ periodPreview }}</span>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-primary" :disabled="!formValid">
-        Procesar nueva planilla
-      </button>
-    </form>
-
-    <!-- === HISTORIAL === -->
-    <hr class="my-5" />
-    <h2 class="h4 mb-3">Historial de planillas</h2>
-
-    <table class="table table-striped align-middle">
-      <thead>
-        <tr>
-          <th>Encargado</th>
-          <th>Tipo</th>
-          <th>Período</th>
-          <th class="text-end">Bruto</th>
-          <th class="text-end">Deducciones</th>
-          <th class="text-end">Neto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in payrollHistory" :key="row.id">
-          <td>{{ row.manager }}</td>
-          <td>{{ row.type }}</td>
-          <td>{{ row.period }}</td>
-          <td class="text-end">₡ {{ row.gross.toLocaleString() }}</td>
-          <td class="text-end">₡ {{ row.deductions.toLocaleString() }}</td>
-          <td class="text-end">₡ {{ row.net.toLocaleString() }}</td>
-        </tr>
-        <tr v-if="!payrollHistory.length">
-          <td colspan="6" class="text-center text-muted">
-            No hay planillas registradas
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive shadow-sm">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Encargado</th>
+            <th>Tipo</th>
+            <th>Período</th>
+            <th class="text-end">Bruto</th>
+            <th class="text-end">Deducciones</th>
+            <th class="text-end">Neto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in payrollHistory" :key="row.id">
+            <td>{{ row.manager }}</td>
+            <td>{{ row.type }}</td>
+            <td>{{ row.period }}</td>
+            <td class="text-end">₡ {{ row.gross.toLocaleString() }}</td>
+            <td class="text-end">₡ {{ row.deductions.toLocaleString() }}</td>
+            <td class="text-end">₡ {{ row.net.toLocaleString() }}</td>
+          </tr>
+          <tr v-if="!payrollHistory.length">
+            <td colspan="6" class="text-center text-muted py-4">
+              No hay planillas registradas
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup>
   import { ref, computed, onMounted } from 'vue'
 
-  /* ===== ESTADO ===== */
+  /* ── STATE ─────────────────────────────────────────────────────────────── */
   const payrollType = ref('')
+  const payrollLocked = ref(false)          // prevents user change
   const weeklyDate = ref('')
-  const quincenaOption = ref('')
-  const quincenaMonth = ref('')
+  const fortnightOption = ref('')
+  const fortnightMonth = ref('')
   const monthlyMonth = ref('')
   const psStartDate = ref('')
   const psEndDate = ref('')
 
-  /* === PRECARGAR USUARIO Y TIPO DE PLANILLA === */
+  /* ── FETCH USER + PAYROLL TYPE ─────────────────────────────────────────── */
   onMounted(async () => {
-    // 1. Usuario autenticado
-    const authRes = await fetch('/api/Login/authenticate', { credentials: 'include' })
-    if (authRes.ok) {
-      const { email } = await authRes.json()
-    }
+    try {
+      const res = await fetch('/api/Login/payroll-type', { credentials: 'include' })
+      if (!res.ok) throw new Error()
 
-    // 2. Tipo de planilla
-    const map = { W: 'semanal', B: 'quincenal', M: 'mensual' }
-    const ptRes = await fetch('/api/Login/payroll-type', { credentials: 'include' })
-    if (ptRes.ok) {
-      const { letter } = await ptRes.json()
+      const { letter } = await res.json()            // "W" | "B" | "M"
+      const map = { W: 'weekly', B: 'biweekly', M: 'monthly' }
       payrollType.value = map[letter] || ''
-      console.log('Tipo de planilla (letra):', letter)
-    } else {
-      console.warn('No se pudo obtener tipo de planilla')
+      payrollLocked.value = true                     // lock radios
+    } catch {
+      console.warn('Unable to preload payroll type')
     }
   })
 
-  /* Historial (mock) */
-  const payrollHistory = ref([
-    { id: 1, manager: 'Juan Pérez', type: 'Quincenal', period: '01-05-2025 → 15-05-2025', gross: 1_500_000, deductions: 230_000, net: 1_270_000 },
-    { id: 2, manager: 'María Gómez', type: 'Quincenal', period: '16-05-2025 → 31-05-2025', gross: 1_650_000, deductions: 250_000, net: 1_400_000 },
-    { id: 3, manager: 'Carlos Rojas', type: 'Semanal', period: '01-06-2025 → 07-06-2025', gross: 820_000, deductions: 120_000, net: 700_000 }
-  ])
-
-  /* Opciones de radio */
+  /* ── CONSTANTS ─────────────────────────────────────────────────────────── */
   const payrollOptions = [
-    { value: 'semanal', label: 'Semanal' },
-    { value: 'quincenal', label: 'Quincenal' },
-    { value: 'mensual', label: 'Mensual' }
+    { value: 'weekly', label: 'Semanal' },
+    { value: 'biweekly', label: 'Quincenal' },
+    { value: 'monthly', label: 'Mensual' }
   ]
 
-  /* ===== UTILIDADES ===== */
-  const isSunday = d => !!d && new Date(d).getDay() === 6
-  const lastDayOfMonth = (y, m0) => new Date(y, m0 + 1, 0).getDate()
-  const formatDMY = dateLike => {
-    const d = new Date(dateLike)
-    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
+  /* ── UTILITIES ─────────────────────────────────────────────────────────── */
+  const isSunday = date => !!date && new Date(date).getDay() === 6
+  const lastDayOfMonth = (y, m) => new Date(y, m + 1, 0).getDate()
+  const formatDMY = d => {
+    const dt = new Date(d)
+    return `${dt.getDate().toString().padStart(2, '0')}-${(dt.getMonth() + 1)
+      .toString().padStart(2, '0')}-${dt.getFullYear()}`
   }
 
-  /* ===== PREVIEW DEL PERÍODO ===== */
+  /* ── COMPUTEDS ─────────────────────────────────────────────────────────── */
   const periodPreview = computed(() => {
-    const t = payrollType.value
-    if (!t) return ''
-
-    if (t === 'semanal' && weeklyDate.value && isSunday(weeklyDate.value)) {
-      const end = formatDMY(new Date(new Date(weeklyDate.value).setDate(new Date(weeklyDate.value).getDate() + 1)))
-      const startDate = new Date(weeklyDate.value)
-      startDate.setDate(startDate.getDate() - 5)
-      return `${formatDMY(startDate)} → ${end}`
-    }
-
-    if (t === 'quincenal' && quincenaOption.value && quincenaMonth.value) {
-      const [y, m] = quincenaMonth.value.split('-').map(Number)
-      const mm = String(m).padStart(2, '0')
-      if (quincenaOption.value === 'primera') {
-        return `01-${mm}-${y} → 15-${mm}-${y}`
-      }
-      const last = String(lastDayOfMonth(y, m - 1)).padStart(2, '0')
-      return `16-${mm}-${y} → ${last}-${mm}-${y}`
-    }
-
-    if (t === 'mensual' && monthlyMonth.value) {
-      const [y, m] = monthlyMonth.value.split('-').map(Number)
-      const mm = String(m).padStart(2, '0')
-      const last = String(lastDayOfMonth(y, m - 1)).padStart(2, '0')
-      return `01-${mm}-${y} → ${last}-${mm}-${y}`
-    }
-
-    if (t === 'servicios_profesionales' && psStartDate.value && psEndDate.value && psStartDate.value <= psEndDate.value) {
-      return `${formatDMY(psStartDate.value)} → ${formatDMY(psEndDate.value)}`
+    switch (payrollType.value) {
+      case 'weekly':
+        if (weeklyDate.value && isSunday(weeklyDate.value)) {
+          const start = new Date(weeklyDate.value)
+          start.setDate(start.getDate() - 5)
+          const end = new Date(weeklyDate.value)
+          end.setDate(end.getDate() + 1)
+          return `${formatDMY(start)} → ${formatDMY(end)}`
+        }
+        break
+      case 'biweekly':
+        if (fortnightOption.value && fortnightMonth.value) {
+          const [y, m] = fortnightMonth.value.split('-').map(Number)
+          const mm = String(m).padStart(2, '0')
+          if (fortnightOption.value === 'first') return `01-${mm}-${y} → 15-${mm}-${y}`
+          const last = String(lastDayOfMonth(y, m - 1)).padStart(2, '0')
+          return `16-${mm}-${y} → ${last}-${mm}-${y}`
+        }
+        break
+      case 'monthly':
+        if (monthlyMonth.value) {
+          const [y, m] = monthlyMonth.value.split('-').map(Number)
+          const mm = String(m).padStart(2, '0')
+          const last = String(lastDayOfMonth(y, m - 1)).padStart(2, '0')
+          return `01-${mm}-${y} → ${last}-${mm}-${y}`
+        }
+        break
+      default:
+        break
     }
     return ''
   })
 
-  /* ===== VALIDACIÓN DEL FORMULARIO ===== */
   const formValid = computed(() => {
     switch (payrollType.value) {
-      case 'semanal': return isSunday(weeklyDate.value)
-      case 'quincenal': return quincenaOption.value && quincenaMonth.value
-      case 'mensual': return !!monthlyMonth.value
-      case 'servicios_profesionales':
-        return psStartDate.value && psEndDate.value && psStartDate.value <= psEndDate.value
+      case 'weekly': return isSunday(weeklyDate.value)
+      case 'biweekly': return fortnightOption.value && fortnightMonth.value
+      case 'monthly': return !!monthlyMonth.value
       default: return false
     }
   })
 
-  /* Último domingo permitido */
+  /* ── OTHER CONSTANTS ───────────────────────────────────────────────────── */
   const maxSunday = (() => {
     const today = new Date()
-    const last = new Date(today)
-    last.setDate(today.getDate() - today.getDay())
-    return last.toISOString().split('T')[0]
+    const lastSun = new Date(today)
+    lastSun.setDate(today.getDate() - today.getDay())
+    return lastSun.toISOString().split('T')[0]
   })()
 
-  /* ===== SUBMIT MOCK ===== */
+  /* ── MOCK HISTORY + SUBMIT ─────────────────────────────────────────────── */
+  const payrollHistory = ref([])
+
   function handleProcess() {
     if (!formValid.value) return
     const gross = Math.floor(Math.random() * 600_000 + 800_000)
     const deductions = Math.floor(gross * 0.15)
+    const optionLabel = payrollOptions.find(o => o.value === payrollType.value).label
 
     payrollHistory.value.unshift({
       id: Date.now(),
       manager: 'Yann Sommer',
-      type: payrollOptions.find(o => o.value === payrollType.value).label,
+      type: optionLabel,
       period: periodPreview.value,
       gross,
       deductions,
@@ -237,22 +233,19 @@
     })
 
     weeklyDate.value = ''
-    quincenaOption.value = ''
-    quincenaMonth.value = ''
+    fortnightOption.value = ''
+    fortnightMonth.value = ''
     monthlyMonth.value = ''
-    psStartDate.value = ''
-    psEndDate.value = ''
-    payrollType.value = ''
   }
 </script>
 
 <style scoped>
   .badge {
-    font-size: 0.9rem;
+    font-size: .9rem
   }
 
   .table td,
   .table th {
-    vertical-align: middle;
+    vertical-align: middle
   }
 </style>
