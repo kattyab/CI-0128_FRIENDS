@@ -57,6 +57,7 @@ builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
+builder.Services.AddScoped<BenefitsRepository>();
 
 builder.Services.AddScoped<IEmployeeBenefitListRepository, EmployeeBenefitListRepository>();
 builder.Services.AddScoped<IOfferedBenefitsRepository, OfferedBenefitsRepository>();

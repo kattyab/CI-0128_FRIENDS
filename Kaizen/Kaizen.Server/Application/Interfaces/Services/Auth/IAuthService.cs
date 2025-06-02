@@ -6,4 +6,5 @@ public interface IAuthService
 {
     public bool IsAuthenticated();
     public AuthUserDto GetAuthUser();
+    public Guid GetAuthUserCompanyPK();
 }
