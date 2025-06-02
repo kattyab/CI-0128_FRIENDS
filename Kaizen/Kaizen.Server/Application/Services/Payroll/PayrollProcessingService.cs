@@ -34,29 +34,6 @@ namespace Kaizen.Server.Application.Services.Payroll
             _benefitDeductionServiceFactory = benefitDeductionServiceFactory;
         }
 
-        /*public async Task<PayrollResultSumary> ProcessCompanyPayrollAsync(Guid companyId)
-        {
-            var payrollResults = await CalculateCompanyPayrollAsync(companyId);
-
-            var failedPayrolls = payrollResults.Where(payrollSummary => payrollSummary.NetSalary < 0).ToList();
-
-
-            if (failedPayrolls.Any())
-            {
-                var failedIds = string.Join(", ", failedPayrolls.Select(p => p.EmployeeId));
-                return $"Failed, {failedIds}";
-            }
-
-            await SavePayrollAsync(companyId, payrollResults);
-
-            foreach (var payrollSummary in payrollResults)
-            {
-                PrintPayrollSummary(payrollSummary);
-            }
-
-            return "Success";
-        }*/
-
         public async Task<PayrollResultSumary> ProcessCompanyPayrollAsync(PayrollRequest payrollInformation)
         {
             var payrollResults = await CalculateCompanyPayrollAsync(payrollInformation);
@@ -69,10 +46,10 @@ namespace Kaizen.Server.Application.Services.Payroll
                 FailedPayrolls = failedPayrolls.Select(p => p.EmployeeId).ToList()
             };
 
-            /*if (failedPayrolls.Any())
+            if (failedPayrolls.Any())
             {
                 return result;
-            }*/
+            }
 
             result.Gross = payrollResults.Sum(p => p.GrossSalary);
             result.Net = payrollResults.Sum(p => p.NetSalary);
