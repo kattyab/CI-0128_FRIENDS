@@ -61,6 +61,7 @@ builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 builder.Services.AddScoped<IEmployeeBenefitListRepository, EmployeeBenefitListRepository>();
 builder.Services.AddScoped<IOfferedBenefitsRepository, OfferedBenefitsRepository>();
 builder.Services.AddScoped<IBenefitSubscriptionRepository, BenefitSubscriptionRepository>();
+builder.Services.AddScoped<IAPIBenefitSubscriptionRepository, APIBenefitSubscriptionRepository>();
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
 builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
