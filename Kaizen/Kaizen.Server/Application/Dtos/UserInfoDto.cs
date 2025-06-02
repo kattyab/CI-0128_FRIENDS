@@ -6,4 +6,7 @@ public class UserInfoDto
     public Guid EmpID { get; set; }
     public bool? RegistersHours { get; set; }
     public string? PayrollType { get; set; }
+    public DateTime StartDate { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
 }

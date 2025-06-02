@@ -51,4 +51,65 @@ public class ApprovedHoursRepository(IConfiguration configuration)
         // Execute the insert command using SqlHelper
         SqlHelper.ExecuteNonQuery(_connectionString, commandText, CommandType.Text, parameters);
     }
+    public List<ApprovedHoursDto> GetApprovedHoursByEmpId(Guid empId)
+    {
+        const string commandText = @"
+        SELECT 
+            ApprovalID,
+            EmpID,
+            SupID,
+            StartDate,
+            EndDate,
+            HoursWorked,
+            Status,
+            IsSentForApproval
+        FROM ApprovedHours
+        WHERE EmpID = @EmpID;";
+
+        var result = new List<ApprovedHoursDto>();
+
+        SqlParameter[] parameters = [
+            new("@EmpID", SqlDbType.UniqueIdentifier) { Value = empId }
+        ];
+
+        using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, commandText, CommandType.Text, parameters);
+
+        while (reader.Read())
+        {
+            result.Add(new ApprovedHoursDto
+            {
+                ApprovalID = reader.GetGuid(reader.GetOrdinal("ApprovalID")),
+                EmpID = reader.GetGuid(reader.GetOrdinal("EmpID")),
+                SupID = reader.IsDBNull(reader.GetOrdinal("SupID")) ? null : reader.GetGuid(reader.GetOrdinal("SupID")),
+                StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                HoursWorked = reader.GetDecimal(reader.GetOrdinal("HoursWorked")),
+                Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? null : reader.GetString(reader.GetOrdinal("Status")),
+                IsSentForApproval = reader.GetBoolean(reader.GetOrdinal("IsSentForApproval"))
+            });
+        }
+
+        return result;
+    }
+    public async Task<bool> UpdateStatusAndSentAsync(Guid approvalID, string status, bool isSentForApproval)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var query = @"UPDATE ApprovedHours
+                  SET Status = @Status, IsSentForApproval = @IsSent
+                  WHERE ApprovalID = @ApprovalID";
+
+        using var command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@Status", status);
+        command.Parameters.AddWithValue("@IsSent", isSentForApproval);
+        command.Parameters.AddWithValue("@ApprovalID", approvalID);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
+
+
+
+
 }

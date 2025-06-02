@@ -1,37 +1,50 @@
 <template>
   <div class="contenedor-principal">
-    <h1 class="text-center">Registro de horas {{ tipoPagoTexto }}</h1>
+    <h1 class="text-center">Registro de horas {{ payTypeText }}</h1>
 
 
-    <!-- Tabla de registros -->
-    <div v-if="registros.length > 0" class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+    <!-- Register table -->
+    <div v-if="registers.length > 0" class="table-responsive" style="max-height: 300px; overflow-y: auto;">
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>{{ tipoPagoTextoCorto }}</th>
+            <th>{{ payTypeTextShort }}</th>
             <th>Horas Trabajadas</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody class="table-group-divider">
-          <tr v-for="(registro, index) in registros" :key="index">
-            <td>{{ formatoSemana(registro.fechaInicio, registro.fechaFin) }}</td>
-            <td>{{ registro.horas }}</td>
+          <tr v-for="(register, index) in registers" :key="index">
+            <td>{{ periodFormatting(register.fechaInicio, register.fechaFin) }}</td>
+            <td>{{ register.horas }}</td>
             <td>
-              <button v-if="!registro.enRevision"
+              <button v-if="!register.enRevision"
                       class="btn btn-sm btn-revision me-2"
-                      @click="enviarRevision(index)">
+                      @click="sendReviewing(index)">
                 Enviar a revisión
               </button>
               <span v-else
-                    class="btn btn-sm btn-
-                    disabled">
-                En revisión
+                    class="btn btn-sm"
+                    :class="{
+                            'btn-success': register.status === 'Approved',
+                            'btn-danger': register.status === 'Rejected',
+                            'btn btn-sm': register.status === 'Waiting'
+                          }">
+                                        {{
+                            register.status === 'Approved'
+                              ? 'Aprobado'
+                              : register.status === 'Rejected'
+                                ? 'Rechazado'
+                                : 'En revisión'
+                                        }}
               </span>
+
+
+
 
               <button class="btn btn-sm btn-outline-dark"
                       @click="eliminarRegistro(index)"
-                      v-show="!registro.enRevision">
+                      v-show="!register.enRevision">
                 <span class="material-icons">delete</span>
               </button>
 
@@ -41,23 +54,23 @@
       </table>
     </div>
 
-    <!-- Mensaje si no hay registros -->
+    <!-- Message if there are no registers -->
     <div v-else class="text-muted text-center my-4">
       No hay registros pendientes.
     </div>
 
-    <!-- Botón para añadir registro -->
+    <!-- Button to add a new register -->
     <div class="text-start mt-3">
       <button class="btn btn-primary" @click="mostrarFormulario = !mostrarFormulario">
         Añadir registro
       </button>
     </div>
 
-    <!-- Formulario para añadir nuevo registro -->
+    <!-- Form to add a new register -->
     <div v-if="mostrarFormulario" class="mt-3">
       <div class="row g-3 align-items-end">
         <div class="col-auto">
-          <label>{{ tipoPagoTextoCorto }}</label>
+          <label>{{ payTypeTextShort }}</label>
           <flat-pickr class="form-control"
                       v-model="nuevaFecha"
                       :config="{
@@ -65,7 +78,7 @@
                   dateFormat: 'd/m/Y',
                   allowInput: true
                 }"
-                      @on-change="ajustarSemana" />
+                      @on-change="adjustDate" />
         </div>
 
         <div class="col-auto">
@@ -87,23 +100,18 @@
         </div>
 
         <div class="col-auto">
-          <button class="btn btn-success" @click="confirmarRegistro">Confirmar</button>
-          <div v-if="mensajeAdvertencia" class="text-danger mt-2">
-            {{ mensajeAdvertencia }}
+          <button class="btn btn-success" @click="confirmRegistry">Confirmar</button>
+          <div v-if="warningMessage" class="text-danger mt-2">
+            {{ warningMessage }}
           </div>
         </div>
 
+
       </div>
       <div class="text-muted mt-1" v-if="fechaInicio && fechaFin">
-        Rango ajustado: {{ formatoSemana(fechaInicio, fechaFin) }}
+        Rango ajustado: {{ periodFormatting(fechaInicio, fechaFin) }}
       </div>
     </div>
-  </div>
-  <div class="mt-3">
-    <p><strong>UserPK:</strong> {{ userPK }}</p>
-    <p><strong>RegistersHours:</strong> {{ registersHours }}</p>
-    <p><strong>PayrollType:</strong> {{ payrollType }}</p>
-    <p><strong>EmpID:</strong> {{ empID }}</p>
   </div>
 </template>
 
@@ -116,18 +124,24 @@
   export default {
     data() {
       return {
-        registros: [],
+        registers: [],
+        approvalID: null,
+        status: null,
         mostrarFormulario: false,
         nuevaFecha: null,
         nuevasHoras: null,
         fechaInicio: null,
         fechaFin: null,
-        // nuevas variables para mostrar datos del usuario
+
+        // userdata variables
         userPK: null,
         registersHours: null,
         payrollType: null,
         empID: null,
-        mensajeAdvertencia: null,
+        fechaInicioTrabajo: null,
+        nombreEmpleado: null,
+        apellidoEmpleado: null,
+        warningMessage: null,
 
 
       };
@@ -135,11 +149,15 @@
     components: {
       flatPickr,
     },
-    mounted() {
-      this.obtenerInfoUsuario();
+    async mounted() {
+      await this.obtainUserInfo();
+      if (this.empID) {
+        await this.obtainApprovedRegisters();
+      }
     },
+
     computed: {
-      tipoPagoTexto() {
+      payTypeText() {
         switch (this.payrollType) {
           case 'W':
             return 'semanal';
@@ -148,11 +166,11 @@
           case 'M':
             return 'mensual';
           default:
-            return 'semanal'; // o cualquier texto por defecto
+            return 'semanal';
         }
       },
 
-       tipoPagoTextoCorto() {
+       payTypeTextShort() {
         switch (this.payrollType) {
           case 'W':
             return 'Semana';
@@ -161,12 +179,12 @@
           case 'M':
             return 'Mes';
           default:
-            return 'Semana'; // o cualquier texto por defecto
+            return 'Semana'; 
         }
       }
     },
     methods: {
-      ajustarSemana(selectedDates) {
+      adjustDate(selectedDates) {
         const seleccion = selectedDates[0];
         if (!seleccion) return;
 
@@ -176,15 +194,24 @@
 
         if (this.payrollType === 'M') {
           const inicio = new Date(año, mes, 1);
-          const fin = new Date(año, mes + 1, 0); // último día del mes
+          const fin = new Date(año, mes + 1, 0); // last day of the month
 
           this.fechaInicio = inicio.toISOString().split('T')[0];
           this.fechaFin = fin.toISOString().split('T')[0];
 
           if (this.registersHours === false) {
             let horas = 0;
-            for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
-              if (d.getDay() !== 0) horas += 8; // excluir domingos
+            const inicioReal = new Date(inicio);
+            const finReal = new Date(fin);
+            const ingreso = new Date(this.fechaInicioTrabajo);
+
+            // Si el empleado ingresó después del inicio del período
+            if (ingreso > inicioReal && ingreso <= finReal) {
+              inicioReal.setTime(ingreso.getTime());
+            }
+
+            for (let d = new Date(inicioReal); d <= finReal; d.setDate(d.getDate() + 1)) {
+              if (d.getDay() !== 0) horas += 8; // exclude sundays
             }
             this.nuevasHoras = horas;
           }
@@ -206,15 +233,24 @@
 
           if (this.registersHours === false) {
             let horas = 0;
-            for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
-              if (d.getDay() !== 0) horas += 8;
+            const inicioReal = new Date(inicio);
+            const finReal = new Date(fin);
+            const ingreso = new Date(this.fechaInicioTrabajo);
+
+            // if the employee started after the start of the period
+            if (ingreso > inicioReal && ingreso <= finReal) {
+              inicioReal.setTime(ingreso.getTime());
+            }
+
+            for (let d = new Date(inicioReal); d <= finReal; d.setDate(d.getDate() + 1)) {
+              if (d.getDay() !== 0) horas += 8; // exclude sundays
             }
             this.nuevasHoras = horas;
           }
 
         } else {
-          // Caso 'W' por defecto (semanal)
-          const day = seleccion.getDay(); // domingo = 0
+          // Case 'W' weekly
+          const day = seleccion.getDay(); // sunday = 0
           const monday = new Date(seleccion);
           monday.setDate(seleccion.getDate() - ((day + 6) % 7));
           const sunday = new Date(monday);
@@ -225,38 +261,56 @@
 
           if (this.registersHours === false) {
             let horas = 0;
-            for (let i = 0; i < 7; i++) {
-              const dia = new Date(monday);
-              dia.setDate(monday.getDate() + i);
-              if (dia.getDay() !== 0) horas += 8;
+            const inicioReal = new Date(inicio);
+            const finReal = new Date(fin);
+            const ingreso = new Date(this.fechaInicioTrabajo);
+
+            // if the employee started after the start of the period
+            if (ingreso > inicioReal && ingreso <= finReal) {
+              inicioReal.setTime(ingreso.getTime());
+            }
+
+            for (let d = new Date(inicioReal); d <= finReal; d.setDate(d.getDate() + 1)) {
+              if (d.getDay() !== 0) horas += 8; 
             }
             this.nuevasHoras = horas;
           }
         }
       },
-      async confirmarRegistro() {
+      async confirmRegistry() {
         if (!this.fechaInicio || !this.nuevasHoras) return;
 
         const fechaActual = new Date(this.fechaInicio);
 
+
         // Validación 1: No permitir duplicados
-        const yaExiste = this.registros.some(reg => reg.fechaInicio === this.fechaInicio);
+        const yaExiste = this.registers.some(reg => reg.fechaInicio === this.fechaInicio);
         if (yaExiste) {
-          this.mostrarAdvertencia('Ya existe un registro para este período.');
+          this.showWarning('Ya existe un registro para este período.');
           return;
         }
 
         // Validación 2: No permitir períodos anteriores al último registrado
-        const fechasRegistradas = this.registros.map(r => new Date(r.fechaInicio));
+        const fechasRegistradas = this.registers.map(r => new Date(r.fechaInicio));
         if (fechasRegistradas.length > 0) {
           const maxFechaRegistrada = new Date(Math.max(...fechasRegistradas));
           if (fechaActual <= maxFechaRegistrada) {
-            this.mostrarAdvertencia('No puedes registrar períodos anteriores al último registrado.');
+            this.showWarning('No puedes registrar períodos anteriores al último registrado.');
             return;
           }
         }
 
-        // ✅ Llamar al backend
+        // Validación 3: No permitir períodos que terminan antes de la fecha de ingreso del empleado
+        const fechaInicioTrabajo = new Date(this.fechaInicioTrabajo);
+        const fechaFinSeleccionada = new Date(this.fechaFin);
+
+        if (fechaFinSeleccionada < fechaInicioTrabajo) {
+          this.showWarning('No puedes registrar horas para un período anterior a tu fecha de ingreso.');
+          return;
+        }
+
+
+
         try {
           const payload = {
             empID: this.empID,
@@ -270,48 +324,80 @@
           await axios.post(`${import.meta.env.VITE_API_URL}/api/ApprovedHours`, payload);
 
           // Solo si se insertó exitosamente, lo agregamos a la tabla local
-          this.registros.push({
+          this.registers.push({
             fechaInicio: this.fechaInicio,
             fechaFin: this.fechaFin,
             horas: this.nuevasHoras,
             enRevision: false,
           });
 
-          this.resetFormulario();
+          this.obtainApprovedRegisters();
+
+          this.resetForm();
         } catch (error) {
           console.error("Error al guardar en el backend:", error);
-          this.mostrarAdvertencia("Hubo un error al guardar los datos.");
+          this.showWarning("Hubo un error al guardar los datos.");
         }
       }
 ,
-      enviarRevision(index) {
-        this.registros[index].enRevision = true;
-      },
-      eliminarRegistro(index) {
-        if (!this.registros[index].enRevision) {
-          this.registros.splice(index, 1);
+      async sendReviewing(index) {
+        const register = this.registers[index];
+
+        try {
+          const payload = {
+            status: "Waiting",
+            isSentForApproval: true
+          };
+
+          // 👇 PUT o PATCH dependiendo de tu backend
+          await axios.patch(`${import.meta.env.VITE_API_URL}/api/ApprovedHours/${register.approvalID}`, payload);
+
+          // Solo si fue exitoso, actualizamos localmente
+          this.registers[index].enRevision = true;
+        } catch (error) {
+          console.error("❌ Error al enviar a revisión:", error);
+          this.showWarning("No se pudo enviar a revisión.");
         }
       },
-      resetFormulario() {
+      eliminarRegistro(index) {
+        if (!this.registers[index].enRevision) {
+          this.registers.splice(index, 1);
+        }
+      },
+      resetForm() {
         this.nuevaFecha = null;
         this.nuevasHoras = null;
         this.fechaInicio = null;
         this.fechaFin = null;
         this.mostrarFormulario = false;
       },
-      formatoSemana(inicio, fin) {
-        return `${this.formatoFecha(inicio)} - ${this.formatoFecha(fin)}`;
+      periodFormatting(inicio, fin) {
+
+        const fechaIngreso = new Date(this.fechaInicioTrabajo);
+        const fechaInicioPeriodo = new Date(inicio);
+        const fechaFinPeriodo = new Date(fin);
+
+        let texto = `${this.dateFormatting(inicio)} - ${this.dateFormatting(fin)}`;
+
+        if (fechaIngreso > fechaInicioPeriodo && fechaIngreso <= fechaFinPeriodo) {
+          texto += ` (se contabiliza desde el ingreso: ${this.dateFormatting(this.fechaInicioTrabajo)})`;
+        }
+
+        return texto;
       },
-      formatoFecha(fecha) {
-        const [a, m, d] = fecha.split('-');
+      dateFormatting(fecha) {
+
+        const soloFecha = fecha.split('T')[0];
+        const [a, m, d] = soloFecha.split('-');
         return `${d}/${m}/${a.slice(2)}`;
-      },
+      }
+,
       blockArrows(event) {
-        // Evita flechas ↑ ↓ del teclado
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
           event.preventDefault();
         }
       },
+
       validarHoras(event) {
         const valor = parseInt(event.target.value, 10);
         if (valor > 48) {
@@ -320,28 +406,54 @@
           this.nuevasHoras = 1;
         }
       },
-      mostrarAdvertencia(msg) {
-        this.mensajeAdvertencia = msg;
+
+      showWarning(msg) {
+        this.warningMessage = msg;
         setTimeout(() => {
-          this.mensajeAdvertencia = null;
+          this.warningMessage = null;
         }, 5000);
       },
-      async obtenerInfoUsuario() {
+      async obtainUserInfo() {
         try {
           const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/userinfo`);
           const data = response.data;
 
-          console.log("User info:", data);
 
-          // Aquí puedes guardarlos en variables reactivas si quieres usarlos en el template
           this.userPK = data.userPK;
           this.registersHours = data.registersHours;
           this.payrollType = data.payrollType;
-          this.empID = data.empID; // <-- Aquí lo guardas
+          this.empID = data.empID; 
+          this.fechaInicioTrabajo = data.startDate.split('T')[0];
+          this.nombreEmpleado = data.name;
+          this.apellidoEmpleado = data.lastName;
+
+
         } catch (error) {
           console.error("Error al obtener información del usuario:", error);
         }
+      },
+      async obtainApprovedRegisters() {
+        try {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/ApprovedHours/approved-hours/${this.empID}`);
+          const data = response.data;
+
+
+          // Mapea los datos al formato de la tabla local
+          this.registers = data.map(r => ({
+            approvalID: r.approvalID, 
+            fechaInicio: r.startDate.split('T')[0],
+            fechaFin: r.endDate.split('T')[0],
+            horas: r.hoursWorked,
+            enRevision: r.isSentForApproval,
+            status: r.status
+
+          }));
+
+        } catch (error) {
+          console.error("Error al obtener registros aprobados:", error);
+        }
       }
+
     },
   };
 </script>
