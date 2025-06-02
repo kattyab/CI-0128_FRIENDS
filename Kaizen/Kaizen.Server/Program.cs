@@ -32,6 +32,12 @@ builder.Services.AddScoped<SqlConnection>(sp =>
     var connStr = config.GetConnectionString("KaizenDb");
     return new SqlConnection(connStr);
 });
+builder.Services.AddScoped<PayrollRepository>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connStr = config.GetConnectionString("KaizenDb");
+    return new PayrollRepository(connStr);
+});
 
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<IAuthService, AuthService>();

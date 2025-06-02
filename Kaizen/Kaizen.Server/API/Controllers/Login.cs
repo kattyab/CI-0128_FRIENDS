@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
@@ -8,12 +8,19 @@ using Kaizen.Server.Infrastructure.Repositories;
 
 namespace Kaizen.Server.API.Controllers
 {
-
     [ApiController]
     [Route("api/[controller]")]
-    public class LoginController(Login handler) : ControllerBase
+    public class LoginController : ControllerBase
     {
-        private readonly Login _handler = handler;
+        private readonly Login _handler;
+        private readonly string _connectionString;
+
+        public LoginController(Login handler, IConfiguration config)
+        {
+            _handler = handler;
+            _connectionString = config.GetConnectionString("KaizenDb")
+                ?? throw new InvalidOperationException("The connection string 'KaizenDb' is not defined in appsettings.json.");
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto credentials)
@@ -26,9 +33,9 @@ namespace Kaizen.Server.API.Controllers
 
             var hasher = new PasswordHasher<string>();
             var result = hasher.VerifyHashedPassword(
-                            credentials.Email,
-                            storedPwd,
-                            credentials.Password);
+                credentials.Email,
+                storedPwd,
+                credentials.Password);
 
             if (result == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Usuario o contraseña incorrecta." });
@@ -55,6 +62,7 @@ namespace Kaizen.Server.API.Controllers
                 role
             });
         }
+
         [HttpGet("authenticate")]
         public IActionResult Authenticate()
         {
@@ -66,12 +74,30 @@ namespace Kaizen.Server.API.Controllers
 
             return Ok(new { email, role });
         }
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("MyCookieAuth");
             return Ok(new { message = "Sesión cerrada" });
+        }
+
+        [Authorize]
+        [HttpGet("payroll-type")]
+        public IActionResult GetPayrollType()
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var repo = new PayrollRepository(_connectionString);
+            var letter = repo.GetPayrollTypeByUserId(userId);
+
+            if (letter is null)
+                return NotFound(new { message = "No se encontró el tipo de planilla." });
+
+            return Ok(new { letter });
         }
     }
 }

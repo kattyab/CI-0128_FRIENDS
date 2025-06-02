@@ -1,3 +1,5 @@
+
+<!-- src/components/Payroll.vue -->
 <template>
   <div class="container py-4">
     <h1 class="text-center mb-4">Procesar planilla</h1>
@@ -110,7 +112,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
 
   /* ===== ESTADO ===== */
   const payrollType = ref('')
@@ -121,74 +123,60 @@
   const psStartDate = ref('')
   const psEndDate = ref('')
 
+  /* === PRECARGAR USUARIO Y TIPO DE PLANILLA === */
+  onMounted(async () => {
+    // 1. Usuario autenticado
+    const authRes = await fetch('/api/Login/authenticate', { credentials: 'include' })
+    if (authRes.ok) {
+      const { email } = await authRes.json()
+    }
+
+    // 2. Tipo de planilla
+    const map = { W: 'semanal', B: 'quincenal', M: 'mensual' }
+    const ptRes = await fetch('/api/Login/payroll-type', { credentials: 'include' })
+    if (ptRes.ok) {
+      const { letter } = await ptRes.json()
+      payrollType.value = map[letter] || ''
+      console.log('Tipo de planilla (letra):', letter)
+    } else {
+      console.warn('No se pudo obtener tipo de planilla')
+    }
+  })
+
   /* Historial (mock) */
   const payrollHistory = ref([
-    {
-      id: 1,
-      manager: 'Juan Pérez',
-      type: 'Quincenal',
-      period: '01-05-2025 → 15-05-2025',
-      gross: 1_500_000,
-      deductions: 230_000,
-      net: 1_270_000
-    },
-    {
-      id: 2,
-      manager: 'María Gómez',
-      type: 'Quincenal',
-      period: '16-05-2025 → 31-05-2025',
-      gross: 1_650_000,
-      deductions: 250_000,
-      net: 1_400_000
-    },
-    {
-      id: 3,
-      manager: 'Carlos Rojas',
-      type: 'Semanal',
-      period: '01-06-2025 → 07-06-2025',
-      gross: 820_000,
-      deductions: 120_000,
-      net: 700_000
-    }
+    { id: 1, manager: 'Juan Pérez', type: 'Quincenal', period: '01-05-2025 → 15-05-2025', gross: 1_500_000, deductions: 230_000, net: 1_270_000 },
+    { id: 2, manager: 'María Gómez', type: 'Quincenal', period: '16-05-2025 → 31-05-2025', gross: 1_650_000, deductions: 250_000, net: 1_400_000 },
+    { id: 3, manager: 'Carlos Rojas', type: 'Semanal', period: '01-06-2025 → 07-06-2025', gross: 820_000, deductions: 120_000, net: 700_000 }
   ])
 
-  /* Opciones para el radio */
+  /* Opciones de radio */
   const payrollOptions = [
     { value: 'semanal', label: 'Semanal' },
     { value: 'quincenal', label: 'Quincenal' },
-    { value: 'mensual', label: 'Mensual' },
+    { value: 'mensual', label: 'Mensual' }
   ]
 
   /* ===== UTILIDADES ===== */
-  function isSunday(d) {
-    return !!d && new Date(d).getDay() === 6
-  }
-  function lastDayOfMonth(y, m0) {
-    return new Date(y, m0 + 1, 0).getDate()
-  }
-  function formatDMY(dateLike) {
+  const isSunday = d => !!d && new Date(d).getDay() === 6
+  const lastDayOfMonth = (y, m0) => new Date(y, m0 + 1, 0).getDate()
+  const formatDMY = dateLike => {
     const d = new Date(dateLike)
-    return `${String(d.getDate()).padStart(2, '0')}-${String(
-      d.getMonth() + 1
-    ).padStart(2, '0')}-${d.getFullYear()}`
+    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
   }
 
-  /* ===== VISTA PREVIA DEL PERÍODO ===== */
+  /* ===== PREVIEW DEL PERÍODO ===== */
   const periodPreview = computed(() => {
     const t = payrollType.value
     if (!t) return ''
 
-    // Semanal
     if (t === 'semanal' && weeklyDate.value && isSunday(weeklyDate.value)) {
-      const end = formatDMY(new Date(new Date(weeklyDate.value).setDate(
-        new Date(weeklyDate.value).getDate() + 1
-      )))
+      const end = formatDMY(new Date(new Date(weeklyDate.value).setDate(new Date(weeklyDate.value).getDate() + 1)))
       const startDate = new Date(weeklyDate.value)
       startDate.setDate(startDate.getDate() - 5)
       return `${formatDMY(startDate)} → ${end}`
     }
 
-    // Quincenal
     if (t === 'quincenal' && quincenaOption.value && quincenaMonth.value) {
       const [y, m] = quincenaMonth.value.split('-').map(Number)
       const mm = String(m).padStart(2, '0')
@@ -199,7 +187,6 @@
       return `16-${mm}-${y} → ${last}-${mm}-${y}`
     }
 
-    // Mensual
     if (t === 'mensual' && monthlyMonth.value) {
       const [y, m] = monthlyMonth.value.split('-').map(Number)
       const mm = String(m).padStart(2, '0')
@@ -207,13 +194,7 @@
       return `01-${mm}-${y} → ${last}-${mm}-${y}`
     }
 
-    // Servicios profesionales
-    if (
-      t === 'servicios_profesionales' &&
-      psStartDate.value &&
-      psEndDate.value &&
-      psStartDate.value <= psEndDate.value
-    ) {
+    if (t === 'servicios_profesionales' && psStartDate.value && psEndDate.value && psStartDate.value <= psEndDate.value) {
       return `${formatDMY(psStartDate.value)} → ${formatDMY(psEndDate.value)}`
     }
     return ''
@@ -222,24 +203,16 @@
   /* ===== VALIDACIÓN DEL FORMULARIO ===== */
   const formValid = computed(() => {
     switch (payrollType.value) {
-      case 'semanal':
-        return isSunday(weeklyDate.value)
-      case 'quincenal':
-        return quincenaOption.value && quincenaMonth.value
-      case 'mensual':
-        return !!monthlyMonth.value
+      case 'semanal': return isSunday(weeklyDate.value)
+      case 'quincenal': return quincenaOption.value && quincenaMonth.value
+      case 'mensual': return !!monthlyMonth.value
       case 'servicios_profesionales':
-        return (
-          psStartDate.value &&
-          psEndDate.value &&
-          psStartDate.value <= psEndDate.value
-        )
-      default:
-        return false
+        return psStartDate.value && psEndDate.value && psStartDate.value <= psEndDate.value
+      default: return false
     }
   })
 
-  /* Último domingo permitido (no fechas futuras) */
+  /* Último domingo permitido */
   const maxSunday = (() => {
     const today = new Date()
     const last = new Date(today)
@@ -247,7 +220,7 @@
     return last.toISOString().split('T')[0]
   })()
 
-  /* ===== SUBMIT (Mock) ===== */
+  /* ===== SUBMIT MOCK ===== */
   function handleProcess() {
     if (!formValid.value) return
     const gross = Math.floor(Math.random() * 600_000 + 800_000)
@@ -263,7 +236,6 @@
       net: gross - deductions
     })
 
-    // Limpia campos
     weeklyDate.value = ''
     quincenaOption.value = ''
     quincenaMonth.value = ''
