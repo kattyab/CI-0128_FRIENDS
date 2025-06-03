@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 
@@ -28,10 +28,10 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             _employeeRepo = employeeRepo;
         }
 
-        public List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID)
+        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID)
         {
             if (_companyBenefits == null)
-                _companyBenefits = _benefitRepo.GetBenefitsByCompany(_companyID);
+                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID);
 
             if (_employeeData == null)
                 _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
@@ -51,6 +51,33 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
                 {
                     BenefitName = benefit.Name,
                     DeductionValue = CalculateDeduction(benefit, employee.BruteSalary)
+                })
+                .ToList();
+        }
+
+        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, decimal proporcionalSalary)
+        {
+            if (_companyBenefits == null)
+                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID);
+
+            if (_employeeData == null)
+                _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
+
+            if (_employeeChosenBenefits == null)
+                _employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
+
+            if (!_employeeChosenBenefits.ContainsKey(employeeID) || !_employeeData.ContainsKey(employeeID))
+                return new List<BenefitDeductionResult>();
+
+            var chosenBenefitIDs = _employeeChosenBenefits[employeeID];
+            var employee = _employeeData[employeeID];
+
+            return _companyBenefits
+                .Where(benefit => chosenBenefitIDs.Contains(benefit.BenefitID) && MeetsMinMonths(employee, benefit))
+                .Select(benefit => new BenefitDeductionResult
+                {
+                    BenefitName = benefit.Name,
+                    DeductionValue = CalculateDeduction(benefit, proporcionalSalary)
                 })
                 .ToList();
         }

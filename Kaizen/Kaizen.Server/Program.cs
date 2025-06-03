@@ -16,6 +16,7 @@ using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
 using Kaizen.Server.Application.Services.ApiDeductions;
+using Kaizen.Server.Application.Services.Payroll;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -33,6 +34,14 @@ builder.Services.AddScoped<SqlConnection>(sp =>
     var connStr = config.GetConnectionString("KaizenDb");
     return new SqlConnection(connStr);
 });
+builder.Services.AddScoped<PayrollRepository>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connStr = config.GetConnectionString("KaizenDb");
+    return new PayrollRepository(connStr);
+});
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -60,17 +69,20 @@ builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 builder.Services.AddScoped<BenefitsRepository>();
 
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
-builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<IApiBenefitRepository, CachedApiBenefitRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 
 builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServiceFactory>();
 builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
 builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
 
+builder.Services.AddScoped <PayrollCalculator>();
+builder.Services.AddScoped <IPayrollProcessingService, PayrollProcessingService>();
+
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -97,6 +109,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<GeneralPayrollRepository>();
 
 var app = builder.Build();
 

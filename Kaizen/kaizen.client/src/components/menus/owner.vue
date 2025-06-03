@@ -8,23 +8,28 @@
 
   <h5>Menu</h5>
   <div class="menu d-flex flex-column">
-      <router-link class="button" to="/landing-page">
-        <span class="material-icons">apartment</span>
-        <span class="text">Inicio</span>
-      </router-link>
-      <router-link class="button" to="/companyemployees">
-        <span class="material-icons">group</span>
-        <span class="text">Empleados</span>
-      </router-link>
-      <router-link class="button" to="/employees/register">
-        <span class="material-icons">person_add</span>
-        <span class="text">Agregar Empleados</span>
-      </router-link>
-      <router-link class="button" to="/benefits/create">
-        <span class="material-icons">workspace_premium</span>
-        <span class="text">Agregar Beneficios</span>
-      </router-link>
-    </div>
+
+    <router-link class="button" to="/landing-page">
+      <span class="material-icons">apartment</span>
+      <span class="text">Inicio</span>
+    </router-link>
+    <router-link class="button" to="/companyemployees">
+      <span class="material-icons">group</span>
+      <span class="text">Empleados</span>
+    </router-link>
+    <router-link class="button" to="/employees/register">
+      <span class="material-icons">person_add</span>
+      <span class="text">Agregar Empleados</span>
+    </router-link>
+    <router-link class="button" to="/addbenefits">
+      <span class="material-icons">star</span>
+      <span class="text">Agregar Beneficios</span>
+    </router-link>
+    <router-link class="button" to="/payroll">
+      <span class="material-icons">receipt_long</span>
+      <span class="text">Pago de Planilla</span>
+    </router-link>
+  </div>
   </aside>
 </template>
 
