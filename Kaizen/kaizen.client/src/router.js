@@ -61,13 +61,12 @@ router.beforeEach(async (to, from, next) => {
       return next('/unauthorized');
     }
 
-    // Si la ruta requiere RegistersHours == true
     if (requiresRegistersHours) {
       const userInfo = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/userinfo`, { withCredentials: true });
       const registersHours = userInfo.data.registersHours;
 
       if (!registersHours) {
-        return next('/unauthorized'); // o redirige a otro lugar si prefieres
+        return next('/unauthorized'); 
       }
     }
 

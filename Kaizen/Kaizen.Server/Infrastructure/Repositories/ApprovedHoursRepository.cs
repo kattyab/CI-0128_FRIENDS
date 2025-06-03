@@ -5,16 +5,16 @@ using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Infrastructure.Repositories;
 
-// This class handles data insertion for the ApprovedHours table
+
 public class ApprovedHoursRepository(IConfiguration configuration)
 {
-    // Retrieves the connection string from appsettings.json
+
     private readonly string _connectionString =
         configuration.GetConnectionString("KaizenDb")
         ?? throw new InvalidOperationException(
                "The connection string 'KaizenDb' is not defined in appsettings.json.");
 
-    // Inserts a new record into the ApprovedHours table
+
     public void InsertApprovedHour(ApprovedHoursDto dto)
     {
         const string commandText = @"
@@ -39,7 +39,7 @@ public class ApprovedHoursRepository(IConfiguration configuration)
             NULL
         );";
 
-        // Prepare the parameters
+
         SqlParameter[] parameters = [
             new("@EmpID", SqlDbType.UniqueIdentifier) { Value = dto.EmpID },
             new("@StartDate", SqlDbType.Date) { Value = dto.StartDate },
@@ -48,7 +48,7 @@ public class ApprovedHoursRepository(IConfiguration configuration)
             new("@IsSentForApproval", SqlDbType.Bit) { Value = dto.IsSentForApproval }
         ];
 
-        // Execute the insert command using SqlHelper
+
         SqlHelper.ExecuteNonQuery(_connectionString, commandText, CommandType.Text, parameters);
     }
     public List<ApprovedHoursDto> GetApprovedHoursByEmpId(Guid empId)
