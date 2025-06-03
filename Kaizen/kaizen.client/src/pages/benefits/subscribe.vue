@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <div class="mx-5">
+      <div class="mx-5 table-responsive">
         <div v-if="isLoadingBenefits" class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Cargando beneficios...</span>
@@ -385,7 +385,7 @@ const loadActiveBenefits = async () => {
 
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/by-email/${encodeURIComponent(userData.value.email)}`,
+      `${import.meta.env.VITE_API_URL}/api/BenefitEmployeeList/by-email/${encodeURIComponent(userData.value.email)}`,
       { withCredentials: true }
     );
 
@@ -425,7 +425,7 @@ const loadActiveBenefits = async () => {
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/OfferedBenefits/available/${encodeURIComponent(userData.value.email)}`,
+        `${import.meta.env.VITE_API_URL}/api/BenefitCompanyOfferedList/by-email/${encodeURIComponent(userData.value.email)}`,
         { withCredentials: true }
       );
 
@@ -590,7 +590,7 @@ const confirmFinalSubscription = async () => {
 
       console.log('API Subscription Payload:', payload);
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/APIBenefitSubscription/subscribe`, payload, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitAPISubscription/subscribe`, payload, {
         withCredentials: true
       });
     } else {
@@ -666,7 +666,7 @@ const closeUnsubscribeModal = () => {
   });
 </script>
 
-<style scoped lang="scss">
+<style scoped>
   .btn-primary {
     background-color: #003c63;
     border-color: #003c63;
@@ -676,41 +676,38 @@ const closeUnsubscribeModal = () => {
   .btn-outline-danger {
     border-color: #dc3545;
     color: #dc3545;
+    font-weight: bold;
   }
 
-  .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: white;
+    .btn-outline-danger:hover {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-outline-danger:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+  /* Contents from empresa-lista maintained */
+  h4 {
+    color: #043c62;
   }
 
-  .btn-outline-danger:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  th {
+    color: #003c63;
+    user-select: none;
   }
 
-  .empresa-lista {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
+  .table-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+  }
 
-    h4 {
-      color: #043c62;
-    }
-
-    th {
-      color: #003c63;
-      user-select: none;
-    }
-
-    .table-wrapper {
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid #dee2e6;
-    }
-
-    .table {
-      margin-bottom: 0;
-    }
+  .table {
+    margin-bottom: 0;
+  }
 
     .table th,
     .table td {
@@ -718,24 +715,27 @@ const closeUnsubscribeModal = () => {
       white-space: nowrap;
     }
 
-    .sticky-header {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background-color: #f8f9fa;
-    }
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #f8f9fa;
+  }
 
-    .btn-outline-primary {
-      color: #003c63;
-      border-color: #003c63;
-    }
+  .btn-outline-primary {
+    color: #003c63;
+    border-color: #003c63;
+  }
 
     .btn-outline-primary:hover {
       background-color: #003c63;
       color: white;
     }
-  }
 
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   /* Modal styles */
   .modal-backdrop {
     opacity: 0.5;

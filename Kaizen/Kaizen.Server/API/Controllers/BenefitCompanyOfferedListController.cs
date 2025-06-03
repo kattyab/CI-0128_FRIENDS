@@ -16,7 +16,7 @@ namespace Kaizen.Server.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("available/{email}")]
+        [HttpGet("by-email/{email}")]
         public async Task<ActionResult<List<BenefitCompanyOfferedListDto>>> GetAvailableBenefitsForEmployee(
             string email,
             [FromQuery] bool includeUnavailable = false)
