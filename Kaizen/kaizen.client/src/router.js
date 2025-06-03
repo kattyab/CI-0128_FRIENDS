@@ -25,6 +25,7 @@ const router = createRouter({
         { path: 'benefits/:id/edit', name: 'Edit Benefit', component: () => import('./pages/benefits/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'benefits/subscribe', name: 'Benefit Subscription', component: () => import('./pages/benefits/subscribe.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Supervisor', 'Empleado'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true } },
       ]
     },
     {
@@ -49,6 +50,7 @@ router.beforeEach(async (to, from, next) => {
   const isPublic = to.meta.public;
   const requiresAuth = to.meta.requiresAuth;
   const requiredRoles = to.meta.requiredRoles;
+  const requiresRegistersHours = to.meta.requiresRegistersHours;
 
   if (isPublic || !requiresAuth) return next();
 
@@ -58,6 +60,15 @@ router.beforeEach(async (to, from, next) => {
 
     if (requiredRoles && !requiredRoles.includes(userRole)) {
       return next('/unauthorized');
+    }
+
+    if (requiresRegistersHours) {
+      const userInfo = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/userinfo`, { withCredentials: true });
+      const registersHours = userInfo.data.registersHours;
+
+      if (!registersHours) {
+        return next('/unauthorized'); 
+      }
     }
 
     next();

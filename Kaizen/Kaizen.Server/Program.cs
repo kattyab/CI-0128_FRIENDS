@@ -22,6 +22,7 @@ using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using System.Reflection;
 
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,10 @@ builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
+builder.Services.AddScoped<UserInfoRepository>();
+builder.Services.AddScoped<ApprovedHoursRepository>();
+
+
 
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
