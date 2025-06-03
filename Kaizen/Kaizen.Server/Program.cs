@@ -69,7 +69,6 @@ builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 builder.Services.AddScoped<BenefitsRepository>();
 
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
-//builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<IApiBenefitRepository, CachedApiBenefitRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
@@ -84,7 +83,6 @@ builder.Services.AddScoped <IPayrollProcessingService, PayrollProcessingService>
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
