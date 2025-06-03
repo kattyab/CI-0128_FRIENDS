@@ -76,10 +76,9 @@
             <td>{{ r.manager }}</td>
             <td>{{ r.type }}</td>
             <td>{{ r.period }}</td>
-
             <td class="text-end">₡ {{ formatCRC(r.gross) }}</td>
             <td class="text-end">₡ {{ formatCRC(r.deductions) }}</td>
-            <td class="text-end">₡ {{ formatCRC(r.charges) }}</td>
+            <td class="text-end">₡ {{ formatCRC(r.socialCharges) }}</td>
             <td class="text-end">₡ {{ formatCRC(r.net) }}</td>
             <td class="text-end">₡ {{ formatCRC(r.total) }}</td>
           </tr>
@@ -117,10 +116,14 @@
     { value: "monthly", label: "Mensual" },
   ];
 
-  /* ── helpers ─────────────────────────────────────────── */
+  /* ── helpers de fecha y número ───────────────────────── */
   const iso = (d) => new Date(d).toISOString().substring(0, 10); // yyyy-MM-dd
   const dmy = (d) =>
-    new Date(d).toLocaleDateString("es-CR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    new Date(d).toLocaleDateString("es-CR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
 
   const monday = (d) => {
     const dt = new Date(d);
@@ -130,12 +133,18 @@
   const lastOfMonth = (y, m) => new Date(y, m + 1, 0).getDate();
 
   const formatCRC = (n) =>
-    new Intl.NumberFormat("es-CR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(+n);
+    new Intl.NumberFormat("es-CR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(+n);
 
   /* ── carga inicial ───────────────────────────────────── */
   onMounted(async () => {
+    // 1) Obtener usuario y compañía
     const auth = await fetch("/api/login/authenticate", { credentials: "include" });
-    if (auth.ok) currentUser.value = (await auth.json()).email ?? "usuario@local";
+    if (auth.ok) {
+      currentUser.value = (await auth.json()).email ?? "usuario@local";
+    }
 
     const pay = await fetch("/api/login/payroll-info", { credentials: "include" });
     if (pay.ok) {
@@ -144,13 +153,20 @@
       type.value = { W: "weekly", B: "biweekly", M: "monthly" }[letter] ?? "";
       locked.value = true;
     }
+
+    // 2) Cargar historial de planillas
+    const histRes = await fetch("/api/payroll/history", { credentials: "include" });
+    if (histRes.ok) {
+      history.value = await histRes.json();
+    }
   });
 
   /* ── preview del período ─────────────────────────────── */
   const preview = computed(() => {
     if (type.value === "weekly" && weekly.value) {
       const s = monday(weekly.value);
-      const e = new Date(s); e.setDate(s.getDate() + 6);
+      const e = new Date(s);
+      e.setDate(s.getDate() + 6);
       return `${dmy(s)} → ${dmy(e)}`;
     }
     if (type.value === "biweekly" && fortnight.value) {
@@ -185,17 +201,21 @@
 
     if (type.value === "weekly") {
       const s = monday(weekly.value);
-      const e = new Date(s); e.setDate(s.getDate() + 6);
-      startISO = iso(s); endISO = iso(e);
+      const e = new Date(s);
+      e.setDate(s.getDate() + 6);
+      startISO = iso(s);
+      endISO = iso(e);
     } else if (type.value === "biweekly") {
       const d = new Date(fortnight.value);
       const y = d.getFullYear();
       const m = (d.getMonth() + 1).toString().padStart(2, "0");
       if (d.getDate() <= 15) {
-        startISO = `${y}-${m}-01`; endISO = `${y}-${m}-15`;
+        startISO = `${y}-${m}-01`;
+        endISO = `${y}-${m}-15`;
       } else {
         const last = lastOfMonth(y, +m - 1).toString().padStart(2, "0");
-        startISO = `${y}-${m}-16`; endISO = `${y}-${m}-${last}`;
+        startISO = `${y}-${m}-16`;
+        endISO = `${y}-${m}-${last}`;
       }
     } else {
       const [y, m] = monthly.value.split("-");
@@ -203,7 +223,7 @@
       endISO = `${y}-${m}-${lastOfMonth(+y, +m - 1).toString().padStart(2, "0")}`;
     }
 
-    /* ---- llamada única al backend ---- */
+    /* ---- llamada única al endpoint process ---- */
     const res = await fetch("/api/payroll/process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -216,21 +236,23 @@
         type: type.value,
       }),
     });
-    if (!res.ok) return alert("Error al procesar planilla");
+    if (!res.ok) {
+      alert("Error al procesar planilla");
+      return;
+    }
     const data = await res.json();
 
-    /* actualizar historial */
+    /* actualizar historial en cliente */
     history.value.unshift({
-      id: Date.now(),
+      id: Date.now(),  // temporal en cliente; el servidor ya guarda su propia ID
       manager: currentUser.value,
-      type: options.find(o => o.value === type.value).label,
+      type: options.find((o) => o.value === type.value).label,
       period: preview.value,
       gross: data.gross,
       deductions: data.deductions,
-      charges: data.socialCharges ?? 0,
+      socialCharges: data.socialCharges ?? 0,
       net: data.net,
-      total: data.totalpaid ?? data.gross + (data.socialCharges ?? 0),
-
+      total: data.totalPaid ?? data.gross + (data.socialCharges ?? 0),
     });
 
     weekly.value = fortnight.value = monthly.value = "";
