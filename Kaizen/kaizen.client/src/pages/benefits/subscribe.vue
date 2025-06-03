@@ -4,7 +4,10 @@
     <div class="col-10 justify-content-center">
       <h1 class="text-center my-4">Beneficios</h1>
 
-      <div class="mx-5 mb-3 d-flex justify-content-end">
+      <div class="mx-5 mb-3 d-flex justify-content-between align-items-center">
+        <div class="text">
+          <small><i class="bi bi-info-circle me-1"></i>Máximo de beneficios matriculables: {{ maxBenefits }}</small>
+        </div>
         <button class="btn btn-lg btn-primary" @click="handleSubscribeClick">
           Suscribir beneficio
         </button>
@@ -74,7 +77,7 @@
           </tbody>
         </table>
       </div>
-      
+
       <!-- Benefit Selection Principal Modal -->
       <div class="modal fade" :class="{ 'show d-block': showSubscribeModal }" tabindex="-1">
         <div class="modal-dialog modal-lg">

@@ -53,7 +53,7 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
             b.Name,
             CASE 
                 WHEN b.IsFixed = 1 THEN 'Fixed'
-                WHEN b.IsPercetange = 1 THEN 'Percentage'
+                WHEN b.IsPercentage = 1 THEN 'Percentage'
                 ELSE 'Other'
             END AS Type,
             b.MinWorkDurationMonths,
@@ -63,7 +63,7 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
             b.IsByService,
             CASE 
                 WHEN b.IsFixed = 1 THEN b.FixedValue
-                WHEN b.IsPercetange = 1 THEN b.PercentageValue
+                WHEN b.IsPercentage = 1 THEN b.PercentageValue
                 ELSE 0
             END AS Value
         FROM Benefits b
