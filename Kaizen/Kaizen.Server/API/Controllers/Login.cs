@@ -109,7 +109,7 @@ namespace Kaizen.Server.API.Controllers
                 return NotFound(new { message = "Empresa no encontrada." });
 
             var companyId = (Guid)reader["CompanyPK"];
-            var letter = reader["PayrollType"]?.ToString();   // W | B | M
+            var letter = reader["PayrollType"]?.ToString();
 
             return Ok(new
             {

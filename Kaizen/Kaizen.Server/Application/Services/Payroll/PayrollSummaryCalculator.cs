@@ -6,6 +6,8 @@ namespace Kaizen.Server.Application.Services.Payroll
 {
     public class PayrollSummaryCalculator : IPayrollSummaryCalculator
     {
+        private const int DefaultMonthlyDays = 30;
+        private const int DefaultBiweeklyDays = 15;
         private readonly IDaysWorkedCalculator _daysWorkedCalculator;
         private readonly ISalaryCalculator _salaryCalculator;
         private readonly IDeductionAggregator _deductionAggregator;
@@ -24,7 +26,7 @@ namespace Kaizen.Server.Application.Services.Payroll
         {
             var daysWorked = _daysWorkedCalculator.Calculate(employee, request.Start, request.End);
             var isBiweekly = employee.PayrollTypeDescription.Equals("Biweekly", StringComparison.OrdinalIgnoreCase);
-            var totalDays = isBiweekly ? 15 : 30;
+            var totalDays = isBiweekly ? DefaultBiweeklyDays : DefaultMonthlyDays;
             var isFullPeriod = daysWorked == totalDays;
 
             var (gross, proportional) = _salaryCalculator.Calculate(employee.BruteSalary, daysWorked, isBiweekly);

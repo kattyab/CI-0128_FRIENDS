@@ -108,6 +108,73 @@ public class ApprovedHoursRepository(IConfiguration configuration)
         var rowsAffected = await command.ExecuteNonQueryAsync();
         return rowsAffected > 0;
     }
+    public List<ApprovedHoursDto> GetAllApprovedHours()
+    {
+        const string query = @"
+            SELECT
+                ah.ApprovalID,
+                ah.StartDate,
+                ah.EndDate,
+                ah.Status,
+                ah.HoursWorked,
+                ah.IsSentForApproval,
+
+                p.Name,
+                p.LastName,
+
+                e.StartDate AS EmployeeStartDate,
+                e.ContractType,
+
+                c.PayrollType
+            FROM ApprovedHours ah
+            JOIN Employees e ON ah.EmpID = e.EmpID
+            JOIN Persons p ON e.PersonPK = p.PersonPK
+            JOIN Companies c ON e.WorksFor = c.CompanyPK
+        ";
+
+        var result = new List<ApprovedHoursDto>();
+
+        using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, query, CommandType.Text);
+        while (reader.Read())
+        {
+            result.Add(new ApprovedHoursDto
+            {
+                ApprovalID = reader.GetGuid(reader.GetOrdinal("ApprovalID")),
+                StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? null : reader.GetString(reader.GetOrdinal("Status")),
+                HoursWorked = reader.GetDecimal(reader.GetOrdinal("HoursWorked")),
+                IsSentForApproval = reader.GetBoolean(reader.GetOrdinal("IsSentForApproval")),
+
+                Name = reader.GetString(reader.GetOrdinal("Name")),
+                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+
+                EmployeeStartDate = reader.GetDateTime(reader.GetOrdinal("EmployeeStartDate")),
+                ContractType = reader.GetString(reader.GetOrdinal("ContractType")),
+                PayrollType = reader.IsDBNull(reader.GetOrdinal("PayrollType")) ? null : reader.GetString(reader.GetOrdinal("PayrollType")),
+            });
+        }
+
+        return result;
+    }
+
+    public async Task<bool> UpdateStatusAsync(Guid approvalID, string status)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var query = @"UPDATE ApprovedHours
+                  SET Status = @Status
+                  WHERE ApprovalID = @ApprovalID";
+
+        using var command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@Status", status);
+        command.Parameters.AddWithValue("@ApprovalID", approvalID);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
+
 
 
 
