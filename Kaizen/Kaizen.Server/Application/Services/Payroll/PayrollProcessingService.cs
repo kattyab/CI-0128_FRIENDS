@@ -198,13 +198,13 @@ namespace Kaizen.Server.Application.Services.Payroll
             sqlCommand.Parameters.AddWithValue("@TotalMoneyPaid", generalData.TotalMoneyPaid);
             sqlCommand.Parameters.AddWithValue("@ExecutedOn", DateTime.Now);
 
-            var payrollsParam = sqlCommand.Parameters.AddWithValue("@Payrolls", payrollsTable);
-            payrollsParam.SqlDbType = SqlDbType.Structured;
-            payrollsParam.TypeName = "dbo.PayrollsType";
+            var payrollsParameters = sqlCommand.Parameters.AddWithValue("@Payrolls", payrollsTable);
+            payrollsParameters.SqlDbType = SqlDbType.Structured;
+            payrollsParameters.TypeName = "dbo.PayrollsType";
 
-            var deductionsParam = sqlCommand.Parameters.AddWithValue("@OptionalDeductions", deductionsTable);
-            deductionsParam.SqlDbType = SqlDbType.Structured;
-            deductionsParam.TypeName = "dbo.OptionalDeductionsType";
+            var deductionsParameters = sqlCommand.Parameters.AddWithValue("@OptionalDeductions", deductionsTable);
+            deductionsParameters.SqlDbType = SqlDbType.Structured;
+            deductionsParameters.TypeName = "dbo.OptionalDeductionsType";
 
             await sqlCommand.ExecuteNonQueryAsync();
         }
@@ -336,47 +336,5 @@ namespace Kaizen.Server.Application.Services.Payroll
         {
             table.Rows.Add(Guid.NewGuid(), apiDeduction.Key, apiDeduction.Value, payrollSummary.PayrollId);
         }
-    }
-
-    public class PayrollSummary
-    {
-        public Guid EmployeeId { get; set; }
-        public string ContractType { get; set; } = string.Empty;
-        public bool RegistersHours { get; set; }
-        public decimal GrossSalary { get; set; }
-        public decimal NetSalary { get; set; }
-        public decimal TotalDeductions { get; set; }
-        public Dictionary<string, decimal> ApiDeductions { get; set; } = new();
-        public List<BenefitDeductionResult> BenefitDeductions { get; set; } = new();
-        public decimal CCSSDeduction { get; set; }
-        public decimal IncomeTax { get; set; }
-        public Guid PayrollId { get; set; }
-    }
-
-    public class EmployeePayroll
-    {
-        public Guid EmpID { get; set; }
-        public decimal BruteSalary { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? FireDate { get; set; }
-        /// <summary>
-        /// Returns "Tiempo Completo", "Medio Tiempo", "Por Horas", "Servicios Profesionales"
-        /// </summary>
-        public string ContractType { get; set; }
-        public bool RegistersHours { get; set; }
-        /// <summary>
-        /// Returns "Monthly", "Biweekly", "Weekly"
-        /// </summary>
-        public string PayrollTypeDescription { get; set; }
-    }
-
-
-    public class GeneralPayrollData
-    {
-        public decimal TotalDeductionsBenefits { get; set; }
-        public decimal TotalObligatoryDeductions { get; set; }
-        public decimal TotalLaborCharges { get; set; }
-        public decimal TotalMoneyPaid { get; set; }
-        public DateTime StartDate { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
+using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.CCSS;

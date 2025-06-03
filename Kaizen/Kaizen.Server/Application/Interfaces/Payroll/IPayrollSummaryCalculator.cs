@@ -1,5 +1,5 @@
 using Kaizen.Server.API.Controllers;
-using Kaizen.Server.Application.Services.Payroll;
+using Kaizen.Server.Application.Dtos.Payroll;
 
 namespace Kaizen.Server.Application.Interfaces.Payroll
 {

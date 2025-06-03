@@ -1,3 +1,4 @@
+using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.Payroll;
 
 namespace Kaizen.Server.Application.Services.Payroll

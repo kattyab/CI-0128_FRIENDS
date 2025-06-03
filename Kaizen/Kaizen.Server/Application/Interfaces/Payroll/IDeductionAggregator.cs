@@ -1,5 +1,5 @@
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
-using Kaizen.Server.Application.Services.Payroll;
+using Kaizen.Server.Application.Dtos.Payroll;
 
 namespace Kaizen.Server.Application.Interfaces.Payroll
 {
