@@ -2,6 +2,7 @@ using Kaizen.Server.Application.Interfaces.Payroll;
 using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Kaizen.Server.Application.Interfaces.Payroll;
 
 namespace Kaizen.Server.API.Controllers;
 
