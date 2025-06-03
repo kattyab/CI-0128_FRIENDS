@@ -1,13 +1,11 @@
-```vue
 <template>
   <div class="container-lg py-4">
     <h1 class="text-center mb-5 fw-bold">Procesar planilla</h1>
 
-    <!-- ── FORM ─────────────────────────────────────────── -->
     <div class="card shadow-sm border-0 mb-5">
       <div class="card-body">
         <form @submit.prevent="submit">
-          <!-- Tipo de planilla -->
+
           <fieldset class="mb-4">
             <legend class="h6 fw-bold mb-3">Tipo de planilla</legend>
             <div class="d-flex flex-wrap gap-4">
@@ -25,7 +23,6 @@
             </div>
           </fieldset>
 
-          <!-- Período -->
           <fieldset v-if="type">
             <legend class="h6 fw-bold mb-3">Período</legend>
 
@@ -56,7 +53,6 @@
       </div>
     </div>
 
-    <!-- ── HISTORIAL ─────────────────────────────────────── -->
     <h2 class="h4 fw-bold mb-3">Historial de planillas</h2>
 
     <div class="table-responsive shadow-sm">
@@ -99,7 +95,7 @@
 <script setup>
   import { ref, computed, onMounted, watch } from "vue";
 
-  /* ── refs ─────────────────────────────────────────────── */
+
   const currentUser = ref("");
   const companyId = ref("");
   const type = ref("");
@@ -111,14 +107,13 @@
 
   const history = ref([]);
 
-  /* ── opciones de radio ───────────────────────────────── */
+
   const options = [
     { value: "weekly", label: "Semanal" },
     { value: "biweekly", label: "Quincenal" },
     { value: "monthly", label: "Mensual" },
   ];
 
-  /* ── helpers ─────────────────────────────────────────── */
   const iso = (d) => new Date(d).toISOString().substring(0, 10); // yyyy-MM-dd
   const dmy = (d) =>
     new Date(d).toLocaleDateString("es-CR", {
@@ -140,13 +135,12 @@
       maximumFractionDigits: 2,
     }).format(+n);
 
-  /* ── refs auxiliares para evitar rechazos ───────────────── */
-  const existingPeriods = ref(new Set()); // agrupa periodos existentes
+  const existingPeriods = ref(new Set()); 
   const periodAlreadyExists = ref(false);
 
-  /* ── carga inicial ───────────────────────────────────── */
+
   onMounted(async () => {
-    // 1) Obtener usuario y compañía
+
     const auth = await fetch("/api/login/authenticate", { credentials: "include" });
     if (auth.ok) {
       currentUser.value = (await auth.json()).email ?? "usuario@local";
@@ -160,16 +154,14 @@
       locked.value = true;
     }
 
-    // 2) Cargar historial de planillas
     const histRes = await fetch("/api/payroll/history", { credentials: "include" });
     if (histRes.ok) {
       history.value = await histRes.json();
-      // llenar el Set de existingPeriods
       history.value.forEach((r) => existingPeriods.value.add(r.period));
     }
   });
 
-  /* ── preview del período ─────────────────────────────── */
+
   const preview = computed(() => {
     if (type.value === "weekly" && weekly.value) {
       const s = monday(weekly.value);
@@ -193,12 +185,12 @@
     return "";
   });
 
-  /* ── avisar si el período ya existe ────────────────── */
+
   watch(preview, (val) => {
     periodAlreadyExists.value = existingPeriods.value.has(val);
   });
 
-  /* ── validación mínima ───────────────────────────────── */
+
   const valid = computed(
     () =>
       (type.value === "weekly" && weekly.value) ||
@@ -206,7 +198,7 @@
       (type.value === "monthly" && monthly.value)
   );
 
-  /* ── submit ─────────────────────────────────────────── */
+
   async function submit() {
     if (!valid.value || periodAlreadyExists.value) return;
 
@@ -236,7 +228,6 @@
       endISO = `${y}-${m}-${lastOfMonth(+y, +m - 1).toString().padStart(2, "0")}`;
     }
 
-    /* ---- llamada única al endpoint process ---- */
     const res = await fetch("/api/payroll/process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -252,13 +243,12 @@
 
     if (!res.ok) {
       const text = await res.text();
-      alert(text); // muestra mensaje de “Ya se ejecutó la planilla...”
+      alert(text); 
       return;
     }
 
     const data = await res.json();
 
-    /* actualizar historial en cliente */
     const newRow = {
       id: Date.now(),
       manager: currentUser.value,
@@ -288,4 +278,3 @@
     vertical-align: middle;
   }
 </style>
-```

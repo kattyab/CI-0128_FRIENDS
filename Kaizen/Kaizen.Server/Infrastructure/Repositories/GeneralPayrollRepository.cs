@@ -9,9 +9,6 @@ public sealed class GeneralPayrollRepository
     private readonly SqlConnection _conn;
     public GeneralPayrollRepository(SqlConnection conn) => _conn = conn;
 
-    /// <summary>
-    /// Verifica si ya existe una planilla para esta compañía, modo y período.
-    /// </summary>
     public async Task<bool> ExistsPeriodAsync(Guid companyPk, char mode, string period)
     {
         const string sql = @"
@@ -33,9 +30,6 @@ WHERE  PaidBy      = @company    -- PaidBy almacena CompanyPK
         return count > 0;
     }
 
-    /// <summary>
-    /// Actualiza la última planilla con PayrollMode, Period e InCharge.
-    /// </summary>
     public async Task SetExtraFieldsAsync(char mode, string period, string inCharge)
     {
         const string sql = @"
@@ -61,9 +55,6 @@ WHERE   gp.GeneralPayrollsID = (
         await cmd.ExecuteNonQueryAsync();
     }
 
-    /// <summary>
-    /// Obtiene el historial completo de planillas (últimas primero).
-    /// </summary>
     public async Task<IEnumerable<PayrollHistoryRowDto>> GetHistoryAsync()
     {
         const string sql = "EXEC dbo.GetPayrollHistory;";
