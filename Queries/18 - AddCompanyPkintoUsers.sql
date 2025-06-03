@@ -30,3 +30,32 @@ ADD CONSTRAINT FK_Users_Companies
 	select * from companies
 	select * from persons
 	select * from employees
+
+ALTER TABLE dbo.Payrolls
+ADD IsClosed bit NULL DEFAULT 0;
+
+
+Update Companies
+Set PayrollType = 'M'
+WHERE BrandName = 'Kaizen'
+
+EXEC sp_rename 'Benefits.IsPercetange', 'IsPercentage', 'COLUMN';
+
+ALTER TABLE dbo.Payrolls
+ALTER COLUMN ApprovalID UNIQUEIDENTIFIER NULL;
+
+ALTER TABLE dbo.Payrolls
+DROP CONSTRAINT FK_Payrolls_ExecutedBy;
+
+-- Buscar el nombre de la constraint
+-- Si se conoce el nombre de la constraint, se puede eliminar directamente:	
+ALTER TABLE dbo.Payrolls
+DROP CONSTRAINT FK__Payrolls__Execut__ejemplo;
+
+ALTER TABLE dbo.Payrolls
+DROP CONSTRAINT UQ__Payrolls__ejemplo;
+
+ALTER TABLE dbo.Payrolls
+ADD CONSTRAINT FK_Payrolls_ExecutedBy
+Foreign KEY (ExecutedBy)
+References Persons(PersonPK)
