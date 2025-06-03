@@ -66,8 +66,14 @@ ALTER TABLE dbo.GeneralPayrolls
 ADD PayrollMode CHAR(1)  NULL,
     Period      NVARCHAR(25) NULL;
 
+
 GO
 
 ALTER TABLE dbo.GeneralPayrolls
 ADD CONSTRAINT CK_GeneralPayrolls_PayrollType
     CHECK (PayrollMode IN ('W','B','M'));   -- W = Weekly, B = Biweekly, M = Monthly
+
+IF COL_LENGTH('dbo.GeneralPayrolls', 'InCharge') IS NULL
+    ALTER TABLE dbo.GeneralPayrolls
+    ADD InCharge NVARCHAR(150) NULL;  
+GO

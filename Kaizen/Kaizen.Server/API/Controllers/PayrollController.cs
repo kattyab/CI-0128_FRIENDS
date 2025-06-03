@@ -37,11 +37,12 @@ public sealed class PayrollController : ControllerBase
             ? dto.Start.ToString("MM-yyyy")
             : $"{dto.Start:dd-MM-yyyy} → {dto.End:dd-MM-yyyy}";
 
-        /* NUEVA llamada: ya no pasamos company ni paidBy */
-        await _repo.SetModeAndPeriodAsync(mode, period);
+        /* dto.Email es el encargado que viene del front-end */
+        await _repo.SetExtraFieldsAsync(mode, period, dto.Email);
 
         return Ok(result);
     }
+
 
 }
 
