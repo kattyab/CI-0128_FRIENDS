@@ -31,7 +31,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     combined.Name,
                     combined.Type,
                     combined.Value,
-                    combined.MinMonths
+                    combined.MinMonths,
+                    c.MaxBenefits
                 FROM (
                     -- Original query for Benefits
                     SELECT 
@@ -49,7 +50,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                             ELSE 0
                         END AS Value,
                         b.MinWorkDurationMonths AS MinMonths,
-                        0 AS IsApi
+                        0 AS IsApi,
+                        e.WorksFor -- Add this to get the company reference
                     FROM Users u
                     INNER JOIN Employees e ON u.PersonPK = e.PersonPK
                     INNER JOIN ChosenBenefits cb ON e.EmpID = cb.EmployeeID
@@ -65,13 +67,15 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                         'IsApi' AS Type,
                         0 AS Value,
                         0 AS MinMonths,
-                        1 AS IsApi
+                        1 AS IsApi,
+                        e.WorksFor -- Add this to get the company reference
                     FROM Users u
                     INNER JOIN Employees e ON u.PersonPK = e.PersonPK
                     INNER JOIN ChosenAPIs capi ON e.EmpID = capi.EmployeePK
                     INNER JOIN ApiDeductionConfigs adc ON capi.ApiID = adc.Id
                     WHERE u.Email = @Email
                 ) AS combined
+                INNER JOIN Companies c ON combined.WorksFor = c.CompanyPK
                 ORDER BY combined.Name;";
 
             using var command = new SqlCommand(query, connection);
@@ -87,7 +91,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     Name = reader.IsDBNull("Name") ? null : reader.GetString("Name"),
                     Type = reader.IsDBNull("Type") ? null : reader.GetString("Type"),
                     Value = reader.IsDBNull("Value") ? 0 : reader.GetDecimal("Value"),
-                    MinMonths = reader.IsDBNull("MinMonths") ? 0 : reader.GetInt32("MinMonths")
+                    MinMonths = reader.IsDBNull("MinMonths") ? 0 : reader.GetInt32("MinMonths"),
+                    MaxBenefits = reader.IsDBNull("MaxBenefits") ? 0 : reader.GetInt32("MaxBenefits")
                 });
             }
 

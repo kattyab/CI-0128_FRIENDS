@@ -5,8 +5,8 @@
       <h1 class="text-center my-4">Beneficios</h1>
 
       <div class="mx-5 mb-3 d-flex justify-content-end">
-        <button class="btn btn-primary btn-lg" @click="showSubscribeModal = true">
-          Suscribir Beneficio
+        <button class="btn btn-lg btn-primary" @click="handleSubscribeClick">
+          Suscribir beneficio
         </button>
       </div>
 
@@ -312,7 +312,7 @@ const availableBenefits = ref([]);
 const isLoadingAvailableBenefits = ref(false);
 const availableBenefitsError = ref('');
 
-const userEmail = ref('juan.perez@example.com'); // TODO: Replace with actual user email
+const userData = ref(null);
 
 // Modal states
 const showSubscribeModal = ref(false);
@@ -326,6 +326,8 @@ const selectedBenefitIndex = ref(null);
 const benefitToUnsubscribe = ref(null);
 const benefitIndexToUnsubscribe = ref(null);
 const subscribedBenefitName = ref('');
+const maxBenefits = ref(0);
+  
 
 // Benefit calculation states
 const calculatedBenefitValue = ref(null);
@@ -335,7 +337,11 @@ const calculationError = ref('');
 // API Benefit specific input states
 const assocName = ref('');
 const dependents = ref('');
-const inputValidationError = ref('');
+  const inputValidationError = ref('');
+
+const hasReachedMaxBenefits = computed(() => {
+  return activeBenefits.value.length >= maxBenefits.value && maxBenefits.value > 0;
+});
 
 const selectedBenefit = computed(() => {
   return selectedBenefitIndex.value !== null ? availableBenefits.value[selectedBenefitIndex.value] : null;
@@ -366,7 +372,7 @@ const isInputValid = computed(() => {
 });
 
 const loadActiveBenefits = async () => {
-  if (!userEmail.value) {
+  if (!userData.value.email) {
     console.error('User email is required to load benefits');
     return;
   }
@@ -376,9 +382,11 @@ const loadActiveBenefits = async () => {
 
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/by-email/${encodeURIComponent(userEmail.value)}`,
+      `${import.meta.env.VITE_API_URL}/api/EmployeeBenefitList/by-email/${encodeURIComponent(userData.value.email)}`,
       { withCredentials: true }
     );
+
+    maxBenefits.value = response.data[0].maxBenefits;
 
     activeBenefits.value = response.data.map(benefit => ({
       benefitId: benefit.benefitId,
@@ -404,7 +412,7 @@ const loadActiveBenefits = async () => {
 };
 
   const loadAvailableBenefits = async () => {
-    if (!userEmail.value) {
+    if (!userData.value.email) {
       console.error('User email is required to load available benefits');
       return;
     }
@@ -414,11 +422,11 @@ const loadActiveBenefits = async () => {
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/OfferedBenefits/available/${encodeURIComponent(userEmail.value)}`,
+        `${import.meta.env.VITE_API_URL}/api/OfferedBenefits/available/${encodeURIComponent(userData.value.email)}`,
         { withCredentials: true }
       );
 
-      console.log('Available Benefits API Response:', response.data);
+      //console.log('Available Benefits API Response:', response.data);
 
       // Transform the benefits first
       const transformedBenefits = response.data.map(benefit => ({
@@ -433,24 +441,24 @@ const loadActiveBenefits = async () => {
       }));
 
       await loadActiveBenefits()
-      console.log(activeBenefits.value)
+      //console.log(activeBenefits.value)
       // Filter out benefits that are already subscribed
       availableBenefits.value = transformedBenefits.filter(availableBenefit => {
         return !activeBenefits.value.some(activeBenefit => {
           // For API benefits (type === 'isapi' or method.type === 'specific'), compare apiId
           if (availableBenefit.type?.toLowerCase() === 'isapi' || availableBenefit.method.type === 'specific') {
-            console.log('Comparison is api', activeBenefit.benefitId, availableBenefit.benefitId)
+            //console.log('Comparison is api', activeBenefit.benefitId, availableBenefit.benefitId)
             return activeBenefit.apiId === availableBenefit.apiId;
           }
           // For regular benefits, compare benefitId
           else {
-            console.log('Comparison', activeBenefit.benefitId, availableBenefit.benefitId)
+            //console.log('Comparison', activeBenefit.benefitId, availableBenefit.benefitId)
             return activeBenefit.benefitId === availableBenefit.benefitId;
           }
         });
       });
 
-      console.log('Filtered Available Benefits:', availableBenefits.value);
+      //console.log('Filtered Available Benefits:', availableBenefits.value);
 
     } catch (error) {
       console.error('Error cargando beneficios disponibles:', error);
@@ -510,6 +518,14 @@ const validateInput = () => {
   return true;
 };
 
+const handleSubscribeClick = () => {
+  if (hasReachedMaxBenefits.value) {
+    errorMessage.value = 'Has seleccionado el máximo de beneficios que ofrece la empresa';
+    return;
+  }
+  showSubscribeModal.value = true;
+};
+
 const resetInputs = () => {
   assocName.value = '';
   dependents.value = '';
@@ -563,7 +579,7 @@ const confirmFinalSubscription = async () => {
     if (selectedBenefit.value.method.type === 'specific') {
       // API benefit subscription
       const payload = {
-        email: userEmail.value,
+        email: userData.value.email,
         id: selectedBenefit.value.apiId,
         assocName: selectedBenefit.value.apiId === 2 ? assocName.value.trim() : null,
         dependents: selectedBenefit.value.apiId === 3 ? dependents.value.trim() : null
@@ -577,7 +593,7 @@ const confirmFinalSubscription = async () => {
     } else {
       // Regular benefit subscription
       await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitSubscription/subscribe`, {
-        email: userEmail.value,
+        email: userData.value.email,
         benefitId: selectedBenefit.value.benefitId
       }, { withCredentials: true });
     }
@@ -632,10 +648,19 @@ const closeUnsubscribeModal = () => {
   benefitIndexToUnsubscribe.value = null;
 };
 
-onMounted(() => {
-  loadActiveBenefits();
-  loadAvailableBenefits();
-});
+  onMounted(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true })
+      .then(response => {
+        userData.value = response.data;
+        // Now that userData is populated, we can safely call these:
+        loadActiveBenefits();
+        loadAvailableBenefits();
+      })
+      .catch(error => {
+        console.error('Error de autenticación:', error);
+        showError('No se pudo autenticar el usuario. Por favor, inicie sesión nuevamente.');
+      });
+  });
 </script>
 
 <style scoped lang="scss">

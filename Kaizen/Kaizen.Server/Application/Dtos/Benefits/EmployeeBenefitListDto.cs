@@ -8,5 +8,6 @@
         public string Type { get; set; }
         public decimal Value { get; set; }
         public int MinMonths { get; set; }
+        public int MaxBenefits { get; set; }
     }
 }

@@ -10,7 +10,6 @@ const router = createRouter({
       children: [
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
-        { path: 'benefitselection', name: 'BenefitSelection', component: () => import('./pages/benefits/benefitSelection.vue'), meta: { public: true } }, //test path
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/errors/403.vue'), meta: { public: true } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
@@ -24,6 +23,7 @@ const router = createRouter({
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true, requiredRoles: ['Supervisor'] } },
         { path: 'benefits/create', name: 'Benefit Creation', component: () => import('./pages/benefits/create.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'benefits/:id/edit', name: 'Edit Benefit', component: () => import('./pages/benefits/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'benefits/subscribe', name: 'Benefit Subscription', component: () => import('./pages/benefits/subscribe.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Supervisor', 'Empleado'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
       ]
     },
