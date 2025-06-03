@@ -74,6 +74,17 @@
                disabled
                :value="otherSignsValue" />
       </div>
+      <div class="mb-3">
+        <label for="logo_path" class="form-label">Logo</label>
+        <div class="form-image">
+          <img v-if="data?.logo" :src="data?.logo" />
+        </div>
+      </div>
+      <div class="d-flex justify-content-center pt-3 pb-3">
+        <a type="submit" class="btn btn-primary btn-lg btn-block" href="/company/edit">
+          Editar
+        </a>
+      </div>
     </form>
   </div>
 </template>
