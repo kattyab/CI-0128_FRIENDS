@@ -24,16 +24,12 @@ public sealed class PayrollController : ControllerBase
 
     /// <summary>
     /// POST api/payroll/process
-    /// Procesa la planilla, luego actualiza la última fila en GeneralPayrolls
-    /// con PayrollMode, Period e InCharge.
+    /// Si el período ya existe, devuelve 400. Si no, procesa y actualiza.
     /// </summary>
     [HttpPost("process")]
     public async Task<IActionResult> Process([FromBody] PayrollRequest dto)
     {
-        // 1) Ejecuta lógica de cálculo de planilla
-        var result = await _payrollService.ProcessCompanyPayrollAsync(dto);
-
-        // 2) Determina el modo (W, B o M) según dto.Type
+        // 1) Determinar modo y texto de período
         char mode = dto.Type switch
         {
             "weekly" => 'W',
@@ -42,21 +38,27 @@ public sealed class PayrollController : ControllerBase
             _ => 'U'
         };
 
-        // 3) Formatea el período como MM-yyyy si es mensual, o rango dd-MM-yyyy → dd-MM-yyyy
         string period = dto.Type == "monthly"
             ? dto.Start.ToString("MM-yyyy")
             : $"{dto.Start:dd-MM-yyyy} → {dto.End:dd-MM-yyyy}";
 
-        // 4) dto.Email viene del front-end y lo usamos como InCharge
+        // 2) Verificar existencia previa
+        bool exists = await _repo.ExistsPeriodAsync(dto.CompanyId, mode, period);
+        if (exists)
+            return BadRequest("Ya se ejecutó la planilla para ese período.");
+
+        // 3) Ejecutar lógica de cálculo de planilla
+        var result = await _payrollService.ProcessCompanyPayrollAsync(dto);
+
+        // 4) Actualizar la última fila con los datos extra
         await _repo.SetExtraFieldsAsync(mode, period, dto.Email);
 
-        // 5) Retorna el resultado original del cálculo
         return Ok(result);
     }
 
     /// <summary>
     /// GET api/payroll/history
-    /// Devuelve el historial de planillas (últimas primero).
+    /// Devuelve el historial completo de planillas.
     /// </summary>
     [HttpGet("history")]
     public async Task<IActionResult> GetHistory()
@@ -66,13 +68,10 @@ public sealed class PayrollController : ControllerBase
     }
 }
 
-/// <summary>
-/// DTO para petición de procesamiento de planilla.
-/// </summary>
 public sealed record PayrollRequest(
-    string Email,      // Correo del encargado (InCharge)
-    Guid CompanyId,  // PK de la compañía (se usa dentro del servicio)
-    DateTime Start,      // Fecha de inicio del período
-    DateTime End,        // Fecha de fin del período
-    string Type        // "weekly" | "biweekly" | "monthly"
+    string Email,     // Correo del encargado
+    Guid CompanyId, // CompanyPK
+    DateTime Start,     // Fecha de inicio del período
+    DateTime End,       // Fecha de fin del período
+    string Type       // "weekly" | "biweekly" | "monthly"
 );

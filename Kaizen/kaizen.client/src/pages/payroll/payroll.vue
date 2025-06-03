@@ -1,3 +1,4 @@
+```vue
 <template>
   <div class="container-lg py-4">
     <h1 class="text-center mb-5 fw-bold">Procesar planilla</h1>
@@ -47,7 +48,8 @@
           </fieldset>
 
           <hr class="my-4" />
-          <button class="btn btn-primary w-100" :disabled="!valid">
+          <button class="btn btn-primary w-100"
+                  :disabled="!valid || periodAlreadyExists">
             Procesar nueva planilla
           </button>
         </form>
@@ -95,7 +97,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from "vue";
+  import { ref, computed, onMounted, watch } from "vue";
 
   /* ── refs ─────────────────────────────────────────────── */
   const currentUser = ref("");
@@ -116,7 +118,7 @@
     { value: "monthly", label: "Mensual" },
   ];
 
-  /* ── helpers de fecha y número ───────────────────────── */
+  /* ── helpers ─────────────────────────────────────────── */
   const iso = (d) => new Date(d).toISOString().substring(0, 10); // yyyy-MM-dd
   const dmy = (d) =>
     new Date(d).toLocaleDateString("es-CR", {
@@ -138,6 +140,10 @@
       maximumFractionDigits: 2,
     }).format(+n);
 
+  /* ── refs auxiliares para evitar rechazos ───────────────── */
+  const existingPeriods = ref(new Set()); // agrupa periodos existentes
+  const periodAlreadyExists = ref(false);
+
   /* ── carga inicial ───────────────────────────────────── */
   onMounted(async () => {
     // 1) Obtener usuario y compañía
@@ -158,6 +164,8 @@
     const histRes = await fetch("/api/payroll/history", { credentials: "include" });
     if (histRes.ok) {
       history.value = await histRes.json();
+      // llenar el Set de existingPeriods
+      history.value.forEach((r) => existingPeriods.value.add(r.period));
     }
   });
 
@@ -185,6 +193,11 @@
     return "";
   });
 
+  /* ── avisar si el período ya existe ────────────────── */
+  watch(preview, (val) => {
+    periodAlreadyExists.value = existingPeriods.value.has(val);
+  });
+
   /* ── validación mínima ───────────────────────────────── */
   const valid = computed(
     () =>
@@ -195,7 +208,7 @@
 
   /* ── submit ─────────────────────────────────────────── */
   async function submit() {
-    if (!valid.value) return;
+    if (!valid.value || periodAlreadyExists.value) return;
 
     let startISO = "", endISO = "";
 
@@ -236,15 +249,18 @@
         type: type.value,
       }),
     });
+
     if (!res.ok) {
-      alert("Error al procesar planilla");
+      const text = await res.text();
+      alert(text); // muestra mensaje de “Ya se ejecutó la planilla...”
       return;
     }
+
     const data = await res.json();
 
     /* actualizar historial en cliente */
-    history.value.unshift({
-      id: Date.now(),  // temporal en cliente; el servidor ya guarda su propia ID
+    const newRow = {
+      id: Date.now(),
       manager: currentUser.value,
       type: options.find((o) => o.value === type.value).label,
       period: preview.value,
@@ -253,7 +269,10 @@
       socialCharges: data.socialCharges ?? 0,
       net: data.net,
       total: data.totalPaid ?? data.gross + (data.socialCharges ?? 0),
-    });
+    };
+
+    history.value.unshift(newRow);
+    existingPeriods.value.add(preview.value);
 
     weekly.value = fortnight.value = monthly.value = "";
   }
@@ -269,3 +288,4 @@
     vertical-align: middle;
   }
 </style>
+```
