@@ -1,45 +1,40 @@
 <template>
   <div class="container mt-4">
-    <h2 class="text-center mb-4">Aprobación de horas</h2>
-
+    <h2 class="text-center mb-4">Aprobación de Horas</h2>
 
     <div class="row g-3 mb-3">
       <div class="col-md-3">
         <label>Usuario</label>
-        <select class="form-select" v-model="filtros.usuario">
+        <select class="form-select" v-model="filters.user">
           <option value="">Todos</option>
-          <option v-for="user in usuariosUnicos" :key="user">{{ user }}</option>
+          <option v-for="user in uniqueUsers" :key="user">{{ user }}</option>
         </select>
       </div>
-
 
       <div class="col-md-3">
         <label>Desde</label>
         <Flatpickr class="form-control"
-                   v-model="filtros.desde"
+                   v-model="filters.from"
                    :config="flatpickrConfig" />
       </div>
-
 
       <div class="col-md-3">
         <label>Hasta</label>
         <Flatpickr class="form-control"
-                   v-model="filtros.hasta"
+                   v-model="filters.to"
                    :config="flatpickrConfig" />
       </div>
 
       <div class="col-md-3">
         <label>Estado</label>
-        <select class="form-select" v-model="filtros.estado">
-
+        <select class="form-select" v-model="filters.status">
           <option value="">Todos</option>
-          <option value="Aprobado">Aprobado</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="Rechazado">Rechazado</option>
+          <option value="Approved">Aprobado</option>
+          <option value="Waiting">Pendiente</option>
+          <option value="Rejected">Rechazado</option>
         </select>
       </div>
     </div>
-
 
     <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
       <table class="table table-hover align-middle w-100">
@@ -53,43 +48,43 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(registro, index) in registrosFiltrados" :key="index">
-            <tr @click="toggleDetalles(index)" style="cursor: pointer;">
-              <td class="text-start">{{ registro.nombre }}</td>
-              <td class="text-center">{{ dateFormatting(registro.inicio) }} - {{ dateFormatting(registro.fin) }}</td>
-              <td class="text-center">{{ registro.horas }}</td>
+          <template v-for="(record, index) in filteredRecords" :key="index">
+            <tr @click="toggleDetails(index)" style="cursor: pointer;">
+              <td class="text-start">{{ record.name }}</td>
+              <td class="text-center">{{ formatDateSimple(record.start) }} - {{ formatDateSimple(record.end) }}</td>
+              <td class="text-center">{{ record.hours }}</td>
               <td class="text-end pe-4">
                 <span class="btn btn-sm"
                       :class="{
-      'btn-success': registro.estado === 'Approved',
-      'btn-danger': registro.estado === 'Rejected',
-      'btn-secondary': registro.estado === 'Waiting'
-    }">
+                        'btn-success': record.status === 'Approved',
+                        'btn-danger': record.status === 'Rejected',
+                        'btn-secondary': record.status === 'Waiting'
+                      }">
                   {{
-      registro.estado === 'Approved'
-        ? 'Aprobado'
-        : registro.estado === 'Rejected'
-          ? 'Rechazado'
-          : 'Pendiente'
+                    record.status === 'Approved'
+                      ? 'Aprobado'
+                      : record.status === 'Rejected'
+                        ? 'Rechazado'
+                        : 'Pendiente'
                   }}
                 </span>
               </td>
               <td class="text-end pe-4">
                 <input type="checkbox"
-                       v-model="registro.seleccionado"
-                       :disabled="registro.estado === 'Approved' || registro.estado === 'Rejected'"
+                       v-model="record.selected"
+                       :disabled="record.status === 'Approved' || record.status === 'Rejected'"
                        @click.stop />
               </td>
             </tr>
-            <tr v-if="registro.mostrarDetalles" class="detalle-fila">
+            <tr v-if="record.showDetails" class="detalle-fila">
               <td>
-                <small><strong>Fecha Inicio:</strong> {{ dateFormatting(registro.fechaInicioCompleta) }}</small>
+                <small><strong>Fecha inicio:</strong> {{ formatDateSimple(record.fullStartDate) }}</small>
               </td>
               <td class="text-center">
-                <small><strong>Tipo de pago:</strong> {{ registro.tipoPago }}</small>
+                <small><strong>Pago tipo:</strong> {{ record.payrollType }}</small>
               </td>
               <td class="text-center">
-                <small><strong>Tipo de contrato:</strong> {{ registro.tipoContrato }}</small>
+                <small><strong>Contrato:</strong> {{ record.contractType }}</small>
               </td>
               <td colspan="2"></td>
             </tr>
@@ -98,12 +93,10 @@
       </table>
     </div>
 
-
     <div class="mt-3 d-flex justify-content-center gap-3">
-      <button class="btn btn-primary" @click="() => actualizarEstadoDeSeleccionados('Approved')">Aprobar</button>
-      <button class="btn btn-danger" @click="() => actualizarEstadoDeSeleccionados('Rejected')">Rechazar</button>
+      <button class="btn btn-primary" @click="() => updateSelectedStatuses('Approved')">Aprobar</button>
+      <button class="btn btn-danger" @click="() => updateSelectedStatuses('Rejected')">Rechazar</button>
     </div>
-
 
   </div>
 </template>
@@ -114,12 +107,11 @@
   import Flatpickr from 'vue-flatpickr-component'
   import 'flatpickr/dist/flatpickr.css'
 
-
-  const filtros = ref({
-    desde: null,
-    hasta: null,
-    usuario: '',
-    estado: ''
+  const filters = ref({
+    from: null,
+    to: null,
+    user: '',
+    status: ''
   })
 
   const flatpickrConfig = {
@@ -129,142 +121,130 @@
     locale: 'es'
   }
 
+  const records = ref([])
 
-  const registros = ref([])
-
-  async function fetchRegistros() {
+  async function fetchRecords() {
     try {
       const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/ApprovedHours/AllHours`)
-      registros.value = data.map(item => ({
-        approvalID: item.approvalID, 
-        isSentForApproval: item.isSentForApproval, 
-        nombre: `${item.name} ${item.lastName}`,
-        inicio: item.startDate,
-        fin: item.endDate,
-        horas: item.hoursWorked,
-        estado: item.status || 'Pendiente',
-        fechaInicioCompleta: item.employeeStartDate,
-        tipoPago: item.payrollType,
-        tipoContrato: item.contractType,
-        mostrarDetalles: false,
-        seleccionado: false
+      records.value = data.map(item => ({
+        approvalID: item.approvalID,
+        isSentForApproval: item.isSentForApproval,
+        name: `${item.name} ${item.lastName}`,
+        start: item.startDate,
+        end: item.endDate,
+        hours: item.hoursWorked,
+        status: item.status || 'Waiting',
+        fullStartDate: item.employeeStartDate,
+        payrollType: item.payrollType,
+        contractType: item.contractType,
+        showDetails: false,
+        selected: false
       }))
     } catch (error) {
-      console.error('Error al cargar datos de ApprovedHours:', error)
+      console.error('Error loading ApprovedHours data:', error)
     }
   }
 
-  async function actualizarEstadoDeSeleccionados(nuevoEstado) {
-    const seleccionados = registros.value.filter(r =>
-      r.seleccionado &&
-      r.estado === 'Waiting' &&
+  async function updateSelectedStatuses(newStatus) {
+    const selectedRecords = records.value.filter(r =>
+      r.selected &&
+      r.status === 'Waiting' &&
       r.isSentForApproval === true
     )
 
-    if (seleccionados.length === 0) {
-      alert('No hay registros seleccionados para procesar.')
+    if (selectedRecords.length === 0) {
+      alert('No selected records to process.')
       return
     }
 
     try {
-      await Promise.all(seleccionados.map(async r => {
+      await Promise.all(selectedRecords.map(async r => {
         await axios.patch(`${import.meta.env.VITE_API_URL}/api/ApprovedHours/${r.approvalID}/status`, {
-          status: nuevoEstado
+          status: newStatus
         })
-
       }))
-      await fetchRegistros() 
+      await fetchRecords()
     } catch (error) {
-      console.error(`Error al actualizar registros:`, error)
-      alert('Ocurrió un error al actualizar los registros.')
+      console.error(`Error updating records:`, error)
+      alert('An error occurred while updating records.')
     }
   }
 
+  onMounted(fetchRecords)
 
-
-  onMounted(fetchRegistros)
-
-
-  const usuariosUnicos = computed(() => {
-    return [...new Set(registros.value.map(r => r.nombre))]
+  const uniqueUsers = computed(() => {
+    return [...new Set(records.value.map(r => r.name))]
   })
 
-
-  function dateFormatting(fecha) {
-    const soloFecha = fecha.split('T')[0]
-    const [a, m, d] = soloFecha.split('-')
-    return `${d}/${m}/${a.slice(2)}`
+  function formatDateSimple(date) {
+    const onlyDate = date.split('T')[0]
+    const [y, m, d] = onlyDate.split('-')
+    return `${d}/${m}/${y.slice(2)}`
   }
 
-  function formatearFecha(fecha) {
-    const [year, month, day] = fecha.split('-')
+  function formatDateFull(date) {
+    const [year, month, day] = date.split('-')
     return `${day}/${month}/${year}`
   }
 
+  const filteredRecords = computed(() => {
+    return records.value.filter(r => {
+      const statusCondition = r.isSentForApproval === true
+
+      const userOk = !filters.value.user || r.name === filters.value.user
+      const statusOk = !filters.value.status || r.status === filters.value.status
 
 
-  const registrosFiltrados = computed(() => {
-    return registros.value.filter(r => {
+      const start = new Date(r.start)
+      const end = new Date(r.end)
 
-      const condicionesEstado = r.isSentForApproval === true
-
-
-
-      const usuarioOk = !filtros.value.usuario || r.nombre === filtros.value.usuario
-      const estadoOk = !filtros.value.estado || traducirEstado(r.estado) === filtros.value.estado
-
-      const inicio = new Date(r.inicio)
-      const fin = new Date(r.fin)
-
-      const desde = filtros.value.desde instanceof Date
-        ? filtros.value.desde
-        : filtros.value.desde
-          ? new Date(filtros.value.desde)
+      const from = filters.value.from instanceof Date
+        ? filters.value.from
+        : filters.value.from
+          ? new Date(filters.value.from)
           : null
 
-      const hasta = filtros.value.hasta instanceof Date
-        ? filtros.value.hasta
-        : filtros.value.hasta
-          ? new Date(filtros.value.hasta)
+      const to = filters.value.to instanceof Date
+        ? filters.value.to
+        : filters.value.to
+          ? new Date(filters.value.to)
           : null
 
-      let rangoOk = true
-      if (desde && hasta) {
-        rangoOk = fin >= desde && inicio <= hasta
-      } else if (desde) {
-        rangoOk = fin >= desde
-      } else if (hasta) {
-        rangoOk = inicio <= hasta
+      let rangeOk = true
+      if (from && to) {
+        rangeOk = end >= from && start <= to
+      } else if (from) {
+        rangeOk = end >= from
+      } else if (to) {
+        rangeOk = start <= to
       }
 
-      return condicionesEstado && usuarioOk && estadoOk && rangoOk
+      return statusCondition && userOk && statusOk && rangeOk
     })
   })
 
-  function traducirEstado(estado) {
-    switch (estado) {
+  function translateStatus(status) {
+    switch (status) {
       case 'Waiting': return 'Pendiente'
       case 'Rejected': return 'Rechazado'
       case 'Approved': return 'Aprobado'
-      default: return estado
+      default: return status
     }
   }
 
-
-
-
-  function toggleDetalles(index) {
-    const registro = registrosFiltrados.value[index]
-    const original = registros.value.find(r =>
-      r.nombre === registro.nombre &&
-      r.inicio === registro.inicio &&
-      r.fin === registro.fin
+  function toggleDetails(index) {
+    const record = filteredRecords.value[index]
+    const original = records.value.find(r =>
+      r.name === record.name &&
+      r.start === record.start &&
+      r.end === record.end
     )
     if (original) {
-      original.mostrarDetalles = !original.mostrarDetalles
+      original.showDetails = !original.showDetails
     }
   }
 </script>
+
 
 
 <style scoped>
@@ -278,7 +258,7 @@
     font-weight: bold;
   }
 
- 
+
   .detalle-fila td {
     background-color: #f5f5f5 !important;
   }
@@ -296,8 +276,8 @@
   }
 
   .detalle-fila td {
-    background-color: #f8f9fa; 
-    color: #6c757d; 
+    background-color: #f8f9fa;
+    color: #6c757d;
     font-size: 0.85rem;
     white-space: nowrap;
   }
@@ -306,7 +286,7 @@
     color: #6c757d !important;
   }
 
-  /* Evita que se rompa el ancho al abrir detalles */
+
   .table td, .table th {
     table-layout: fixed;
     overflow: hidden;
