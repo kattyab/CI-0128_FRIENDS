@@ -5,9 +5,12 @@ namespace Kaizen.Server.Application.Services.Payroll
 {
     public class SalaryCalculator : ISalaryCalculator
     {
+        private const int BiweeklyPeriodDays = 15;
+        private const int MonthlyPeriodDays = 30;
+
         public (decimal Gross, decimal Proportional) Calculate(decimal bruteSalary, int daysWorked, bool isBiweekly)
         {
-            var totalDays = isBiweekly ? 15 : 30;
+            var totalDays = isBiweekly ? BiweeklyPeriodDays : MonthlyPeriodDays;
             var proportional = (bruteSalary / totalDays) * daysWorked;
             var gross = daysWorked == totalDays ? bruteSalary : proportional;
             return (gross, proportional);

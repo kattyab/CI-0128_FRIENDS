@@ -13,11 +13,16 @@ namespace Kaizen.Server.Application.Services.Payroll
             var end = employee.FireDate.HasValue && employee.FireDate.Value < payrollPeriodEnd
                 ? employee.FireDate.Value : payrollPeriodEnd;
 
-            if (start > payrollPeriodEnd || (employee.FireDate.HasValue && employee.FireDate.Value < payrollPeriodStart))
+            if (start > payrollPeriodEnd || WasEmployeeFiredPriorToPeriod(employee, payrollPeriodStart))
                 return 0;
 
             var daysWorked = (end - start).Days + 1;
             return Math.Max(0, Math.Min(daysWorked, MaxDays));
+        }
+
+        private static bool WasEmployeeFiredPriorToPeriod(EmployeePayroll employee, DateTime payrollPeriodStart)
+        {
+            return (employee.FireDate.HasValue && employee.FireDate.Value < payrollPeriodStart);
         }
     }
 

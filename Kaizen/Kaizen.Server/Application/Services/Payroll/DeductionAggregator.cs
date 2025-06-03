@@ -47,9 +47,8 @@ namespace Kaizen.Server.Application.Services.Payroll
                 foreach (var benefit in benefitDeductions)
                     benefit.DeductionValue /= BiweeklyFactor;
             }
-
-            var ccss = employee.ContractType == "Servicios Profesionales" ? 0m : _ccssCalculator.CalculateDeduction(salaryForDeductions);
-            var income = employee.ContractType == "Servicios Profesionales" ? 0m : _incomeTaxCalculator.Calculate(salaryForDeductions);
+            decimal ccss = CalculateCCSSDeduction(employee, salaryForDeductions);
+            decimal income = CalculateIncomeTaxDeduction(employee, salaryForDeductions);
 
             if (isBiweekly)
             {
@@ -60,6 +59,16 @@ namespace Kaizen.Server.Application.Services.Payroll
             var total = apiDeductions.Values.Sum() + benefitDeductions.Sum(x => x.DeductionValue) + ccss + income;
 
             return (apiDeductions, benefitDeductions, ccss, income, total);
+        }
+
+        private decimal CalculateIncomeTaxDeduction(EmployeePayroll employee, decimal salaryForDeductions)
+        {
+            return employee.ContractType == "Servicios Profesionales" ? 0m : _incomeTaxCalculator.Calculate(salaryForDeductions);
+        }
+
+        private decimal CalculateCCSSDeduction(EmployeePayroll employee, decimal salaryForDeductions)
+        {
+            return employee.ContractType == "Servicios Profesionales" ? 0m : _ccssCalculator.CalculateDeduction(salaryForDeductions);
         }
     }
 
