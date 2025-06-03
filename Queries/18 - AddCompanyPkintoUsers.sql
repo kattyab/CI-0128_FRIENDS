@@ -77,3 +77,19 @@ IF COL_LENGTH('dbo.GeneralPayrolls', 'InCharge') IS NULL
     ALTER TABLE dbo.GeneralPayrolls
     ADD InCharge NVARCHAR(150) NULL;  
 GO
+
+
+UPDATE U
+SET U.CompanyPK = E.WorksFor
+FROM dbo.Users U
+INNER JOIN dbo.Employees E ON U.PersonPK = E.PersonPK;
+
+UPDATE Users
+SET CompanyPK = (
+    SELECT CompanyPK
+    FROM Companies
+    WHERE CompanyID = '4-000-000020'
+)
+WHERE Email = 'sofia.navarro@example.com';
+
+

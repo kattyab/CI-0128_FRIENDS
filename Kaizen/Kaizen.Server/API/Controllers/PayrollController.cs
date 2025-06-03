@@ -1,3 +1,4 @@
+
 using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Services.Payroll;
 using Kaizen.Server.Infrastructure.Repositories;
@@ -22,9 +23,11 @@ public sealed class PayrollController : ControllerBase
         _repo = repo;
     }
 
+
     [HttpPost("process")]
     public async Task<IActionResult> Process([FromBody] PayrollRequest dto)
     {
+
         char mode = dto.Type switch
         {
             "weekly" => 'W',
@@ -37,9 +40,11 @@ public sealed class PayrollController : ControllerBase
             ? dto.Start.ToString("MM-yyyy")
             : $"{dto.Start:dd-MM-yyyy} → {dto.End:dd-MM-yyyy}";
 
+
         bool exists = await _repo.ExistsPeriodAsync(dto.CompanyId, mode, period);
         if (exists)
             return BadRequest("Ya se ejecutó la planilla para ese período.");
+
 
         var result = await _payrollService.ProcessCompanyPayrollAsync(dto);
 
@@ -49,16 +54,20 @@ public sealed class PayrollController : ControllerBase
         return Ok(result);
     }
 
+
     [HttpGet("history")]
-    public async Task<IActionResult> GetHistory()
+    public async Task<IActionResult> GetHistory([FromQuery] Guid companyId)
     {
-        var historyRows = await _repo.GetHistoryAsync();
+        if (companyId == Guid.Empty)
+            return BadRequest("Debe proporcionar companyId en la query.");
+
+        var historyRows = await _repo.GetHistoryByCompanyAsync(companyId);
         return Ok(historyRows);
     }
 }
 
 public sealed record PayrollRequest(
-    string Email,     
+    string Email,    
     Guid CompanyId, 
     DateTime Start,     
     DateTime End,      

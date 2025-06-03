@@ -95,7 +95,6 @@
 <script setup>
   import { ref, computed, onMounted, watch } from "vue";
 
-
   const currentUser = ref("");
   const companyId = ref("");
   const type = ref("");
@@ -107,14 +106,13 @@
 
   const history = ref([]);
 
-
   const options = [
     { value: "weekly", label: "Semanal" },
     { value: "biweekly", label: "Quincenal" },
     { value: "monthly", label: "Mensual" },
   ];
 
-  const iso = (d) => new Date(d).toISOString().substring(0, 10); // yyyy-MM-dd
+  const iso = (d) => new Date(d).toISOString().substring(0, 10);
   const dmy = (d) =>
     new Date(d).toLocaleDateString("es-CR", {
       day: "2-digit",
@@ -135,12 +133,10 @@
       maximumFractionDigits: 2,
     }).format(+n);
 
-  const existingPeriods = ref(new Set()); 
+  const existingPeriods = ref(new Set());
   const periodAlreadyExists = ref(false);
 
-
   onMounted(async () => {
-
     const auth = await fetch("/api/login/authenticate", { credentials: "include" });
     if (auth.ok) {
       currentUser.value = (await auth.json()).email ?? "usuario@local";
@@ -154,13 +150,17 @@
       locked.value = true;
     }
 
-    const histRes = await fetch("/api/payroll/history", { credentials: "include" });
-    if (histRes.ok) {
-      history.value = await histRes.json();
-      history.value.forEach((r) => existingPeriods.value.add(r.period));
+    if (companyId.value) {
+      const histRes = await fetch(
+        `/api/payroll/history?companyId=${companyId.value}`,
+        { credentials: "include" }
+      );
+      if (histRes.ok) {
+        history.value = await histRes.json();
+        history.value.forEach((r) => existingPeriods.value.add(r.period));
+      }
     }
   });
-
 
   const preview = computed(() => {
     if (type.value === "weekly" && weekly.value) {
@@ -172,11 +172,10 @@
     if (type.value === "biweekly" && fortnight.value) {
       const d = new Date(fortnight.value);
       const y = d.getFullYear();
-      const m = d.getMonth() + 1;
-      const mm = m.toString().padStart(2, "0");
-      if (d.getDate() <= 15) return `01-${mm}-${y} → 15-${mm}-${y}`;
-      const last = lastOfMonth(y, m - 1).toString().padStart(2, "0");
-      return `16-${mm}-${y} → ${last}-${mm}-${y}`;
+      const m = (d.getMonth() + 1).toString().padStart(2, "0");
+      if (d.getDate() <= 15) return `01-${m}-${y} → 15-${m}-${y}`;
+      const last = lastOfMonth(y, +m - 1).toString().padStart(2, "0");
+      return `16-${m}-${y} → ${last}-${m}-${y}`;
     }
     if (type.value === "monthly" && monthly.value) {
       const [y, m] = monthly.value.split("-");
@@ -185,11 +184,9 @@
     return "";
   });
 
-
   watch(preview, (val) => {
     periodAlreadyExists.value = existingPeriods.value.has(val);
   });
-
 
   const valid = computed(
     () =>
@@ -197,7 +194,6 @@
       (type.value === "biweekly" && fortnight.value) ||
       (type.value === "monthly" && monthly.value)
   );
-
 
   async function submit() {
     if (!valid.value || periodAlreadyExists.value) return;
@@ -243,7 +239,7 @@
 
     if (!res.ok) {
       const text = await res.text();
-      alert(text); 
+      alert(text);
       return;
     }
 
