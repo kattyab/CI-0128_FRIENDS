@@ -94,6 +94,7 @@ namespace Kaizen.Server.Application.Services.Payroll
 
                 payrollResults.Add(payrollSummary);
             }
+
             return payrollResults;
         }
 

@@ -84,13 +84,16 @@ namespace Kaizen.Server.Application.Services.Payroll
                 AdjustBiweeklyObligatoryDeductions(ref ccssDeduction, ref incomeTaxDeduction);
             }
             var totalDeductions = GetTotalDeductions(apiDeductions, benefitDeductions, ccssDeduction, incomeTaxDeduction);
-            var netSalary = GetNetSalary(employee, totalDeductions);
+
+            var grossSalary = isFullPeriod ? employee.BruteSalary : proportionalSalary;
+            var netSalary = grossSalary - totalDeductions;
+
             return new PayrollSummary
             {
                 EmployeeId = employee.EmpID,
                 ContractType = employee.ContractType,
                 RegistersHours = employee.RegistersHours,
-                GrossSalary = employee.BruteSalary,
+                GrossSalary = grossSalary,
                 NetSalary = netSalary,
                 TotalDeductions = totalDeductions,
                 ApiDeductions = apiDeductions,
@@ -119,11 +122,6 @@ namespace Kaizen.Server.Application.Services.Payroll
             var daysWorked = (effectiveEndDate - effectiveStartDate).Days + 1;
 
             return Math.Max(0, Math.Min(daysWorked, DaysInAMonth));
-        }
-
-        private static decimal GetNetSalary(EmployeePayroll employee, decimal totalDeductions)
-        {
-            return employee.BruteSalary - totalDeductions;
         }
 
         private static Dictionary<string, decimal> AdjustApiDeductionsForBiweekly(Dictionary<string, decimal> apiDeductions,
