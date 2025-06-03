@@ -30,6 +30,7 @@ SELECT DISTINCT
     c.PO,
     c.Province,
     c.Canton,
+    c.Distrito,
     c.OtherSigns,
     c.Logo
 FROM Companies c
@@ -68,6 +69,7 @@ WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL;
                 PO = reader["PO"]?.ToString(),
                 Province = reader["Province"]?.ToString(),
                 Canton = reader["Canton"]?.ToString(),
+                Distrito = reader["Distrito"]?.ToString(),
                 OtherSigns = reader["OtherSigns"]?.ToString(),
                 Logo = reader["Logo"]?.ToString()
             };
