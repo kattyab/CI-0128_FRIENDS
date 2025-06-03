@@ -59,3 +59,15 @@ ALTER TABLE dbo.Payrolls
 ADD CONSTRAINT FK_Payrolls_ExecutedBy
 Foreign KEY (ExecutedBy)
 References Persons(PersonPK)
+
+
+
+ALTER TABLE dbo.GeneralPayrolls
+ADD PayrollMode CHAR(1)  NULL,
+    Period      NVARCHAR(25) NULL;
+
+GO
+
+ALTER TABLE dbo.GeneralPayrolls
+ADD CONSTRAINT CK_GeneralPayrolls_PayrollType
+    CHECK (PayrollMode IN ('W','B','M'));   -- W = Weekly, B = Biweekly, M = Monthly
