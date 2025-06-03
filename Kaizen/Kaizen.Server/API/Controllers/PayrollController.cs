@@ -1,6 +1,4 @@
-
-using Kaizen.Server.Application.Dtos.Payroll;
-using Kaizen.Server.Application.Services.Payroll;
+using Kaizen.Server.Application.Interfaces.Payroll;
 using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -48,7 +48,7 @@ namespace Kaizen.Server.Application.Services.Payroll
 
         public async Task<List<PayrollSummary>> CalculateCompanyPayrollAsync(PayrollRequest payrollInformation)
         {
-            var employeeData = await _employeeRepository.GetEmployeeDataAsync(payrollInformation.CompanyId);
+            var employeeData = await _employeeRepository.GetEmployeeDataAsync(payrollInformation);
             var payrollResults = new List<PayrollSummary>();
 
             foreach (var employee in employeeData)
