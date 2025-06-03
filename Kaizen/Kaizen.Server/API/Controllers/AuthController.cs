@@ -9,9 +9,7 @@ namespace Kaizen.Server.API.Controllers;
 [Route("api/[controller]")]
 public class AuthController(IAuthService authService, UserInfoRepository userInfoRepo) : ControllerBase
 {
-    /// 
-    /// Retreives the current user's information.
-    /// 
+
     [HttpGet("userinfo")]
     public IActionResult GetUserInfo()
     {

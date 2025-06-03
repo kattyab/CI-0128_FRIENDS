@@ -10,8 +10,6 @@ public class ApprovedHoursController(ApprovedHoursRepository approvedHoursReposi
 {
     private readonly ApprovedHoursRepository _approvedHoursRepository = approvedHoursRepository;
 
-    // POST: api/ApprovedHours
-
     [HttpPost("")]
     public IActionResult Create([FromBody] ApprovedHoursDto dto)
     {
