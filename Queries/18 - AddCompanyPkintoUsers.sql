@@ -38,3 +38,16 @@ ADD COLUMN IsClosed bit NULL DEFAULT 0;
 Update Companies
 Set PayrollType = 'M'
 WHERE BrandName = 'Kaizen'
+
+EXEC sp_rename 'Benefits.IsPercetange', 'IsPercentage', 'COLUMN';
+
+ALTER TABLE dbo.Payrolls
+ALTER COLUMN ApprovalID UNIQUEIDENTIFIER NULL;
+
+ALTER TABLE dbo.Payrolls
+DROP CONSTRAINT FK_Payrolls_ExecutedBy;
+
+ALTER TABLE dbo.Payrolls
+ADD CONSTRAINT FK_Payrolls_ExecutedBy
+Foreign KEY (ExecutedBy)
+References Persons(PersonPK)
