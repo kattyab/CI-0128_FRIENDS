@@ -37,44 +37,54 @@ namespace Kaizen.Server.Application.Services.Payroll
         }
 
         public async Task<PayrollSummary> CalculatePayrollAsync(
-            EmployeePayroll employee,
-            IApiDeductionService apiDeductionService,
-            IBenefitDeductionService benefitDeductionService,
-            PayrollRequest payrollInformation)
+    EmployeePayroll employee,
+    IApiDeductionService apiDeductionService,
+    IBenefitDeductionService benefitDeductionService,
+    PayrollRequest payrollInformation)
         {
             var isBiweekly = GetIsBiweekly(employee);
             var daysWorked = CalculateDaysWorked(employee, payrollInformation.Start, payrollInformation.End);
 
+            //prototype
+            if (daysWorked == 0)
+            {
+                return new PayrollSummary
+                {
+                    EmployeeId = employee.EmpID,
+                    ContractType = employee.ContractType,
+                    RegistersHours = employee.RegistersHours,
+                    GrossSalary = 0,
+                    NetSalary = 0,
+                    TotalDeductions = 0,
+                    ApiDeductions = new(),
+                    BenefitDeductions = new(),
+                    CCSSDeduction = 0,
+                    IncomeTax = 0
+                };
+            }
+
             var totalDaysInPeriod = isBiweekly ? 15 : 30;
             var proportionalSalary = (employee.BruteSalary / totalDaysInPeriod) * daysWorked;
             var isFullPeriod = daysWorked == totalDaysInPeriod;
-
             var apiDeductions = await apiDeductionService.GetDeductionsForEmployeeAsync(employee.EmpID);
             var benefitDeductions = isFullPeriod
                 ? await benefitDeductionService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID)
                 : await benefitDeductionService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID, proportionalSalary);
-
             if (isBiweekly)
             {
                 apiDeductions = AdjustApiDeductionsForBiweekly(apiDeductions, benefitDeductions);
             }
-
             decimal salaryForDeductions = daysWorked == totalDaysInPeriod
                 ? (isBiweekly ? employee.BruteSalary * 2 : employee.BruteSalary)
                 : (isBiweekly ? proportionalSalary * 2 : proportionalSalary);
-
             var ccssDeduction = GetCcssDeduction(employee, salaryForDeductions);
             var incomeTaxDeduction = GetIncomeTaxDeduction(employee, salaryForDeductions);
-
             if (isBiweekly)
             {
                 AdjustBiweeklyObligatoryDeductions(ref ccssDeduction, ref incomeTaxDeduction);
             }
-
             var totalDeductions = GetTotalDeductions(apiDeductions, benefitDeductions, ccssDeduction, incomeTaxDeduction);
-
             var netSalary = GetNetSalary(employee, totalDeductions);
-
             return new PayrollSummary
             {
                 EmployeeId = employee.EmpID,
