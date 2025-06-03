@@ -52,14 +52,6 @@
         <label for="web_page" class="form-label">Página Web</label>
         <input id="web_page" type="text" class="form-control" disabled :value="data?.webPage" />
       </div>
-      <!--
-      <div class="mb-3">
-        <label for="logo_path" class="form-label">Logo</label>
-        <div class="form-image">
-          <img v-if="data?.logo" :src="data?.logo" />
-        </div>
-      </div>
-      -->
       <div class="mb-3">
         <label for="description" class="form-label">Descripción</label>
         <input
@@ -83,6 +75,10 @@
         <input id="canton" type="text" class="form-control" disabled :value="data?.canton" />
       </div>
       <div class="mb-3">
+        <label for="distrito" class="form-label">Distrito</label>
+        <input id="distrito" type="text" class="form-control" disabled :value="data?.distrito" />
+      </div>
+      <div class="mb-3">
         <label for="other_signs" class="form-label">Otras Señas</label>
         <input
           id="other_signs"
@@ -91,6 +87,17 @@
           disabled
           :value="data?.otherSigns"
         />
+      </div>
+      <div class="mb-3">
+        <label for="logo_path" class="form-label">Logo</label>
+        <div class="form-image">
+          <img v-if="data?.logo" :src="data?.logo" />
+        </div>
+      </div>
+      <div class="d-flex justify-content-center pt-3 pb-3">
+        <a type="submit" class="btn btn-primary btn-lg btn-block" :href="`/companies/${route.params.id}/edit`">
+          Editar
+        </a>
       </div>
     </form>
   </div>
