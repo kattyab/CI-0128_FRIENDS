@@ -41,7 +41,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
                     MinWorkDurationMonths = reader.GetInt32(2),
                     IsFixed = reader.GetBoolean(3),
                     FixedValue = reader.IsDBNull(4) ? null : reader.GetDecimal(4),
-                    IsPercetange = reader.GetBoolean(5), // Note: typo in original
+                    IsPercetange = reader.GetBoolean(5),
                     PercentageValue = reader.IsDBNull(6) ? null : reader.GetDecimal(6),
                     IsFullTime = reader.GetBoolean(7),
                     IsPartTime = reader.GetBoolean(8),
