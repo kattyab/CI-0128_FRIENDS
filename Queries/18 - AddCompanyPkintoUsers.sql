@@ -33,3 +33,8 @@ ADD CONSTRAINT FK_Users_Companies
 
 ALTER TABLE dbo.Payrolls
 ADD COLUMN IsClosed bit NULL DEFAULT 0;
+
+
+Update Companies
+Set PayrollType = 'M'
+WHERE BrandName = 'Kaizen'
