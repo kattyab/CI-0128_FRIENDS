@@ -57,3 +57,37 @@ ALTER TABLE dbo.Payrolls
 ADD CONSTRAINT FK_Payrolls_ExecutedBy
 Foreign KEY (ExecutedBy)
 References Persons(PersonPK)
+
+
+
+ALTER TABLE dbo.GeneralPayrolls
+ADD PayrollMode CHAR(1)  NULL,
+    Period      NVARCHAR(25) NULL;
+
+
+GO
+
+ALTER TABLE dbo.GeneralPayrolls
+ADD CONSTRAINT CK_GeneralPayrolls_PayrollType
+    CHECK (PayrollMode IN ('W','B','M'));   -- W = Weekly, B = Biweekly, M = Monthly
+
+IF COL_LENGTH('dbo.GeneralPayrolls', 'InCharge') IS NULL
+    ALTER TABLE dbo.GeneralPayrolls
+    ADD InCharge NVARCHAR(150) NULL;  
+GO
+
+
+UPDATE U
+SET U.CompanyPK = E.WorksFor
+FROM dbo.Users U
+INNER JOIN dbo.Employees E ON U.PersonPK = E.PersonPK;
+
+UPDATE Users
+SET CompanyPK = (
+    SELECT CompanyPK
+    FROM Companies
+    WHERE CompanyID = '4-000-000020'
+)
+WHERE Email = 'sofia.navarro@example.com';
+
+
