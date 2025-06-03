@@ -189,7 +189,7 @@
         if (!seleccion) return;
 
         const año = seleccion.getFullYear();
-        const mes = seleccion.getMonth(); // 0-indexed
+        const mes = seleccion.getMonth();
         const dia = seleccion.getDate();
 
         if (this.payrollType === 'M') {
@@ -205,7 +205,6 @@
             const finReal = new Date(fin);
             const ingreso = new Date(this.fechaInicioTrabajo);
 
-            // If employee started after the start of the period
             if (ingreso > inicioReal && ingreso <= finReal) {
               inicioReal.setTime(ingreso.getTime());
             }
@@ -237,7 +236,7 @@
             const finReal = new Date(fin);
             const ingreso = new Date(this.fechaInicioTrabajo);
 
-            // if the employee started after the start of the period
+
             if (ingreso > inicioReal && ingreso <= finReal) {
               inicioReal.setTime(ingreso.getTime());
             }
@@ -265,7 +264,6 @@
             const finReal = new Date(fin);
             const ingreso = new Date(this.fechaInicioTrabajo);
 
-            // if the employee started after the start of the period
             if (ingreso > inicioReal && ingreso <= finReal) {
               inicioReal.setTime(ingreso.getTime());
             }
@@ -283,14 +281,12 @@
         const fechaActual = new Date(this.fechaInicio);
 
 
-        // change the date format to YYYY-MM-DD
         const yaExiste = this.registers.some(reg => reg.fechaInicio === this.fechaInicio);
         if (yaExiste) {
           this.showWarning('Ya existe un registro para este período.');
           return;
         }
 
-        // check if the dates are in the future
         const fechasRegistradas = this.registers.map(r => new Date(r.fechaInicio));
         if (fechasRegistradas.length > 0) {
           const maxFechaRegistrada = new Date(Math.max(...fechasRegistradas));
@@ -300,7 +296,6 @@
           }
         }
 
-        // check if the start date is before the employee's start date
         const fechaInicioTrabajo = new Date(this.fechaInicioTrabajo);
         const fechaFinSeleccionada = new Date(this.fechaFin);
 
@@ -323,7 +318,6 @@
 
           await axios.post(`${import.meta.env.VITE_API_URL}/api/ApprovedHours`, payload);
 
-          // if the request was successful, we update the local registers
           this.registers.push({
             fechaInicio: this.fechaInicio,
             fechaFin: this.fechaFin,
@@ -352,7 +346,6 @@
 
           await axios.patch(`${import.meta.env.VITE_API_URL}/api/ApprovedHours/${register.approvalID}`, payload);
 
-          // if the request was successful, we update the local register
           this.registers[index].enRevision = true;
         } catch (error) {
           console.error("❌ Error al enviar a revisión:", error);
@@ -438,7 +431,6 @@
           const data = response.data;
 
 
-          // mapped data to the registers array
           this.registers = data.map(r => ({
             approvalID: r.approvalID, 
             fechaInicio: r.startDate.split('T')[0],
