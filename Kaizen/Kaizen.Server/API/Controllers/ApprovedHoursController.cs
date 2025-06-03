@@ -47,24 +47,4 @@ public class ApprovedHoursController(ApprovedHoursRepository approvedHoursReposi
         return Ok(new { message = "Estado actualizado correctamente." });
     }
 
-    [HttpGet("AllHours")]
-    public IActionResult GetAll()
-    {
-        var result = approvedHoursRepository.GetAllApprovedHours();
-        return Ok(result);
-    }
-
-
-    [HttpPatch("{approvalID}/status")]
-    public async Task<IActionResult> UpdateStatus(Guid approvalID, [FromBody] ApprovedHoursDto dto)
-    {
-        var result = await _approvedHoursRepository.UpdateStatusAsync(approvalID, dto.Status);
-
-        if (!result)
-            return NotFound(new { message = "Registro no encontrado." });
-
-        return Ok(new { message = "Estado actualizado correctamente." });
-    }
-
-
 }

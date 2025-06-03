@@ -14,7 +14,7 @@
           </router-link>
           <router-link class="button" to="/review-hours">
             <span class="material-icons">account_circle</span>
-            <span class="text">Aprobación de Horas</span>
+            <span class="text">Revisar Horas</span>
           </router-link>
           <router-link class="button" to="/registerbenefits">
             <span class="material-icons">workspace_premium</span>

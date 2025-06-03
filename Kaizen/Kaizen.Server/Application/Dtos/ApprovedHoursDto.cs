@@ -9,15 +9,7 @@ namespace Kaizen.Server.Application.Dtos
         public DateTime EndDate { get; set; }
         public decimal HoursWorked { get; set; }
         public string? Status { get; set; }              
-        public bool IsSentForApproval { get; set; }
-
-        public string Name { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-
-        public DateTime EmployeeStartDate { get; set; }
-        public string ContractType { get; set; } = string.Empty;
-
-        public string? PayrollType { get; set; }
+        public bool IsSentForApproval { get; set; }      
     }
 
 }
