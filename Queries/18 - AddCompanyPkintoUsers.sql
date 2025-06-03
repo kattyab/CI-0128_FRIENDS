@@ -47,14 +47,14 @@ ALTER COLUMN ApprovalID UNIQUEIDENTIFIER NULL;
 ALTER TABLE dbo.Payrolls
 DROP CONSTRAINT FK_Payrolls_ExecutedBy;
 
--- Correr estos
+-- Buscar el nombre de la constraint
+-- Si se conoce el nombre de la constraint, se puede eliminar directamente:	
 ALTER TABLE dbo.Payrolls
-DROP CONSTRAINT FK__Payrolls__Execut__70DDC3D8;
+DROP CONSTRAINT FK__Payrolls__Execut__ejemplo;
 
 ALTER TABLE dbo.Payrolls
-DROP CONSTRAINT UQ__Payrolls__328477D570360F7C;
+DROP CONSTRAINT UQ__Payrolls__ejemplo;
 
--- Este ya lo corrio
 ALTER TABLE dbo.Payrolls
 ADD CONSTRAINT FK_Payrolls_ExecutedBy
 Foreign KEY (ExecutedBy)
