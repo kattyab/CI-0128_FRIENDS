@@ -16,6 +16,7 @@
         public string? PO { get; set; }
         public string? Province { get; set; }
         public string? Canton { get; set; }
+        public string? Distrito { get; set; }
         public string? OtherSigns { get; set; }
 
         public string? OwnerName { get; set; } = default!;
