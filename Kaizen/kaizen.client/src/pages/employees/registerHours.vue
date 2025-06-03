@@ -393,12 +393,31 @@
 
       validarHoras(event) {
         const valor = parseInt(event.target.value, 10);
-        if (valor > 48) {
-          this.nuevasHoras = 48;
+
+        // Establecer el máximo según el tipo de nómina
+        let maxHoras = 48; // Por defecto: semanal
+
+        if (this.payrollType === "M") {
+          maxHoras = 192;
+        } else if (this.payrollType === "B") {
+          maxHoras = 96;
+        } else if (this.payrollType === "W") {
+          maxHoras = 48;
+        }
+
+        // Validar y ajustar el valor de horas
+        if (valor > maxHoras) {
+          this.nuevasHoras = maxHoras;
+          this.warningMessage = `El máximo permitido para tipo ${this.payrollType} es ${maxHoras} horas.`;
         } else if (valor < 1) {
           this.nuevasHoras = 1;
+          this.warningMessage = "El mínimo de horas permitidas es 1.";
+        } else {
+          this.nuevasHoras = valor;
+          this.warningMessage = null;
         }
       },
+
 
       showWarning(msg) {
         this.warningMessage = msg;
