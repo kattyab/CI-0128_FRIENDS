@@ -2,6 +2,7 @@
 using Kaizen.Server.Application.Services.Payroll;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Kaizen.Server.Application.Interfaces.Payroll;
 
 namespace Kaizen.Server.API.Controllers
 {
