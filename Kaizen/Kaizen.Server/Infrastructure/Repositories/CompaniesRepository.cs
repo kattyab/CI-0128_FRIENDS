@@ -1,7 +1,8 @@
-﻿using System.Data;
-using Kaizen.Server.Application.Dtos;
+﻿using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Dtos.Companies;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories;
 
@@ -30,6 +31,7 @@ public class CompaniesRepository(IConfiguration configuration)
                     PO,
                     Province,
                     Canton,
+                    Distrito,
                     OtherSigns
                 FROM
                     Companies";
@@ -70,6 +72,9 @@ public class CompaniesRepository(IConfiguration configuration)
                 Canton = reader.IsDBNull(reader.GetOrdinal("Canton"))
                 ? null
                 : reader.GetString(reader.GetOrdinal("Canton")),
+                Distrito = reader.IsDBNull(reader.GetOrdinal("Distrito"))
+                ? null
+                : reader.GetString(reader.GetOrdinal("Distrito")),
                 OtherSigns = reader.IsDBNull(reader.GetOrdinal("OtherSigns"))
                 ? null
                 : reader.GetString(reader.GetOrdinal("OtherSigns"))
@@ -101,6 +106,7 @@ public class CompaniesRepository(IConfiguration configuration)
                     PO,
                     Province,
                     Canton,
+                    Distrito,
                     OtherSigns
                 FROM
                     Companies
@@ -145,6 +151,9 @@ public class CompaniesRepository(IConfiguration configuration)
                 Canton = reader.IsDBNull(reader.GetOrdinal("Canton"))
                 ? null
                 : reader.GetString(reader.GetOrdinal("Canton")),
+                Distrito = reader.IsDBNull(reader.GetOrdinal("Distrito"))
+                ? null
+                : reader.GetString(reader.GetOrdinal("Distrito")),
                 OtherSigns = reader.IsDBNull(reader.GetOrdinal("OtherSigns"))
                 ? null
                 : reader.GetString(reader.GetOrdinal("OtherSigns"))
@@ -177,5 +186,47 @@ public class CompaniesRepository(IConfiguration configuration)
         }
 
         return company;
+    }
+
+    internal void UpdateCompany(Guid companyPK, CompanyEditDto companyEditDto)
+    {
+        const string updateCompanyCommandText = @"
+            UPDATE
+                Companies
+            SET
+                CompanyName = @CompanyName,
+                BrandName = @BrandName,
+                MaxBenefits = @MaxBenefits,
+                WebPage = @WebPage,
+                Logo = @Logo,
+                Description = @Description,
+                PO = @PO,
+                Province = @Province,
+                Canton = @Canton,
+                Distrito = @Distrito,
+                OtherSigns = @OtherSigns
+            WHERE
+                CompanyPK = @CompanyPK;";
+
+        SqlParameter[] updateCompanyParameters = [
+            new SqlParameter("@CompanyPK", companyPK),
+
+            new SqlParameter("@CompanyName", companyEditDto.CompanyName),
+            new SqlParameter("@BrandName", companyEditDto.BrandName),
+            new SqlParameter("@MaxBenefits", companyEditDto.MaxBenefits),
+            new SqlParameter("@WebPage", companyEditDto.WebPage),
+            new SqlParameter("@Logo", companyEditDto.Logo),
+            new SqlParameter("@Description", companyEditDto.Description),
+            new SqlParameter("@PO", companyEditDto.PO),
+            new SqlParameter("@Province", companyEditDto.Province),
+            new SqlParameter("@Canton", companyEditDto.Canton),
+            new SqlParameter("@Distrito", companyEditDto.Distrito),
+            new SqlParameter("@OtherSigns", companyEditDto.OtherSigns),
+        ];
+
+        SqlHelper.ExecuteNonQuery(this._connectionString,
+            updateCompanyCommandText,
+            CommandType.Text,
+            updateCompanyParameters);
     }
 }
