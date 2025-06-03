@@ -15,11 +15,11 @@ namespace Kaizen.Server.Infrastructure.Repositories
         public async Task<bool> ExistsPeriodAsync(Guid companyPk, char mode, string period)
         {
             const string sql = @"
-SELECT COUNT(1)
-FROM   dbo.GeneralPayrolls
-WHERE  PaidBy      = @company
-  AND  PayrollMode = @mode
-  AND  Period      = @period;";
+                SELECT COUNT(1)
+                FROM   dbo.GeneralPayrolls
+                WHERE  PaidBy      = @company
+                  AND  PayrollMode = @mode
+                  AND  Period      = @period;";
 
             if (_conn.State != ConnectionState.Open)
                 await _conn.OpenAsync();
@@ -36,15 +36,15 @@ WHERE  PaidBy      = @company
         public async Task SetExtraFieldsAsync(char mode, string period, string inCharge)
         {
             const string sql = @"
-UPDATE  gp
-SET     gp.PayrollMode = @mode,
-        gp.Period      = @period,
-        gp.InCharge    = @inCharge
-FROM    dbo.GeneralPayrolls gp
-WHERE   gp.GeneralPayrollsID = (
-            SELECT TOP 1 GeneralPayrollsID
-            FROM   dbo.GeneralPayrolls
-            ORDER BY ExecutedOn DESC
+                UPDATE  gp
+                SET     gp.PayrollMode = @mode,
+                    gp.Period      = @period,
+                    gp.InCharge    = @inCharge
+                FROM    dbo.GeneralPayrolls gp
+                WHERE   gp.GeneralPayrollsID = (
+                    SELECT TOP 1 GeneralPayrollsID
+                    FROM   dbo.GeneralPayrolls
+                    ORDER BY ExecutedOn DESC
         );";
 
             if (_conn.State != ConnectionState.Open)
@@ -87,29 +87,28 @@ WHERE   gp.GeneralPayrollsID = (
             return list;
         }
 
-        // <--- AÑADE ESTE MÉTODO: GetHistoryByCompanyAsync -->
         public async Task<IEnumerable<PayrollHistoryRowDto>> GetHistoryByCompanyAsync(Guid companyPk)
         {
             const string sql = @"
-SELECT
-    gp.GeneralPayrollsID                                                   AS Id,
-    gp.InCharge                                                            AS Manager,
-    CASE gp.PayrollMode
-         WHEN 'W' THEN 'Semanal'
-         WHEN 'B' THEN 'Quincenal'
-         WHEN 'M' THEN 'Mensual'
-         ELSE 'Desconocido'
-    END                                                                     AS [Type],
-    gp.Period,
-    (gp.TotalDeductionsBenefits + gp.TotalObligatoryDeductions)            AS Deductions,
-    gp.TotalLaborCharges                                                    AS SocialCharges,
-    gp.TotalMoneyPaid                                                       AS Total,
-    (gp.TotalMoneyPaid - gp.TotalLaborCharges)                              AS Gross,
-    (gp.TotalMoneyPaid - gp.TotalLaborCharges
-     - (gp.TotalDeductionsBenefits + gp.TotalObligatoryDeductions))         AS Net
-FROM dbo.GeneralPayrolls gp
-WHERE gp.PaidBy = @companyPk
-ORDER BY gp.ExecutedOn DESC;";
+                SELECT
+                    gp.GeneralPayrollsID                                                   AS Id,
+                    gp.InCharge                                                            AS Manager,
+                    CASE gp.PayrollMode
+                         WHEN 'W' THEN 'Semanal'
+                         WHEN 'B' THEN 'Quincenal'
+                         WHEN 'M' THEN 'Mensual'
+                         ELSE 'Desconocido'
+                    END                                                                     AS [Type],
+                    gp.Period,
+                    (gp.TotalDeductionsBenefits + gp.TotalObligatoryDeductions)            AS Deductions,
+                    gp.TotalLaborCharges                                                    AS SocialCharges,
+                    gp.TotalMoneyPaid                                                       AS Total,
+                    (gp.TotalMoneyPaid - gp.TotalLaborCharges)                              AS Gross,
+                    (gp.TotalMoneyPaid - gp.TotalLaborCharges
+                     - (gp.TotalDeductionsBenefits + gp.TotalObligatoryDeductions))         AS Net
+                FROM dbo.GeneralPayrolls gp
+                WHERE gp.PaidBy = @companyPk
+                ORDER BY gp.ExecutedOn DESC;";
 
             if (_conn.State != ConnectionState.Open)
                 await _conn.OpenAsync();
