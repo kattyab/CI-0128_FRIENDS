@@ -8,6 +8,7 @@
 
   <h5>Menu</h5>
   <div class="menu d-flex flex-column">
+
     <router-link class="button" to="/landing-page">
       <span class="material-icons">apartment</span>
       <span class="text">Inicio</span>

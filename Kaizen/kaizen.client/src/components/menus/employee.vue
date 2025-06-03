@@ -13,10 +13,17 @@
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
       </router-link>
-      <router-link class="button" to="/registerhours">
-        <span class="material-icons">work_history</span>
-        <span class="text">Registro de Horas</span>
-      </router-link>
+
+
+      <div class="menu d-flex flex-column">
+        <router-link v-if="showButton"
+                     class="button"
+                     to="/registerhours">
+          <span class="material-icons">work_history</span>
+          <span class="text">Registro de Horas</span>
+        </router-link>
+      </div>
+
       <router-link class="button" to="/registerbenefits">
         <span class="material-icons">workspace_premium</span>
         <span class="text">Registrar Beneficios</span>
@@ -26,10 +33,24 @@
 </template>
 
 <script setup>
+  import axios from 'axios'
 
   import { ref, onMounted, onBeforeUnmount } from 'vue'
 
   const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
+
+  const showButton = ref(false)
+
+  onMounted(async () => {
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/userinfo`);
+      if (data.registersHours === true) {
+        showButton.value = true
+      }
+    } catch (error) {
+      console.error('Error al obtener userinfo:', error)
+    }
+  })
 
   const ToggleMenu = () => {
     if (window.innerWidth > 768) {
