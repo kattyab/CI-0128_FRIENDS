@@ -2,7 +2,7 @@
 
 namespace Kaizen.Server.Application.Commands.Benefits
 {
-    public class SubscribeAPIBenefitCommand : IRequest
+    public class SubscribeBenefitAPICommand : IRequest
     {
         public string? AssocName { get; set; }
         public string? Dependents { get; set; }

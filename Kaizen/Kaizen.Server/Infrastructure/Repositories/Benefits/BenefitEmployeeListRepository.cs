@@ -5,21 +5,21 @@ using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 {
-    public class EmployeeBenefitListRepository : IEmployeeBenefitListRepository
+    public class BenefitEmployeeListRepository : IBenefitEmployeeListRepository
     {
         private readonly string _connectionString;
 
-        public EmployeeBenefitListRepository(IConfiguration configuration)
+        public BenefitEmployeeListRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("KaizenDb")
                 ?? throw new InvalidOperationException(
                     "The connection string 'KaizenDb' is not defined in appsettings.json");
         }
 
-        public async Task<List<EmployeeBenefitListDto>> GetEmployeeBenefitList(string email)
+        public async Task<List<BenefitEmployeeListDto>> GetEmployeeBenefitList(string email)
         
         {
-            var benefits = new List<EmployeeBenefitListDto>();
+            var benefits = new List<BenefitEmployeeListDto>();
 
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -84,7 +84,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                benefits.Add(new EmployeeBenefitListDto
+                benefits.Add(new BenefitEmployeeListDto
                 {
                     BenefitId = reader.IsDBNull("BenefitId") ? (Guid?)null : reader.GetGuid("BenefitId"),
                     APIId = reader.IsDBNull("APIId") ? (int?)null : reader.GetInt32("APIId"),

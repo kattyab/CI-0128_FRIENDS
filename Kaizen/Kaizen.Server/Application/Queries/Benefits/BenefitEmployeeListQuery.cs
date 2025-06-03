@@ -3,11 +3,11 @@ using Kaizen.Server.Application.Dtos.Benefits;
 
 namespace Kaizen.Server.Application.Queries.Benefits
 {
-    public class EmployeeBenefitListQuery : IRequest<List<EmployeeBenefitListDto>>
+    public class BenefitEmployeeListQuery : IRequest<List<BenefitEmployeeListDto>>
     {
         public string Email { get; set; }
 
-        public EmployeeBenefitListQuery(string email)
+        public BenefitEmployeeListQuery(string email)
         {
             Email = email;
         }

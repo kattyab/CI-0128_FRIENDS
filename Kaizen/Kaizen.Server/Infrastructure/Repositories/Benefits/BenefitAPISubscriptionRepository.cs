@@ -4,17 +4,17 @@ using Kaizen.Server.Application.Commands.Benefits;
 
 namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 {
-    public class APIBenefitSubscriptionRepository : IAPIBenefitSubscriptionRepository
+    public class BenefitAPISubscriptionRepository : IBenefitAPISubscriptionRepository
     {
         private readonly string _connectionString;
 
-        public APIBenefitSubscriptionRepository(IConfiguration configuration)
+        public BenefitAPISubscriptionRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("KaizenDB")
                 ?? throw new ArgumentException("Connection string not found");
         }
 
-        public async Task SubscribeAPIBenefitAsync(SubscribeAPIBenefitCommand command)
+        public async Task SubscribeAPIBenefitAsync(SubscribeBenefitAPICommand command)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();

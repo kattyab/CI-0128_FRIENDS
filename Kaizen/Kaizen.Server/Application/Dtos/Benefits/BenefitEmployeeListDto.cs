@@ -1,6 +1,6 @@
 ﻿namespace Kaizen.Server.Application.Dtos.Benefits
 {
-    public class EmployeeBenefitListDto
+    public class BenefitEmployeeListDto
     {
         public Guid? BenefitId { get; set; }
         public int? APIId { get; set; }

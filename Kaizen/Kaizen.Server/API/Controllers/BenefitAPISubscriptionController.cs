@@ -7,24 +7,24 @@ namespace Kaizen.Server.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class APIBenefitSubscriptionController : ControllerBase
+    public class BenefitAPISubscriptionController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public APIBenefitSubscriptionController(IMediator mediator)
+        public BenefitAPISubscriptionController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [HttpPost("subscribe")]
-        public async Task<IActionResult> SubscribeAPIBenefit([FromBody] SubscribeAPIBenefitDto request)
+        public async Task<IActionResult> SubscribeAPIBenefit([FromBody] SubscribeBenefitAPIDto request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var command = new SubscribeAPIBenefitCommand
+            var command = new SubscribeBenefitAPICommand
             {
                 AssocName = request.AssocName,
                 Dependents = request.Dependents,

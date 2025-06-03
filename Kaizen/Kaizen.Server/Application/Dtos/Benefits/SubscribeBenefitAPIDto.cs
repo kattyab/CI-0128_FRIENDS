@@ -1,6 +1,6 @@
 ﻿namespace Kaizen.Server.Application.Dtos.Benefits
 {
-    public class SubscribeAPIBenefitDto
+    public class SubscribeBenefitAPIDto
     {
         public string? AssocName { get; set; }
         public string? Dependents { get; set; }

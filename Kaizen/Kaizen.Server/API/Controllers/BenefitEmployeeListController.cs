@@ -7,21 +7,21 @@ namespace Kaizen.Server.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmployeeBenefitListController : ControllerBase
+    public class BenefitEmployeeListController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public EmployeeBenefitListController(IMediator mediator)
+        public BenefitEmployeeListController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [HttpGet("by-email/{email}")]
-        public async Task<ActionResult<List<EmployeeBenefitListDto>>> GetEmployeeBenefitsByEmail(string email)
+        public async Task<ActionResult<List<BenefitEmployeeListDto>>> GetEmployeeBenefitsByEmail(string email)
         {
             try
             {
-                var query = new EmployeeBenefitListQuery(email);
+                var query = new BenefitEmployeeListQuery(email);
                 var benefits = await _mediator.Send(query);
 
                 return Ok(benefits);

@@ -2,17 +2,17 @@
 using Kaizen.Server.Application.Interfaces.Benefits;
 using Microsoft.Data.SqlClient;
 
-public class OfferedBenefitsRepository : IOfferedBenefitsRepository
+public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRepository
 {
     private readonly string _connectionString;
 
-    public OfferedBenefitsRepository(IConfiguration configuration)
+    public BenefitCompanyOfferedListRepository(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString("KaizenDb")
             ?? throw new InvalidOperationException("Connection string 'KaizenDb' not found.");
     }
 
-    public async Task<List<OfferedBenefitDto>> GetAvailableBenefitsForEmployee(string email)
+    public async Task<List<BenefitCompanyOfferedListDto>> GetAvailableBenefitsForEmployee(string email)
     {
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -83,7 +83,7 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
         INNER JOIN OffersAPIs oa ON adc.Id = oa.ApiConfigId
         WHERE oa.CompanyPK = @CompanyPK";
 
-        var benefits = new List<OfferedBenefitDto>();
+        var benefits = new List<BenefitCompanyOfferedListDto>();
 
         using (var cmd = new SqlCommand(benefitQuery, connection))
         {
@@ -113,7 +113,7 @@ public class OfferedBenefitsRepository : IOfferedBenefitsRepository
                 var available = isEligible && isTenureEligible;
 
 
-                benefits.Add(new OfferedBenefitDto
+                benefits.Add(new BenefitCompanyOfferedListDto
                 {
                     BenefitId = reader.IsDBNull(reader.GetOrdinal("BenefitId"))
                         ? (Guid?)null

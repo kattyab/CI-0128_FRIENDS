@@ -4,16 +4,16 @@ using MediatR;
 
 namespace Kaizen.Server.Application.Queries.Benefits
 {
-    public class OfferedBenefitsQueryHandler : IRequestHandler<OfferedBenefitsQuery, List<OfferedBenefitDto>>
+    public class BenefitCompanyOfferedListQueryHandler : IRequestHandler<BenefitCompanyOfferedListQuery, List<BenefitCompanyOfferedListDto>>
     {
-        private readonly IOfferedBenefitsRepository _repository;
+        private readonly IBenefitCompanyOfferedListRepository _repository;
 
-        public OfferedBenefitsQueryHandler(IOfferedBenefitsRepository repository)
+        public BenefitCompanyOfferedListQueryHandler(IBenefitCompanyOfferedListRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task<List<OfferedBenefitDto>> Handle(OfferedBenefitsQuery request, CancellationToken cancellationToken)
+        public async Task<List<BenefitCompanyOfferedListDto>> Handle(BenefitCompanyOfferedListQuery request, CancellationToken cancellationToken)
         {
             var benefits = await _repository.GetAvailableBenefitsForEmployee(request.Email);
 
