@@ -30,3 +30,6 @@ ADD CONSTRAINT FK_Users_Companies
 	select * from companies
 	select * from persons
 	select * from employees
+
+ALTER TABLE dbo.Payrolls
+ADD COLUMN IsClosed bit NULL DEFAULT 0;
