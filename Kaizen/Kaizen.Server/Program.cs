@@ -18,6 +18,7 @@ using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
 using Kaizen.Server.Application.Services.ApiDeductions;
 using Kaizen.Server.Application.Services.Payroll;
 
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,12 +56,17 @@ builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
+builder.Services.AddScoped<UserInfoRepository>();
+builder.Services.AddScoped<ApprovedHoursRepository>();
+
+
 
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
+builder.Services.AddScoped<BenefitsRepository>();
 
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
 //builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
