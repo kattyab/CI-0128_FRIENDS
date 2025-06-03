@@ -32,7 +32,7 @@ ADD CONSTRAINT FK_Users_Companies
 	select * from employees
 
 ALTER TABLE dbo.Payrolls
-ADD COLUMN IsClosed bit NULL DEFAULT 0;
+ADD IsClosed bit NULL DEFAULT 0;
 
 
 Update Companies
@@ -47,6 +47,14 @@ ALTER COLUMN ApprovalID UNIQUEIDENTIFIER NULL;
 ALTER TABLE dbo.Payrolls
 DROP CONSTRAINT FK_Payrolls_ExecutedBy;
 
+-- Correr estos
+ALTER TABLE dbo.Payrolls
+DROP CONSTRAINT FK__Payrolls__Execut__70DDC3D8;
+
+ALTER TABLE dbo.Payrolls
+DROP CONSTRAINT UQ__Payrolls__328477D570360F7C;
+
+-- Este ya lo corrio
 ALTER TABLE dbo.Payrolls
 ADD CONSTRAINT FK_Payrolls_ExecutedBy
 Foreign KEY (ExecutedBy)
