@@ -39,8 +39,6 @@ Update Companies
 Set PayrollType = 'M'
 WHERE BrandName = 'Kaizen'
 
-EXEC sp_rename 'Benefits.IsPercetange', 'IsPercentage', 'COLUMN';
-
 ALTER TABLE dbo.Payrolls
 ALTER COLUMN ApprovalID UNIQUEIDENTIFIER NULL;
 
