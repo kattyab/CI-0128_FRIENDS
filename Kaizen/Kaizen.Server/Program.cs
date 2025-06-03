@@ -17,6 +17,7 @@ using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
 using Kaizen.Server.Application.Services.ApiDeductions;
 using Kaizen.Server.Application.Services.Payroll;
+using Kaizen.Server.Application.Interfaces.Payroll;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -59,8 +60,6 @@ builder.Services.AddScoped<CompanyEmployeesRepository>();
 builder.Services.AddScoped<UserInfoRepository>();
 builder.Services.AddScoped<ApprovedHoursRepository>();
 
-
-
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 
@@ -69,7 +68,6 @@ builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 builder.Services.AddScoped<BenefitsRepository>();
 
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
-//builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<IApiBenefitRepository, CachedApiBenefitRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
@@ -78,7 +76,11 @@ builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServ
 builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
 builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
 
-builder.Services.AddScoped <PayrollCalculator>();
+builder.Services.AddScoped<IPayrollSummaryCalculator, PayrollSummaryCalculator>();
+builder.Services.AddScoped<IDaysWorkedCalculator, DaysWorkedCalculator>();
+builder.Services.AddScoped<ISalaryCalculator, SalaryCalculator>();
+builder.Services.AddScoped<IDeductionAggregator, DeductionAggregator>();
+
 builder.Services.AddScoped <IPayrollProcessingService, PayrollProcessingService>();
 
 builder.Services.AddMediatR(cfg =>

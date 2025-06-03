@@ -4,6 +4,7 @@ using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Application.Interfaces.Payroll;
 using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Application.Services.Payroll
@@ -18,13 +19,13 @@ namespace Kaizen.Server.Application.Services.Payroll
     {
         private const decimal LaborChargeRate = 0.2667m;
         private readonly IConfiguration _configuration;
-        private readonly PayrollCalculator _payrollCalculator;
+        private readonly IPayrollSummaryCalculator _payrollCalculator;
         private readonly IApiDeductionServiceFactory _apiDeductionServiceFactory;
         private readonly IBenefitDeductionServiceFactory _benefitDeductionServiceFactory;
 
         public PayrollProcessingService(
             IConfiguration configuration,
-            PayrollCalculator payrollCalculator,
+            IPayrollSummaryCalculator payrollCalculator,
             IApiDeductionServiceFactory apiDeductionServiceFactory,
             IBenefitDeductionServiceFactory benefitDeductionServiceFactory)
         {
@@ -88,8 +89,6 @@ namespace Kaizen.Server.Application.Services.Payroll
             {
                 var payrollSummary = await _payrollCalculator.CalculatePayrollAsync(
                     employee,
-                    apiDeductionService,
-                    benefitDeductionService,
                     payrollInformation);
 
                 payrollResults.Add(payrollSummary);

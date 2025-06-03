@@ -1,0 +1,23 @@
+using Kaizen.Server.Application.Interfaces.Payroll;
+
+namespace Kaizen.Server.Application.Services.Payroll
+{
+    public class SalaryCalculator : ISalaryCalculator
+    {
+        public (decimal Gross, decimal Proportional) Calculate(decimal bruteSalary, int daysWorked, bool isBiweekly)
+        {
+            var totalDays = isBiweekly ? 15 : 30;
+            var proportional = (bruteSalary / totalDays) * daysWorked;
+            var gross = daysWorked == totalDays ? bruteSalary : proportional;
+            return (gross, proportional);
+        }
+
+        public decimal GetSalaryForDeductions(EmployeePayroll employee, decimal proportional, bool isBiweekly, bool isFullPeriod)
+        {
+            return isFullPeriod
+                ? (isBiweekly ? employee.BruteSalary * 2 : employee.BruteSalary)
+                : (isBiweekly ? proportional * 2 : proportional);
+        }
+    }
+
+}
