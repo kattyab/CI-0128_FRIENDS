@@ -29,7 +29,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             var totalDays = isBiweekly ? DefaultBiweeklyDays : DefaultMonthlyDays;
             var isFullPeriod = daysWorked == totalDays;
 
-            var (gross, proportional) = _salaryCalculator.Calculate(employee.BruteSalary, daysWorked, isBiweekly);
+            var (gross, proportional) = _salaryCalculator.Calculate(employee.BruteSalary, daysWorked, request);
             var salaryForDeductions = _salaryCalculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             var (api, benefit, ccss, income, total) = await _deductionAggregator.GetAllDeductionsAsync(
