@@ -23,7 +23,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 
             try
             {
-                // Get EmployeeId from email
                 const string getEmployeeIdQuery = @"
                     SELECT e.EmpId FROM Employees e
                     INNER JOIN Users u ON e.PersonPK = u.PersonPK
@@ -41,7 +40,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     employeeId = (Guid)result;
                 }
 
-                // Insert into EmployeeApiParameters if assocName is provided
                 if (!string.IsNullOrEmpty(command.AssocName))
                 {
                     const string insertAssocNameQuery = @"
@@ -56,7 +54,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     await assocNameCommand.ExecuteNonQueryAsync();
                 }
 
-                // Insert into EmployeeApiParameters if dependents is provided
                 if (!string.IsNullOrEmpty(command.Dependents))
                 {
                     const string insertDependentsQuery = @"
@@ -71,7 +68,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     await dependentsCommand.ExecuteNonQueryAsync();
                 }
 
-                // Insert into ChosenAPIs
                 const string insertChosenApiQuery = @"
                     INSERT INTO ChosenAPIs (EmployeePK, ApiID)
                     VALUES (@EmployeePK, @ApiID)";
