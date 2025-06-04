@@ -20,81 +20,73 @@
       <div class="row custom-gap">
         <div class="col-1"></div>
         <div class="col-10">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold">Datos Contractuales</h5>
-            <div>
-              <button v-if="!isEditing"
-                      @click="toggleEdit"
-                      class="btn custom-btn-blue me-2">
-                Editar
-              </button>
-              <template v-else>
-                <button @click="saveChanges"
-                        class="btn btn-success me-2"
-                        :disabled="isSaving">
-                  {{ isSaving ? 'Guardando...' : 'Guardar' }}
-                </button>
-                <button @click="cancelEdit"
-                        class="btn btn-secondary">
-                  Cancelar
-                </button>
-              </template>
-            </div>
-          </div>
           <div class="p-3 border shadow-sm custom-box">
             <div class="mb-3">
               <strong>Nombre</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee?.firstName }}</div>
-              <input v-else
-                     v-model="editableEmployee.firstName"
-                     type="text"
-                     class="form-control"
-                     placeholder="Nombre" />
+              <div>
+                <input v-model="editableEmployee.firstName"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.firstName }"
+                       placeholder="Nombre" />
+                <div v-if="validationErrors.firstName" class="invalid-feedback">
+                  {{ validationErrors.firstName }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Apellidos</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee?.lastName }}</div>
-              <input v-else
-                     v-model="editableEmployee.lastName"
-                     type="text"
-                     class="form-control "
-                     placeholder="Apellidos" />
+              <div>
+                <input v-model="editableEmployee.lastName"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.lastName }"
+                       placeholder="Apellidos" />
+                <div v-if="validationErrors.lastName" class="invalid-feedback">
+                  {{ validationErrors.lastName }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Salario</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.salary }}</div>
-              <input v-else
-                     v-model="editableEmployee.grossSalary"
-                     type="number"
-                     class="form-control "
-                     placeholder="Salario" />
+              <div>
+                <input v-model="editableEmployee.grossSalary"
+                       type="number"
+                       step="0.01"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.grossSalary }"
+                       placeholder="Salario" />
+                <div v-if="validationErrors.grossSalary" class="invalid-feedback">
+                  {{ validationErrors.grossSalary }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Tipo de Contrato</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.contractType }}</div>
-              <select v-else
-                      v-model="editableEmployee.contractType"
+              <select v-model="editableEmployee.contractType"
                       class="form-select ">
                 <option value="Tiempo Completo">Tiempo Completo</option>
                 <option value="Medio Tiempo">Medio Tiempo</option>
                 <option value="Por Horas">Por Horas</option>
-                <option value="Temporal">Temporal</option>
+                <option value="Servicios Profesionales">Servicios Profesionales</option>
               </select>
             </div>
             <div class="mb-3">
               <strong>Puesto</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.jobPosition || 'N/A' }}</div>
-              <input v-else
-                     v-model="editableEmployee.jobPosition"
-                     type="text"
-                     class="form-control "
-                     placeholder="Puesto" />
+              <div>
+                <input v-model="editableEmployee.jobPosition"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.jobPosition }"
+                       placeholder="Puesto" />
+                <div v-if="validationErrors.jobPosition" class="invalid-feedback">
+                  {{ validationErrors.jobPosition }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>¿Registra horas?</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.registersHours }}</div>
-              <select v-else
-                      v-model="editableEmployee.registersHours"
+              <select v-model="editableEmployee.registersHours"
                       class="form-select ">
                 <option :value="true">Sí</option>
                 <option :value="false">No</option>
@@ -102,21 +94,16 @@
             </div>
             <div class="mb-3">
               <strong>Rol</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.role }}</div>
-              <select v-else
-                      v-model="editableEmployee.role"
+              <select v-model="editableEmployee.role"
                       class="form-select ">
                 <option value="Empleado">Empleado</option>
                 <option value="Supervisor">Supervisor</option>
-                <option value="Gerente">Gerente</option>
                 <option value="Administrador">Administrador</option>
               </select>
             </div>
             <div class="mb-3">
               <strong>Ciclo de pago</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.payCycle }}</div>
-              <select v-else
-                      v-model="editableEmployee.payCycle"
+              <select v-model="editableEmployee.payCycle"
                       class="form-select ">
                 <option value="Semanal">Semanal</option>
                 <option value="Quincenal">Quincenal</option>
@@ -125,41 +112,54 @@
             </div>
             <div class="mb-3">
               <strong>Cuenta Bancaria</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.bankAccount }}</div>
-              <input v-else
-                     v-model="editableEmployee.bankAccount"
-                     type="text"
-                     class="form-control "
-                     placeholder="Cuenta Bancaria" />
+              <div>
+                <input v-model="editableEmployee.bankAccount"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.bankAccount }"
+                       placeholder="Cuenta Bancaria (CR + 20 números)" />
+                <div v-if="validationErrors.bankAccount" class="invalid-feedback">
+                  {{ validationErrors.bankAccount }}
+                </div>
+              </div>
             </div>
 
             <div class="mb-3">
               <strong>Fecha de Contratación</strong>
-              <div class="highlight-box">{{ employee.startDate }}</div>
+              <input v-model="editableEmployee.startDate"
+                     type="date"
+                     class="form-control"
+                     readonly/>
             </div>
             <div class="mb-3">
               <strong>Teléfonos</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.phoneNumbers }}</div>
-              <input v-else
-                     v-model="editableEmployee.phoneNumbersStr"
-                     type="text"
-                     class="form-control "
-                     placeholder="Teléfonos (separados por comas)" />
+              <div>
+                <input v-model="editableEmployee.phoneNumbersStr"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.phoneNumbers }"
+                       placeholder="Teléfonos (formato: xxxx-xxxx, separados por comas)" />
+                <div v-if="validationErrors.phoneNumbers" class="invalid-feedback">
+                  {{ validationErrors.phoneNumbers }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Cédula</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.id }}</div>
-              <input v-else
-                     v-model="editableEmployee.id"
-                     type="text"
-                     class="form-control "
-                     placeholder="Cédula" />
+              <div>
+                <input v-model="editableEmployee.id"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.id }"
+                       placeholder="Cédula (formato: x-xxxx-xxxx o xxxxxxxxxxxx)" />
+                <div v-if="validationErrors.id" class="invalid-feedback">
+                  {{ validationErrors.id }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Sexo</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.sex }}</div>
-              <select v-else
-                      v-model="editableEmployee.sex"
+              <select v-model="editableEmployee.sex"
                       class="form-select ">
                 <option value="Hombre">Hombre</option>
                 <option value="Mujer">Mujer</option>
@@ -167,41 +167,79 @@
             </div>
             <div class="mb-3">
               <strong>Correo</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.email }}</div>
-              <input v-else
-                     v-model="editableEmployee.email"
-                     type="email"
-                     class="form-control "
-                     placeholder="Correo electrónico" />
+              <div>
+                <input v-model="editableEmployee.email"
+                       type="email"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.email }"
+                       placeholder="Correo electrónico" />
+                <div v-if="validationErrors.email" class="invalid-feedback">
+                  {{ validationErrors.email }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Provincia</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.province }}</div>
-              <input v-else
-                     v-model="editableEmployee.province"
-                     type="text"
-                     class="form-control "
-                     placeholder="Provincia" />
+              <div>
+                <input v-model="editableEmployee.province"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.province }"
+                       placeholder="Provincia" />
+                <div v-if="validationErrors.province" class="invalid-feedback">
+                  {{ validationErrors.province }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Cantón</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.canton }}</div>
-              <input v-else
-                     v-model="editableEmployee.canton"
-                     type="text"
-                     class="form-control "
-                     placeholder="Cantón" />
+              <div>
+                <input v-model="editableEmployee.canton"
+                       type="text"
+                       class="form-control "
+                       :class="{ 'is-invalid': validationErrors.canton }"
+                       placeholder="Cantón" />
+                <div v-if="validationErrors.canton" class="invalid-feedback">
+                  {{ validationErrors.canton }}
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <strong>Otras señas</strong>
-              <div v-if="!isEditing" class="highlight-box">{{ employee.otherSigns || 'N/A' }}</div>
-              <textarea v-else
-                        v-model="editableEmployee.otherSigns"
+              <textarea v-model="editableEmployee.otherSigns"
                         class="form-control "
                         rows="3"
                         placeholder="Otras señas"></textarea>
             </div>
           </div>
+
+          <!-- Centered buttons at bottom -->
+          <div class="d-flex justify-content-center mt-4 mb-4 button-container">
+            <button @click="saveChanges"
+                    class="btn btn-success me-3"
+                    :disabled="isSaving">
+              {{ isSaving ? 'Guardando...' : 'Guardar' }}
+            </button>
+            <button @click="cancelEdit"
+                    class="btn btn-secondary">
+              Cancelar
+            </button>
+          </div>
+
+          <!-- Notification Messages -->
+          <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8">
+              <div v-if="showErrorMessage" class="alert alert-danger mt-3 mb-3">
+                {{ errorMessage }}
+              </div>
+              <div v-if="showSuccessMessage" class="alert alert-success mt-3 mb-3">
+                {{ successMessage }}
+              </div>
+            </div>
+            <div class="col-2"></div>
+          </div>
+
         </div>
         <div class="col-1"></div>
       </div>
@@ -216,19 +254,54 @@
 
   const route = useRoute();
   const isLoading = ref(true);
-  const isEditing = ref(false);
   const isSaving = ref(false);
   const notFound = ref(false);
   const employee = ref(null);
   const editableEmployee = ref({});
   const originalEmployee = ref({});
+  const validationErrors = ref({});
+
+  // Notification states
+  const showErrorMessage = ref(false);
+  const showSuccessMessage = ref(false);
+  const errorMessage = ref('');
+  const successMessage = ref('');
+
+  // Function to show success notification
+  function showSuccess(message) {
+    successMessage.value = message;
+    showSuccessMessage.value = true;
+    showErrorMessage.value = false;
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      showSuccessMessage.value = false;
+    }, 5000);
+  }
+
+  // Function to show error notification
+  function showError(message) {
+    errorMessage.value = message;
+    showErrorMessage.value = true;
+    showSuccessMessage.value = false;
+
+    // Auto-hide after 7 seconds
+    setTimeout(() => {
+      showErrorMessage.value = false;
+    }, 7000);
+  }
+
+  // Function to hide all notifications
+  function hideNotifications() {
+    showErrorMessage.value = false;
+    showSuccessMessage.value = false;
+  }
 
   async function fetchEmployeeData() {
     isLoading.value = true;
     notFound.value = false;
-
-    //const empID = route.params.id;
-    const empID = 'C09401AA-9E9D-4ACF-AD16-C094DB0D4512';
+    const empID = route.params.id;
+    //const empID = 'C09401AA-9E9D-4ACF-AD16-C094DB0D4512';
     console.log("Employee ID:", empID);
 
     try {
@@ -277,6 +350,10 @@
           firstName: data.firstName,
           lastName: data.lastName,
           sex: data.sex,
+          birthDate: data.birthDate,
+          workHours: data.workHours,
+          startDate: data.startDate,
+          status: data.status,
           grossSalary: data.grossSalary,
           contractType: data.contractType,
           status: data.status,
@@ -292,6 +369,8 @@
           canton: data.canton,
           otherSigns: data.otherSigns || '',
           bankAccount: data.bankAccount,
+          chosenBenefitNames: data.chosenBenefitNames || [],
+          chosenApiNames: data.chosenApiNames || [],
         };
 
         // Store original data for cancel functionality
@@ -308,75 +387,141 @@
     }
   }
 
-  function toggleEdit() {
-    isEditing.value = !isEditing.value;
+  function validateForm() {
+    console.log(route.params.id);
+    const empId = route.params.id;
+
+    validationErrors.value = {};
+    let isValid = true;
+
+    // Nombre - Not empty
+    if (!editableEmployee.value.firstName || editableEmployee.value.firstName.trim() === '') {
+      validationErrors.value.firstName = 'El nombre es requerido';
+      isValid = false;
+    }
+
+    // Apellidos - Not empty
+    if (!editableEmployee.value.lastName || editableEmployee.value.lastName.trim() === '') {
+      validationErrors.value.lastName = 'Los apellidos son requeridos';
+      isValid = false;
+    }
+
+    // Salario - decimal with up to 2 decimals
+    const salaryPattern = /^\d+(\.\d{1,2})?$/;
+    if (!editableEmployee.value.grossSalary || editableEmployee.value.grossSalary <= 0) {
+      validationErrors.value.grossSalary = 'El salario debe ser mayor a 0';
+      isValid = false;
+    } else if (!salaryPattern.test(editableEmployee.value.grossSalary.toString())) {
+      validationErrors.value.grossSalary = 'El salario debe tener máximo 2 decimales';
+      isValid = false;
+    }
+
+    // Puesto - Not empty
+    if (!editableEmployee.value.jobPosition || editableEmployee.value.jobPosition.trim() === '') {
+      validationErrors.value.jobPosition = 'El puesto es requerido';
+      isValid = false;
+    }
+
+    // Cuenta Bancaria - Format CR and 20 numbers
+    const bankAccountPattern = /^CR\d{20}$/;
+    if (!editableEmployee.value.bankAccount || !bankAccountPattern.test(editableEmployee.value.bankAccount)) {
+      validationErrors.value.bankAccount = 'Formato requerido: CRXXXXXXXXXXXXXXXXXXXX';
+      isValid = false;
+    }
+
+    // Teléfonos - comma separated format xxxx-xxxx
+    const phonePattern = /^\d{4}-\d{4}$/;
+    if (editableEmployee.value.phoneNumbersStr && editableEmployee.value.phoneNumbersStr.trim() !== '') {
+      const phones = editableEmployee.value.phoneNumbersStr.split(',').map(phone => phone.trim());
+      const invalidPhones = phones.filter(phone => !phonePattern.test(phone));
+      if (invalidPhones.length > 0) {
+        validationErrors.value.phoneNumbers = 'Cada teléfono debe tener formato XXXX-XXXX, separados por comas';
+        isValid = false;
+      }
+    }
+
+    // Cédula - format x-xxxx-xxxx or xxxxxxxxxxxx
+    const cedulaPattern1 = /^\d-\d{4}-\d{4}$/;
+    const cedulaPattern2 = /^\d{12}$/;
+    if (!editableEmployee.value.id || (!cedulaPattern1.test(editableEmployee.value.id) && !cedulaPattern2.test(editableEmployee.value.id))) {
+      validationErrors.value.id = 'Formato requerido: X-XXXX-XXXX o XXXXXXXXXXXX';
+      isValid = false;
+    }
+
+    // Correo - not null and xxx@xxx.xxx format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!editableEmployee.value.email || !emailPattern.test(editableEmployee.value.email)) {
+      validationErrors.value.email = 'Formato de correo inválido';
+      isValid = false;
+    }
+
+    // Provincia - not null
+    if (!editableEmployee.value.province || editableEmployee.value.province.trim() === '') {
+      validationErrors.value.province = 'La provincia es requerida';
+      isValid = false;
+    }
+
+    // Cantón - not null
+    if (!editableEmployee.value.canton || editableEmployee.value.canton.trim() === '') {
+      validationErrors.value.canton = 'El cantón es requerido';
+      isValid = false;
+    }
+
+    return isValid;
   }
 
   function cancelEdit() {
-    isEditing.value = false;
-    // Restore original values
+    validationErrors.value = {};
+    hideNotifications();
+    // Restore original values (re-fetch from server data)
     editableEmployee.value = { ...originalEmployee.value };
   }
 
   async function saveChanges() {
+    // Hide any previous notifications
+    hideNotifications();
+
+    if (!validateForm()) {
+      return;
+    }
+    console.log(route.params.id);
+
+    const empID = route.params.id;
+    //const empID = route.params.id;
     isSaving.value = true;
+
+    console.log("is", empID);
 
     try {
       // Prepare data for API
       const updateData = {
+        empId: empID,
         ...editableEmployee.value,
+
         phoneNumbers: editableEmployee.value.phoneNumbersStr.split(',').map(phone => phone.trim()),
         startDate: editableEmployee.value.startDate
       };
 
       // Make API call to update employee
       const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/EmployeeDetails/${editableEmployee.value.id}`,
+        `${import.meta.env.VITE_API_URL}/api/EmployeeDetails/${empID}`,
         updateData
       );
 
       if (response.status === 200) {
-        // Update display data
-        employee.value = {
-          ...employee.value,
-          firstName: editableEmployee.value.firstName,
-          lastName: editableEmployee.value.lastName,
-          sex: editableEmployee.value.sex,
-          salary: `₡${editableEmployee.value.grossSalary.toLocaleString()}`,
-          contractType: editableEmployee.value.contractType,
-          payCycle: editableEmployee.value.payCycle,
-          jobPosition: editableEmployee.value.jobPosition,
-          registersHours: editableEmployee.value.registersHours ? 'Sí' : 'No',
-          role: editableEmployee.value.role,
-          startDate: new Date(editableEmployee.value.startDate).toLocaleDateString('es-CR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }),
-          phoneNumbers: editableEmployee.value.phoneNumbersStr,
-          email: editableEmployee.value.email,
-          province: editableEmployee.value.province,
-          canton: editableEmployee.value.canton,
-          otherSigns: editableEmployee.value.otherSigns || 'N/A',
-          bankAccount: editableEmployee.value.bankAccount,
-        };
-
-        // Update original data
+        // Update original data with saved values
         originalEmployee.value = { ...editableEmployee.value };
 
-        isEditing.value = false;
-
-        // Show success message (you can add a toast notification here)
-        alert('Datos actualizados correctamente');
+        // Show success notification
+        showSuccess('Datos actualizados correctamente');
       }
     } catch (error) {
       console.error('Error updating employee:', error);
-      alert('Error al actualizar los datos. Por favor, intente nuevamente.');
+      showError('Error al actualizar los datos. Por favor, intente nuevamente.');
     } finally {
       isSaving.value = false;
     }
   }
-
   onMounted(() => {
     fetchEmployeeData();
   });
@@ -389,6 +534,9 @@
     margin: 0 auto;
     overflow-x: hidden;
   }
+
+
+
 
   .row.custom-gap {
     display: flex;
@@ -413,17 +561,27 @@
 
   .col-1 {
     flex: 1 1 48%;
-    padding-left: 4rem;
-    padding-right: 4rem;
+    /*    padding-left: 4rem;
+    padding-right: 4rem;*/
     min-width: 0;
   }
 
   @media (max-width: 768px) {
     .col-1 {
       flex: 1 1 100%;
-      padding-left: 1rem;
-      padding-right: 1rem;
+      /*      padding-left: 1rem;
+      padding-right: 1rem;*/
     }
+  }
+
+  .btn {
+    font-weight: bold;
+  }
+
+  .btn-success {
+    background-color: #003c63;
+    border-color: #003c63;
+    color: white;
   }
 
   .highlight-box {
@@ -454,22 +612,40 @@
   .form-select,
   .form-control:focus,
   .form-select:focus {
-    background-color: #f2f2f2;
-    padding: 5px;
+    border-color: #f2f2f2;
     border-radius: 10px;
-    word-break: break-word;
+    padding: 4px;
+    /*    min-height: 38px;*/
+    background-color: #f2f2f2;
     text-indent: 5px;
-    border-block: thin;
   }
 
-    .form-control:focus,
-    .form-select:focus {
-      padding: 5px;
-      border-radius: 10px;
-      word-break: break-word;
-      text-indent: 5px;
-      border-color: #003c63;
-      /*      box-shadow: 0 0 0 0.2rem rgba(0, 60, 99, 0.25);*/
-      background-color: #ffffff;
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+      border-color: #dc3545;
+      background-color: #fff5f5;
+    }
+
+      .form-control.is-invalid:focus,
+      .form-select.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      }
+
+  .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+  }
+
+  .button-container {
+    padding: 1rem 0;
+  }
+
+    .button-container .btn {
+      min-width: 120px;
+      padding: 0.5rem 1.5rem;
     }
 </style>
