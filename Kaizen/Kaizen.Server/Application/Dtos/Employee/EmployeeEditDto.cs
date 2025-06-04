@@ -1,6 +1,6 @@
-﻿namespace Kaizen.Server.Application.Dtos
+﻿namespace Kaizen.Server.Application.Dtos.Employee
 {
-    public class EmployeeDetailsDto
+    public class EmployeeEditDto
     {
         public string EmpID { get; set; }
         public string Id { get; set; }
@@ -14,6 +14,7 @@
         public string JobPosition { get; set; }
         public string ContractType { get; set; }
         public int? WorkHours { get; set; }
+        public int? ExtraHours { get; set; }
         public DateTime StartDate { get; set; }
         public string BankAccount { get; set; }
         public decimal GrossSalary { get; set; }
@@ -21,9 +22,6 @@
         public string Email { get; set; }
         public string Role { get; set; }
         public bool Status { get; set; }
-        public bool RegistersHours { get; set; }
-        public List<string> PhoneNumbers { get; set; } = new List<string>();
-        public List<string> ChosenApiNames { get; set; } = new List<string>();
-        public List<string> ChosenBenefitNames { get; set; } = new List<string>();
+        public List<string> PhoneNumbers { get; set; }
     }
 }
