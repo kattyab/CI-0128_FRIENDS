@@ -42,7 +42,7 @@
         <div v-else-if="!isLoadingBenefits && activeBenefits.length === 0" class="text-center py-5">
           <div class="text-muted">
             <i class="material-icons" style="font-size: 3rem;">inbox</i>
-            <p class="mt-2">No benefits found</p>
+            <p class="mt-2">No se encontraron beneficios.</p>
             <p class="small">No se ha suscrito a ningún beneficio todavía.</p>
           </div>
         </div>
@@ -389,17 +389,22 @@ const loadActiveBenefits = async () => {
       { withCredentials: true }
     );
 
+    console.log(userData.value.email)
+    console.log(response.data)
+
     maxBenefits.value = response.data[0].maxBenefits;
 
-    activeBenefits.value = response.data.map(benefit => ({
-      benefitId: benefit.benefitId,
-      apiId: benefit.apiId,
-      name: benefit.name,
-      type: benefit.type,
-      method: transformBenefitMethod(benefit.type, benefit.value),
-      minimumMonths: benefit.minMonths,
-      state: 'Active'
-    }));
+    activeBenefits.value = response.data
+      .filter(benefit => benefit.benefitId !== null || benefit.apiId !== null)
+      .map(benefit => ({
+        benefitId: benefit.benefitId,
+        apiId: benefit.apiId,
+        name: benefit.name,
+        type: benefit.type,
+        method: transformBenefitMethod(benefit.type, benefit.value),
+        minimumMonths: benefit.minMonths,
+        state: 'Active'
+      }));
 
 
   } catch (error) {

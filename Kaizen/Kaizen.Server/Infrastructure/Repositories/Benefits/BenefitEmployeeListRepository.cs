@@ -25,58 +25,52 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
             await connection.OpenAsync();
 
             var query = @"
-                SELECT 
-                    combined.BenefitID,
-                    combined.APIId,
-                    combined.Name,
-                    combined.Type,
-                    combined.Value,
-                    combined.MinMonths,
-                    c.MaxBenefits
-                FROM (
-                    -- Original query for Benefits
-                    SELECT 
-                        b.Id AS BenefitID,
-                        NULL as APIId,
-                        b.Name,
-                        CASE 
-                            WHEN b.IsFixed = 1 THEN 'Fixed'
-                            WHEN b.IsPercentage = 1 THEN 'Percentage'
-                            ELSE 'Other'
-                        END AS Type,
-                        CASE 
-                            WHEN b.IsFixed = 1 THEN b.FixedValue
-                            WHEN b.IsPercentage = 1 THEN b.PercentageValue
-                            ELSE 0
-                        END AS Value,
-                        b.MinWorkDurationMonths AS MinMonths,
-                        0 AS IsApi,
-                        e.WorksFor -- Add this to get the company reference
-                    FROM Users u
-                    INNER JOIN Employees e ON u.PersonPK = e.PersonPK
-                    INNER JOIN ChosenBenefits cb ON e.EmpID = cb.EmployeeID
-                    INNER JOIN Benefits b ON cb.BenefitID = b.ID
-                    WHERE u.Email = @Email
-    
-                    UNION ALL
-    
-                    SELECT 
-                        NULL AS BenefitID,
-                        adc.ID as APIId,
-                        adc.Name,
-                        'IsApi' AS Type,
-                        0 AS Value,
-                        0 AS MinMonths,
-                        1 AS IsApi,
-                        e.WorksFor -- Add this to get the company reference
-                    FROM Users u
-                    INNER JOIN Employees e ON u.PersonPK = e.PersonPK
-                    INNER JOIN ChosenAPIs capi ON e.EmpID = capi.EmployeePK
-                    INNER JOIN ApiDeductionConfigs adc ON capi.ApiID = adc.Id
-                    WHERE u.Email = @Email
-                ) AS combined
-                INNER JOIN Companies c ON combined.WorksFor = c.CompanyPK
-                ORDER BY combined.Name;";
+                WITH EmployeeCompany AS (
+    SELECT 
+        e.EmpID,
+        e.WorksFor AS CompanyPK,
+        c.MaxBenefits
+    FROM Users u
+    INNER JOIN Employees e ON u.PersonPK = e.PersonPK
+    INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
+    WHERE u.Email = @Email
+)
+
+SELECT 
+    b.Id AS BenefitID,
+    NULL AS APIId,
+    b.Name,
+    CASE 
+        WHEN b.IsFixed = 1 THEN 'Fixed'
+        WHEN b.IsPercentage = 1 THEN 'Percentage'
+        ELSE 'Other'
+    END AS Type,
+    CASE 
+        WHEN b.IsFixed = 1 THEN b.FixedValue
+        WHEN b.IsPercentage = 1 THEN b.PercentageValue
+        ELSE 0
+    END AS Value,
+    b.MinWorkDurationMonths AS MinMonths,
+    ec.MaxBenefits
+
+FROM EmployeeCompany ec
+LEFT JOIN ChosenBenefits cb ON cb.EmployeeID = ec.EmpID
+LEFT JOIN Benefits b ON cb.BenefitID = b.ID
+
+UNION ALL
+
+SELECT 
+    NULL AS BenefitID,
+    adc.ID as APIId,
+    adc.Name,
+    'IsApi' AS Type,
+    0 AS Value,
+    0 AS MinMonths,
+    ec.MaxBenefits
+
+FROM EmployeeCompany ec
+LEFT JOIN ChosenAPIs capi ON capi.EmployeePK = ec.EmpID
+LEFT JOIN ApiDeductionConfigs adc ON capi.ApiID = adc.Id;";
 
             using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@Email", email);
