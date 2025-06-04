@@ -17,7 +17,6 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        // 1. Get employee's contract type and months at company
         var employeeQuery = @"
             SELECT 
                 e.ContractType,
@@ -45,7 +44,6 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
             companyPk = reader.GetGuid(reader.GetOrdinal("CompanyPK"));
         }
 
-        // 2. Get all benefits for the employee's company
         var benefitQuery = @"
         SELECT 
             b.Id AS BenefitId,
@@ -143,10 +141,10 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
 
         var result = contractType switch
         {
-            "Medio Tiempo" => isPartTime,             // Part-Time
-            "Tiempo Completo" => isFullTime,          // Full-Time
-            "Por Horas" => isByHours,                 // By Hours
-            "Servicios Profesionales" => isByService, // By Service
+            "Medio Tiempo" => isPartTime,
+            "Tiempo Completo" => isFullTime, 
+            "Por Horas" => isByHours,   
+            "Servicios Profesionales" => isByService,
             _ => false
         };
 
