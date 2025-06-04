@@ -68,7 +68,7 @@ builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 
 builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
-builder.Services.AddScoped<BenefitsRepository>();
+builder.Services.AddScoped<IBenefitsRepository, BenefitsRepository>();
 
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
 builder.Services.AddScoped<ApiBenefitDeductionRepository>();

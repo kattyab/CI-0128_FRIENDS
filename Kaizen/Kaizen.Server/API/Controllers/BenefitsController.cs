@@ -8,10 +8,10 @@ namespace Kaizen.Server.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BenefitsController(IAuthService authService, BenefitsRepository benefitsRepository) : ControllerBase
+    public class BenefitsController(IAuthService authService, IBenefitsRepository benefitsRepository) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
-        private readonly BenefitsRepository _benefitsRepository = benefitsRepository;
+        private readonly IBenefitsRepository _benefitsRepository = benefitsRepository;
 
         [HttpGet("{guid}")]
         public IActionResult Show(Guid guid)

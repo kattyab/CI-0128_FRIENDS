@@ -308,7 +308,7 @@ export default {
       if (!/^\d{2}-\d{4}-\d{4}$/.test(this.ownerId)) { this.errorOwnerId = 'Formato: 01-0111-0111'; hasError = true; }
       if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,75}$/.test(this.ownerName)) { this.errorOwnerName = 'Sólo letras, 1–75 caracteres.'; hasError = true; }
       if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,75}$/.test(this.ownerLastName)) { this.errorOwnerLastName = 'Sólo letras, 1–75 caracteres.'; hasError = true; }
-      if (!['Hombre','Mujer'].includes(this.ownerSex)) { this.errorOwnerSex = 'Seleccione sexo.'; hasError = true; }
+      if (!['Hombre', 'Mujer'].includes(this.ownerSex)) { this.errorOwnerSex = 'Seleccione sexo.'; hasError = true; }
       if (!this.ownerBirthDate) {
         this.errorOwnerBirthDate = 'Requerido.'; hasError = true;
       } else if (this.ownerBirthDate > today) {
@@ -327,44 +327,49 @@ export default {
         });
         return;
       }
-      try{
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/registerCompany`, {
-        companyID: this.cedulaJuridica,
-        companyName: this.nombreEmpresa,
-        brandName: this.brandName,
-        type: "Juridico",
-        foundationDate: new Date().toISOString().split('T')[0],
-        maxBenefits: 5,
-        webPage: "",
-        logo: "",
-        description: this.razonSocial,
-        po: "",
-        province: this.province,
-        canton: this.canton,
-        district: this.district,
-        otherSigns: this.additionalSigns,
-
-        owner: {
-          id: this.ownerId,
-          name: this.ownerName,
-          lastName: this.ownerLastName,
-          sex: this.ownerSex,
-          birthDate: this.ownerBirthDate,
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/registerCompany`, {
+          companyID: this.cedulaJuridica,
+          companyName: this.nombreEmpresa,
+          brandName: this.brandName,
+          type: "Juridico",
+          foundationDate: new Date().toISOString().split('T')[0],
+          maxBenefits: 5,
+          webPage: "",
+          logo: "",
+          description: this.razonSocial,
+          po: "",
           province: this.province,
           canton: this.canton,
-          otherSigns: this.additionalSigns
-        },
+          district: this.district,
+          otherSigns: this.additionalSigns,
 
-        user: {
-          email: this.ownerEmail,
-          passwordHash: this.ownerPassword,
-          active: true,
-          role: "Dueño"
-        }
-      });
+          owner: {
+            id: this.ownerId,
+            name: this.ownerName,
+            lastName: this.ownerLastName,
+            sex: this.ownerSex,
+            birthDate: this.ownerBirthDate,
+            province: this.province,
+            canton: this.canton,
+            otherSigns: this.additionalSigns
+          },
+
+          user: {
+            email: this.ownerEmail,
+            passwordHash: this.ownerPassword,
+            active: true,
+            role: "Dueño"
+          }
+        });
 
         this.success = 'Empresa y dueño registrados correctamente.';
+
+        setTimeout(() => {
+          this.$router.push('/auth/login');
+        }, 1500);
+
       } catch (e) {
         this.generalError = e.response?.status === 409
           ? 'Ya existe una empresa con esa cédula.'
