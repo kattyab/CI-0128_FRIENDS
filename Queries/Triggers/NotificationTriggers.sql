@@ -13,7 +13,7 @@ DECLARE @OwnerUserPK UNIQUEIDENTIFIER = (
     SELECT TOP 1 u.UserPK
     FROM Users u
     INNER JOIN Companies c ON c.OwnerPK = u.PersonPK
-    WHERE CompanyPK = @CompanyPK
+    WHERE c.CompanyPK = @CompanyPK
 );
 
 DECLARE @NewEmployeeName VARCHAR(75) = (SELECT TOP 1 Name FROM Persons WHERE PersonPK = @NewEmployeePersonPK);

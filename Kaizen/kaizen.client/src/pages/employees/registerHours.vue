@@ -133,7 +133,6 @@
         fechaInicio: null,
         fechaFin: null,
 
-        // userdata variables
         userPK: null,
         registersHours: null,
         payrollType: null,
@@ -194,7 +193,7 @@
 
         if (this.payrollType === 'M') {
           const inicio = new Date(año, mes, 1);
-          const fin = new Date(año, mes + 1, 0); // last day of the month
+          const fin = new Date(año, mes + 1, 0);
 
           this.fechaInicio = inicio.toISOString().split('T')[0];
           this.fechaFin = fin.toISOString().split('T')[0];
@@ -210,7 +209,7 @@
             }
 
             for (let d = new Date(inicioReal); d <= finReal; d.setDate(d.getDate() + 1)) {
-              if (d.getDay() !== 0) horas += 8; // exclude sundays
+              if (d.getDay() !== 0) horas += 8;
             }
             this.nuevasHoras = horas;
           }
@@ -242,14 +241,13 @@
             }
 
             for (let d = new Date(inicioReal); d <= finReal; d.setDate(d.getDate() + 1)) {
-              if (d.getDay() !== 0) horas += 8; // exclude sundays
+              if (d.getDay() !== 0) horas += 8;
             }
             this.nuevasHoras = horas;
           }
 
         } else {
-          // Case 'W' weekly
-          const day = seleccion.getDay(); // sunday = 0
+          const day = seleccion.getDay();
           const monday = new Date(seleccion);
           monday.setDate(seleccion.getDate() - ((day + 6) % 7));
           const sunday = new Date(monday);
@@ -393,10 +391,26 @@
 
       validarHoras(event) {
         const valor = parseInt(event.target.value, 10);
-        if (valor > 48) {
-          this.nuevasHoras = 48;
+
+        let maxHoras = 48;
+
+        if (this.payrollType === "M") {
+          maxHoras = 192;
+        } else if (this.payrollType === "B") {
+          maxHoras = 96;
+        } else if (this.payrollType === "W") {
+          maxHoras = 48;
+        }
+
+        if (valor > maxHoras) {
+          this.nuevasHoras = maxHoras;
+          this.warningMessage = `El máximo permitido para tipo ${this.payrollType} es ${maxHoras} horas.`;
         } else if (valor < 1) {
           this.nuevasHoras = 1;
+          this.warningMessage = "El mínimo de horas permitidas es 1.";
+        } else {
+          this.nuevasHoras = valor;
+          this.warningMessage = null;
         }
       },
 

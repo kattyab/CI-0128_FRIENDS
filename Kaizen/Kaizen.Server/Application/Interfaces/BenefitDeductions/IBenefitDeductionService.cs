@@ -1,9 +1,10 @@
-﻿using Kaizen.Server.Application.Dtos.BenefitDeductions;
+using Kaizen.Server.Application.Dtos.BenefitDeductions;
 
 namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
 {
     public interface IBenefitDeductionService
     {
-        List<BenefitDeductionResult> GetDeductionsForEmployee(Guid employeeID);
+        Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID);
+        Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, decimal proporcionalSalary);
     }
 }

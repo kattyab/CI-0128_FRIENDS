@@ -16,9 +16,13 @@ namespace Kaizen.Server.Application.Dtos
         public string? PO { get; set; }
         public string? Province { get; set; }
         public string? Canton { get; set; }
+        public string? Distrito { get; set; }
         public string? OtherSigns { get; set; }
         public string? PayrollType { get; set; }
 
         public string? OwnerName { get; set; } = default!;
+
+        public string PhoneNumbers { get; set; } = default!;
+        public string Emails { get; set; } = default!;
     }
 }

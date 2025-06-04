@@ -18,6 +18,9 @@ using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
 using Kaizen.Server.Application.Services.ApiDeductions;
+using Kaizen.Server.Application.Services.Payroll;
+using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Infrastructure.Services.Payroll;
 using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using System.Reflection;
@@ -38,6 +41,14 @@ builder.Services.AddScoped<SqlConnection>(sp =>
     var connStr = config.GetConnectionString("KaizenDb");
     return new SqlConnection(connStr);
 });
+builder.Services.AddScoped<Kaizen.Server.Infrastructure.Repositories.PayrollRepository>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connStr = config.GetConnectionString("KaizenDb");
+    return new Kaizen.Server.Infrastructure.Repositories.PayrollRepository(connStr);
+});
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -55,8 +66,6 @@ builder.Services.AddScoped<CompanyEmployeesRepository>();
 builder.Services.AddScoped<UserInfoRepository>();
 builder.Services.AddScoped<ApprovedHoursRepository>();
 
-
-
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();
 
@@ -69,17 +78,24 @@ builder.Services.AddScoped<IBenefitCompanyOfferedListRepository, BenefitCompanyO
 builder.Services.AddScoped<IBenefitSubscriptionRepository, BenefitSubscriptionRepository>();
 builder.Services.AddScoped<IBenefitAPISubscriptionRepository, BenefitAPISubscriptionRepository>();
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
-builder.Services.AddScoped<IApiBenefitRepository, ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<ApiBenefitDeductionRepository>();
+builder.Services.AddScoped<IApiBenefitRepository, CachedApiBenefitRepository>();
 builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 
 builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServiceFactory>();
 builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
 builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
 
+builder.Services.AddScoped<IPayrollSummaryCalculator, PayrollSummaryCalculator>();
+builder.Services.AddScoped<IDaysWorkedCalculator, DaysWorkedCalculator>();
+builder.Services.AddScoped<ISalaryCalculator, SalaryCalculator>();
+builder.Services.AddScoped<IDeductionAggregator, DeductionAggregator>();
+
+builder.Services.AddPayrollServices();
+
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -106,6 +122,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<GeneralPayrollRepository>();
 
 var app = builder.Build();
 

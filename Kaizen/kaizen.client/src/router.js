@@ -12,8 +12,10 @@ const router = createRouter({
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/errors/403.vue'), meta: { public: true } },
+        { path: 'company/edit', name: 'Company Edit', component: () => import('./pages/company/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
-        { path: 'companies/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
+        { path: 'companies/:id', name: 'Show Company', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
+        { path: 'companies/:id/edit', name: 'Edit Company', component: () => import('./pages/companies/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companieslist', name: 'CompaniesList', component: () => import('./pages/companies/companiesList.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companieslist/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Superadmin'] } },
         { path: 'companyemployees', name: 'Companies Employees', component: () => import('./pages/employees/ByCompanyIndex.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
@@ -26,6 +28,8 @@ const router = createRouter({
         { path: 'benefits/subscribe', name: 'Benefit Subscription', component: () => import('./pages/benefits/subscribe.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Supervisor', 'Empleado'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true } },
+        { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] },
+        },
       ]
     },
     {

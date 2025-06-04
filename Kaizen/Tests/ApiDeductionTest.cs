@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos.ApiDeductions;
+using Kaizen.Server.Application.Dtos.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Services.ApiDeductions;
 using Moq;
@@ -25,7 +25,6 @@ namespace Kaizen.Server.Tests.Application.Services
         [Test]
         public async Task GetDeductionsForEmployeeAsyncReturnsCorrectDeductions()
         {
-            // Arrange
             var employeeId = Guid.NewGuid();
 
             var benefits = new List<APIsDto>
@@ -38,22 +37,31 @@ namespace Kaizen.Server.Tests.Application.Services
             {
                 new EmployeeBenefitParameterDto
                 {
+                    EmployeeId = employeeId,
                     BenefitId = benefits[0].ID,
                     Key = "param1",
                     Value = "value1"
                 },
                 new EmployeeBenefitParameterDto
                 {
+                    EmployeeId = employeeId,
                     BenefitId = benefits[1].ID,
                     Key = "param2",
                     Value = "value2"
+                },
+                new EmployeeBenefitParameterDto
+                {
+                    EmployeeId = Guid.NewGuid(),
+                    BenefitId = benefits[0].ID,
+                    Key = "param1",
+                    Value = "othervalue"
                 }
             };
 
             _mockRepository.Setup(r => r.GetBenefitsAsync(_companyId))
                 .ReturnsAsync(benefits);
 
-            _mockRepository.Setup(r => r.GetParametersForEmployeeAsync(employeeId))
+            _mockRepository.Setup(r => r.GetParametersForCompanyAsync(_companyId))
                 .ReturnsAsync(parameters);
 
             _mockApiCaller.Setup(api => api.FetchDeductionAsync(benefits[0],
@@ -64,10 +72,8 @@ namespace Kaizen.Server.Tests.Application.Services
                     It.Is<Dictionary<string, string>>(d => d.ContainsKey("param2") && d["param2"] == "value2")))
                 .ReturnsAsync(200m);
 
-            // Act
             var result = await _service.GetDeductionsForEmployeeAsync(employeeId);
 
-            // Assert
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(100m, result["BenefitA"]);
             Assert.AreEqual(200m, result["BenefitB"]);
@@ -76,7 +82,6 @@ namespace Kaizen.Server.Tests.Application.Services
         [Test]
         public async Task GetDeductionsForEmployeeAsyncMissingParametersOmitsBenefit()
         {
-            // Arrange
             var employeeId = Guid.NewGuid();
 
             var benefit = new APIsDto { ID = 1, Name = "BenefitA" };
@@ -85,13 +90,11 @@ namespace Kaizen.Server.Tests.Application.Services
             _mockRepository.Setup(r => r.GetBenefitsAsync(_companyId))
                 .ReturnsAsync(benefits);
 
-            _mockRepository.Setup(r => r.GetParametersForEmployeeAsync(employeeId))
+            _mockRepository.Setup(r => r.GetParametersForCompanyAsync(_companyId))
                 .ReturnsAsync(new List<EmployeeBenefitParameterDto>());
 
-            // Act
             var result = await _service.GetDeductionsForEmployeeAsync(employeeId);
 
-            // Assert
             Assert.AreEqual(0, result.Count);
             Assert.IsFalse(result.ContainsKey("BenefitA"));
         }
@@ -99,7 +102,6 @@ namespace Kaizen.Server.Tests.Application.Services
         [Test]
         public async Task GetDeductionsForEmployeeAsyncApiCallerThrowsOmitsBenefit()
         {
-            // Arrange
             var employeeId = Guid.NewGuid();
 
             var benefit = new APIsDto { ID = 1, Name = "BenefitA" };
@@ -109,6 +111,7 @@ namespace Kaizen.Server.Tests.Application.Services
             {
                 new EmployeeBenefitParameterDto
                 {
+                    EmployeeId = employeeId,
                     BenefitId = benefit.ID,
                     Key = "param1",
                     Value = "value1"
@@ -118,18 +121,65 @@ namespace Kaizen.Server.Tests.Application.Services
             _mockRepository.Setup(r => r.GetBenefitsAsync(_companyId))
                 .ReturnsAsync(benefits);
 
-            _mockRepository.Setup(r => r.GetParametersForEmployeeAsync(employeeId))
+            _mockRepository.Setup(r => r.GetParametersForCompanyAsync(_companyId))
                 .ReturnsAsync(parameters);
 
             _mockApiCaller.Setup(api => api.FetchDeductionAsync(benefit, It.IsAny<Dictionary<string, string>>()))
                 .ThrowsAsync(new Exception("API failure"));
 
-            // Act
             var result = await _service.GetDeductionsForEmployeeAsync(employeeId);
 
-            // Assert
             Assert.AreEqual(0, result.Count);
             Assert.IsFalse(result.ContainsKey("BenefitA"));
+        }
+
+        [Test]
+        public async Task GetDeductionsForEmployeeAsyncFiltersParametersByEmployee()
+        {
+            var employeeId = Guid.NewGuid();
+            var otherEmployeeId = Guid.NewGuid();
+
+            var benefit = new APIsDto { ID = 1, Name = "BenefitA" };
+            var benefits = new List<APIsDto> { benefit };
+
+            var parameters = new List<EmployeeBenefitParameterDto>
+            {
+                new EmployeeBenefitParameterDto
+                {
+                    EmployeeId = employeeId,
+                    BenefitId = benefit.ID,
+                    Key = "param1",
+                    Value = "correctvalue"
+                },
+                new EmployeeBenefitParameterDto
+                {
+                    EmployeeId = otherEmployeeId,
+                    BenefitId = benefit.ID,
+                    Key = "param1",
+                    Value = "wrongvalue"
+                }
+            };
+
+            _mockRepository.Setup(r => r.GetBenefitsAsync(_companyId))
+                .ReturnsAsync(benefits);
+
+            _mockRepository.Setup(r => r.GetParametersForCompanyAsync(_companyId))
+                .ReturnsAsync(parameters);
+
+            _mockApiCaller.Setup(api => api.FetchDeductionAsync(benefit,
+                    It.Is<Dictionary<string, string>>(d => d.ContainsKey("param1") && d["param1"] == "correctvalue")))
+                .ReturnsAsync(100m);
+
+            var result = await _service.GetDeductionsForEmployeeAsync(employeeId);
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(100m, result["BenefitA"]);
+
+            _mockApiCaller.Verify(api => api.FetchDeductionAsync(benefit,
+                It.Is<Dictionary<string, string>>(d => d["param1"] == "correctvalue")), Times.Once);
+
+            _mockApiCaller.Verify(api => api.FetchDeductionAsync(benefit,
+                It.Is<Dictionary<string, string>>(d => d["param1"] == "wrongvalue")), Times.Never);
         }
     }
 }

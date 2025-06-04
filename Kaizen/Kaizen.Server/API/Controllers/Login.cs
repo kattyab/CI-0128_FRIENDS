@@ -1,19 +1,28 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Infrastructure.Repositories;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Kaizen.Server.API.Controllers
 {
-
     [ApiController]
     [Route("api/[controller]")]
-    public class LoginController(Login handler) : ControllerBase
+    public class LoginController : ControllerBase
     {
-        private readonly Login _handler = handler;
+        private readonly Login _handler;
+        private readonly string _connectionString;
+
+        public LoginController(Login handler, IConfiguration config)
+        {
+            _handler = handler;
+            _connectionString = config.GetConnectionString("KaizenDb")
+                ?? throw new InvalidOperationException("The connection string 'KaizenDb' is not defined in appsettings.json.");
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto credentials)
@@ -26,9 +35,9 @@ namespace Kaizen.Server.API.Controllers
 
             var hasher = new PasswordHasher<string>();
             var result = hasher.VerifyHashedPassword(
-                            credentials.Email,
-                            storedPwd,
-                            credentials.Password);
+                credentials.Email,
+                storedPwd,
+                credentials.Password);
 
             if (result == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Usuario o contraseña incorrecta." });
@@ -55,6 +64,7 @@ namespace Kaizen.Server.API.Controllers
                 role
             });
         }
+
         [HttpGet("authenticate")]
         public IActionResult Authenticate()
         {
@@ -66,12 +76,46 @@ namespace Kaizen.Server.API.Controllers
 
             return Ok(new { email, role });
         }
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("MyCookieAuth");
             return Ok(new { message = "Sesión cerrada" });
+        }
+
+
+        [Authorize]
+        [HttpGet("payroll-info")]
+        public IActionResult GetPayrollInfo()
+        {
+            var userId = Guid.Parse(User.FindFirst("UserId")!.Value);
+
+            const string sql = @"
+                SELECT c.CompanyPK, c.PayrollType
+                FROM   Users     u
+                JOIN   Companies c ON c.CompanyPK = u.CompanyPK
+                WHERE  u.UserPK = @UserId;";
+
+            using var con = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(sql, con);
+            cmd.Parameters.Add(new SqlParameter("@UserId", SqlDbType.UniqueIdentifier) { Value = userId });
+
+            con.Open();
+            using var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
+
+            if (!reader.Read())
+                return NotFound(new { message = "Empresa no encontrada." });
+
+            var companyId = (Guid)reader["CompanyPK"];
+            var letter = reader["PayrollType"]?.ToString();
+
+            return Ok(new
+            {
+                companyId,
+                letter
+            });
         }
     }
 }
