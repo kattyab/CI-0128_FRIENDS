@@ -5,7 +5,6 @@ namespace Kaizen.Server.Application.Services.Payroll
 {
     public class DaysWorkedCalculator : IDaysWorkedCalculator
     {
-        private const int MaxDays = 30;
         private const int DaysInMonth = 30;
 
         public int Calculate(EmployeePayroll employee, DateTime payrollPeriodStart, DateTime payrollPeriodEnd)
@@ -18,7 +17,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                 return 0;
 
             var daysWorked = CalculatePayrollDays(start, end);
-            return Math.Max(0, Math.Min(daysWorked, MaxDays));
+            return Math.Max(0, Math.Min(daysWorked, DaysInMonth));
         }
 
         private int CalculatePayrollDays(DateTime start, DateTime end)

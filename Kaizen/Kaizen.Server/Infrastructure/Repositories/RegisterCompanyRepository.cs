@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Identity;
 
 namespace Kaizen.Server.Infrastructure.Repositories
@@ -37,7 +37,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                         INSERT INTO Users (UserPK, Email, PasswordHash, Active, Role, PersonPK)
                         VALUES (@UserPK, @Email, @PasswordHash, @Active, @Role, @PersonPK);
 
-                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, District, OtherSigns)
+                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
                         VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
                         ";
 
