@@ -1,5 +1,13 @@
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Application.Interfaces.Benefits;
+using System.Reflection;
+using Microsoft.Data.SqlClient;
+using Kaizen.Server.Infrastructure.Services.IncomeTax;
+using Kaizen.Server.Application.Interfaces.IncomeTax;
+using Kaizen.Server.Application.Services.IncomeTax;
+using Kaizen.Server.Infrastructure.Repositories;
+using Kaizen.Server.Application.Services.IncomeTax;
 using Kaizen.Server.Application.Interfaces.CCSS;
 using Kaizen.Server.Application.Interfaces.Employees;
 using Kaizen.Server.Application.Interfaces.IncomeTax;
@@ -21,6 +29,9 @@ using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.CCSS;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using Microsoft.Data.SqlClient;
+using System.Reflection;
+using Kaizen.Server.Infrastructure.Repositories.Benefits;
+using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using System.Reflection;
 
 
@@ -70,6 +81,10 @@ builder.Services.AddScoped<ICCSSRateProvider, CCSSRateFileProvider>();
 builder.Services.AddScoped<ICCSSCalculator, CCSSCalculator>();
 builder.Services.AddScoped<IBenefitsRepository, BenefitsRepository>();
 
+builder.Services.AddScoped<IBenefitEmployeeListRepository, BenefitEmployeeListRepository>();
+builder.Services.AddScoped<IBenefitCompanyOfferedListRepository, BenefitCompanyOfferedListRepository>();
+builder.Services.AddScoped<IBenefitSubscriptionRepository, BenefitSubscriptionRepository>();
+builder.Services.AddScoped<IBenefitAPISubscriptionRepository, BenefitAPISubscriptionRepository>();
 builder.Services.AddScoped<IApiDeductionServiceFactory, ApiDeductionServiceFactory>();
 builder.Services.AddScoped<ApiBenefitDeductionRepository>();
 builder.Services.AddScoped<IApiBenefitRepository, CachedApiBenefitRepository>();
