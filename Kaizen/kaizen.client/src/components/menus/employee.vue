@@ -24,12 +24,8 @@
         </router-link>
       </div>
 
-      <router-link class="button" to="/registerbenefits">
-        <span class="material-icons">workspace_premium</span>
-        <span class="text">Registrar Beneficios</span>
-      </router-link>
       <router-link class="button" to="/benefits/subscribe">
-        <span class="material-icons">playlist_add</span>
+        <span class="material-icons">workspace_premium</span>
         <span class="text">Suscribir Beneficios</span>
       </router-link>
     </div>
