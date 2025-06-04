@@ -1,0 +1,2 @@
+ALTER TABLE [CompaniesEmails]
+ALTER COLUMN [CompanyEmail] VARCHAR(254) NOT NULL

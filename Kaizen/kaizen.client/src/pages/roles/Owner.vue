@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">{{ data?.companyName || 'N/A' }}</h1>
+    <h1 class="text-center">{{ data?.companyName || "N/A" }}</h1>
     <form>
       <div class="mb-3">
         <label for="company_id" class="form-label">Cédula Jurídica</label>
@@ -12,11 +12,13 @@
       </div>
       <div class="mb-3">
         <label for="company_name" class="form-label">Nombre de Empresa</label>
-        <input id="company_name"
-               type="text"
-               class="form-control"
-               disabled
-               :value="data?.companyName" />
+        <input
+          id="company_name"
+          type="text"
+          class="form-control"
+          disabled
+          :value="data?.companyName"
+        />
       </div>
       <div class="mb-3">
         <label for="brand_name" class="form-label">Nombre de Fantasía</label>
@@ -28,19 +30,25 @@
       </div>
       <div class="mb-3">
         <label for="foundation_date" class="form-label">Fecha de Fundación</label>
-        <input id="foundation_date"
-               type="text"
-               class="form-control"
-               disabled
-               :value="data?.foundationDate ? new Date(data?.foundationDate).toISOString().split('T')[0] : ''" />
+        <input
+          id="foundation_date"
+          type="text"
+          class="form-control"
+          disabled
+          :value="
+            data?.foundationDate ? new Date(data?.foundationDate).toISOString().split('T')[0] : ''
+          "
+        />
       </div>
       <div class="mb-3">
         <label for="max_benefits" class="form-label">Beneficios Máximos</label>
-        <input id="max_benefits"
-               type="text"
-               class="form-control"
-               disabled
-               :value="data?.maxBenefits" />
+        <input
+          id="max_benefits"
+          type="text"
+          class="form-control"
+          disabled
+          :value="data?.maxBenefits"
+        />
       </div>
       <div class="mb-3">
         <label for="web_page" class="form-label">Página Web</label>
@@ -48,11 +56,13 @@
       </div>
       <div class="mb-3">
         <label for="description" class="form-label">Descripción</label>
-        <input id="description"
-               type="text"
-               class="form-control"
-               disabled
-               :value="data?.description" />
+        <input
+          id="description"
+          type="text"
+          class="form-control"
+          disabled
+          :value="data?.description"
+        />
       </div>
       <div class="mb-3">
         <label for="po" class="form-label">Apartado Postal</label>
@@ -68,62 +78,76 @@
       </div>
       <div class="mb-3">
         <label for="other_signs" class="form-label">Otras Señas</label>
-        <input id="other_signs"
-               type="text"
-               class="form-control"
-               disabled
-               :value="otherSignsValue" />
+        <input
+          id="other_signs"
+          type="text"
+          class="form-control"
+          disabled
+          :value="otherSignsValue"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="logo_path" class="form-label">Logo</label>
+        <div class="form-image">
+          <img v-if="data?.logo" :src="data?.logo" />
+        </div>
+      </div>
+      <div class="d-flex justify-content-center pt-3 pb-3">
+        <a type="submit" class="btn btn-primary btn-lg btn-block" href="/company/edit"> Editar </a>
       </div>
     </form>
   </div>
 </template>
 
 <script setup>
-  import { ref, onMounted, computed } from "vue";
-  import axios from "axios";
+import { ref, onMounted, computed } from "vue";
+import axios from "axios";
 
-  const data = ref(null);
-  const emailComponent = ref(null);
+const data = ref(null);
+const emailComponent = ref(null);
 
-  const provinceValue = computed(() => data.value?.province || 'N/A');
-  const cantonValue = computed(() => data.value?.canton || 'N/A');
-  const otherSignsValue = computed(() => data.value?.otherSigns || 'N/A');
+const provinceValue = computed(() => data.value?.province || "N/A");
+const cantonValue = computed(() => data.value?.canton || "N/A");
+const otherSignsValue = computed(() => data.value?.otherSigns || "N/A");
 
-  async function fetchData(email) {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/CompanyDetails/by-email/${email}`, {
+async function fetchData(email) {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/CompanyDetails/by-email/${email}`,
+      {
         withCredentials: true,
-      });
-      data.value = response.data;
-    } catch (error) {
-      console.error("Error fetching company data:", error);
-    }
+      }
+    );
+    data.value = response.data;
+  } catch (error) {
+    console.error("Error fetching company data:", error);
   }
+}
 
-  onMounted(async () => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, {
-        withCredentials: true
-      });
-      emailComponent.value = response.data.email;
+onMounted(async () => {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, {
+      withCredentials: true,
+    });
+    emailComponent.value = response.data.email;
 
-      await fetchData(emailComponent.value);
-    } catch (error) {
-      console.error("Error fetching email:", error);
-    }
-  });
+    await fetchData(emailComponent.value);
+  } catch (error) {
+    console.error("Error fetching email:", error);
+  }
+});
 </script>
 
 <style scoped>
-  .form-image {
-    padding-left: 2rem;
-    max-width: 300px;
-    max-height: 300px;
-    overflow: hidden;
-  }
+.form-image {
+  padding-left: 2rem;
+  max-width: 300px;
+  max-height: 300px;
+  overflow: hidden;
+}
 
-    .form-image img {
-      width: 100%;
-      height: auto;
-    }
+.form-image img {
+  width: 100%;
+  height: auto;
+}
 </style>

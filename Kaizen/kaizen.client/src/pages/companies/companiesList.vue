@@ -1,33 +1,35 @@
 <template>
   <div>
-    <h1 class="text-center">Lista de empresas</h1>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Nombre de la empresa</th>
-          <th scope="col">Dueño</th>
-          <th scope="col">Cédula Jurídica</th>
-          <th scope="col">Cantidad de empleados</th>
-          <th scope="col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        <tr class="position-relative" v-for="(company, index) in filteredCompanies" :key="index">
-          <th scope="row">{{ company.companyName }}</th>
-          <td>{{ company.ownerName }}</td>
-          <td>{{ company.companyID }}</td>
-          <td>{{ company.employeesCount }}</td>
-          <td>
-            <a :href="`/companieslist/${company.companyPK}`" class="btn btn-primary">
-              <span class="material-icons">visibility</span>
-            </a>
-            <a :href="`/companieslist/${company.companyPK}/edit`" class="btn btn-danger ms-1">
-              <span class="material-icons">delete</span>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <h1 class="text-center my-4">Lista de empresas</h1>
+    <div class="mx-4">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Nombre de la empresa</th>
+            <th scope="col">Dueño</th>
+            <th scope="col">Cédula Jurídica</th>
+            <th scope="col">Cantidad de empleados</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <tr class="position-relative" v-for="(company, index) in filteredCompanies" :key="index">
+            <th scope="row">{{ company.companyName }}</th>
+            <td>{{ company.ownerName }}</td>
+            <td>{{ company.companyID }}</td>
+            <td>{{ company.employeesCount }}</td>
+            <td>
+              <a :href="`/companieslist/${company.companyPK}`" class="btn btn-primary">
+                <span class="material-icons">visibility</span>
+              </a>
+              <a :href="`/companieslist/${company.companyPK}/edit`" class="btn btn-danger ms-1">
+                <span class="material-icons">delete</span>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -80,4 +82,3 @@
     }
   };
 </script>
-
