@@ -1,5 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
 using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Infrastructure.Helpers;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories
 {
@@ -54,7 +56,7 @@ WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL;
             if (!reader.HasRows) return null;
 
             await reader.ReadAsync();
-            return new CompanyDetailsDto
+            CompanyDetailsDto companyDetailsDto = new()
             {
                 CompanyPK = reader["CompanyPK"].ToString(),
                 CompanyID = reader["CompanyID"]?.ToString(),
@@ -73,6 +75,50 @@ WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL;
                 OtherSigns = reader["OtherSigns"]?.ToString(),
                 Logo = reader["Logo"]?.ToString()
             };
+
+            const string phoneNumbersCommandText = @"
+                SELECT
+                    Number
+                FROM
+                    CompaniesPhoneNumbers
+                WHERE
+                    CompanyPK = @CompanyPK";
+
+            SqlParameter[] parameters =
+            [
+                new SqlParameter("@CompanyPK", companyDetailsDto.CompanyPK),
+            ];
+
+            using SqlDataReader phoneNumbersReader = SqlHelper.ExecuteReader(this._connectionString, phoneNumbersCommandText, CommandType.Text, parameters);
+            List<string> phoneNumbers = [];
+            while (phoneNumbersReader.Read())
+            {
+                phoneNumbers.Add(phoneNumbersReader.GetString(phoneNumbersReader.GetOrdinal("Number")));
+            }
+
+            companyDetailsDto.PhoneNumbers = string.Join(", ", phoneNumbers);
+
+            const string emailsCommandText = @"
+                SELECT
+                    CompanyEmail
+                FROM
+                    CompaniesEmails
+                WHERE
+                    CompanyPK = @CompanyPK";
+
+            parameters =
+            [
+                new SqlParameter("@CompanyPK", companyDetailsDto.CompanyPK),
+            ];
+            using SqlDataReader emailsReader = SqlHelper.ExecuteReader(this._connectionString, emailsCommandText, CommandType.Text, parameters);
+            List<string> emails = [];
+            while (emailsReader.Read())
+            {
+                emails.Add(emailsReader.GetString(emailsReader.GetOrdinal("CompanyEmail")));
+            }
+            companyDetailsDto.Emails = string.Join(", ", emails);
+
+            return companyDetailsDto;
         }
     }
 }

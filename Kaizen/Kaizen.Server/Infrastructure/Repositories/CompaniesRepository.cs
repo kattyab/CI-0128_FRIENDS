@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Companies;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
@@ -183,6 +183,50 @@ public class CompaniesRepository(IConfiguration configuration)
                 company.OwnerName = ownerReader.GetString(ownerReader.GetOrdinal("Name")) + " " +
                                     ownerReader.GetString(ownerReader.GetOrdinal("LastName"));
             }
+
+            const string phoneNumbersCommandText = @"
+                SELECT
+                    Number
+                FROM
+                    CompaniesPhoneNumbers
+                WHERE
+                    CompanyPK = @CompanyPK";
+
+            parameters =
+            [
+                new SqlParameter("@CompanyPK", company.CompanyPK),
+            ];
+
+            using SqlDataReader phoneNumbersReader = SqlHelper.ExecuteReader(this._connectionString, phoneNumbersCommandText, CommandType.Text, parameters);
+            List<string> phoneNumbers = [];
+            while (phoneNumbersReader.Read())
+            {
+                phoneNumbers.Add(phoneNumbersReader.GetString(phoneNumbersReader.GetOrdinal("Number")));
+            }
+
+            company.PhoneNumbers = string.Join(", ", phoneNumbers);
+
+            const string emailsCommandText = @"
+                SELECT
+                    CompanyEmail
+                FROM
+                    CompaniesEmails
+                WHERE
+                    CompanyPK = @CompanyPK";
+
+            parameters =
+            [
+                new SqlParameter("@CompanyPK", company.CompanyPK),
+            ];
+            using SqlDataReader emailsReader = SqlHelper.ExecuteReader(this._connectionString, emailsCommandText, CommandType.Text, parameters);
+            List<string> emails = [];
+            while (emailsReader.Read())
+            {
+                emails.Add(emailsReader.GetString(emailsReader.GetOrdinal("CompanyEmail")));
+            }
+
+            company.Emails = string.Join(", ", emails);
+
         }
 
         return company;
@@ -215,7 +259,7 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@BrandName", companyEditDto.BrandName),
             new SqlParameter("@MaxBenefits", companyEditDto.MaxBenefits),
             new SqlParameter("@WebPage", companyEditDto.WebPage),
-            new SqlParameter("@Logo", companyEditDto.Logo),
+            new SqlParameter("@Logo", (object?)companyEditDto.Logo ?? DBNull.Value),
             new SqlParameter("@Description", companyEditDto.Description),
             new SqlParameter("@PO", companyEditDto.PO),
             new SqlParameter("@Province", companyEditDto.Province),
@@ -228,5 +272,82 @@ public class CompaniesRepository(IConfiguration configuration)
             updateCompanyCommandText,
             CommandType.Text,
             updateCompanyParameters);
+
+        string phoneNumbers = string.Join(",", companyEditDto.PhoneNumbers.Split(',')
+            .Where(p => !string.IsNullOrWhiteSpace(p)));
+
+        const string deletePhoneNumbersCommandText = @"
+            DELETE FROM
+                CompaniesPhoneNumbers
+            WHERE
+                CompanyPK = @CompanyPK AND
+                Number NOT IN (SELECT value FROM STRING_SPLIT(@PhoneNumbers, ','));";
+
+        SqlParameter[] deletePhoneNumbersParameters = [
+            new SqlParameter("@CompanyPK", companyPK),
+            new SqlParameter("@PhoneNumbers", phoneNumbers)
+        ];
+
+        SqlHelper.ExecuteNonQuery(this._connectionString,
+            deletePhoneNumbersCommandText,
+            CommandType.Text,
+            deletePhoneNumbersParameters);
+
+        const string insertPhoneNumbersCommandText = @"
+            INSERT INTO
+                CompaniesPhoneNumbers (CompanyPK, Number)
+            SELECT
+                @CompanyPK, value
+            FROM
+                STRING_SPLIT(@PhoneNumbers, ',')
+            WHERE
+                value NOT IN (SELECT Number FROM CompaniesPhoneNumbers WHERE CompanyPK = @CompanyPK);";
+
+        SqlParameter[] insertPhoneNumbersParameters = [
+            new SqlParameter("@CompanyPK", companyPK),
+            new SqlParameter("@PhoneNumbers", phoneNumbers)
+        ];
+
+        SqlHelper.ExecuteNonQuery(this._connectionString,
+            insertPhoneNumbersCommandText,
+            CommandType.Text,
+            insertPhoneNumbersParameters);
+
+        string emails = string.Join(",", companyEditDto.Emails.Split(',')
+            .Where(e => !string.IsNullOrWhiteSpace(e)));
+        const string deleteEmailsCommandText = @"
+            DELETE FROM
+                CompaniesEmails
+            WHERE
+                CompanyPK = @CompanyPK AND
+                CompanyEmail NOT IN (SELECT value FROM STRING_SPLIT(@Emails, ','));";
+
+        SqlParameter[] deleteEmailsParameters = [
+            new SqlParameter("@CompanyPK", companyPK),
+            new SqlParameter("@Emails", emails)
+        ];
+        SqlHelper.ExecuteNonQuery(this._connectionString,
+            deleteEmailsCommandText,
+            CommandType.Text,
+            deleteEmailsParameters);
+
+        const string insertEmailsCommandText = @"
+            INSERT INTO
+                CompaniesEmails (CompanyPK, CompanyEmail)
+            SELECT
+                @CompanyPK, value
+            FROM
+                STRING_SPLIT(@Emails, ',')
+            WHERE
+                value NOT IN (SELECT CompanyEmail FROM CompaniesEmails WHERE CompanyPK = @CompanyPK);";
+
+        SqlParameter[] insertEmailsParameters = [
+            new SqlParameter("@CompanyPK", companyPK),
+            new SqlParameter("@Emails", emails)
+        ];
+        SqlHelper.ExecuteNonQuery(this._connectionString,
+            insertEmailsCommandText,
+            CommandType.Text,
+            insertEmailsParameters);
     }
 }

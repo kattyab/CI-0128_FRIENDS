@@ -1,4 +1,4 @@
-﻿namespace Kaizen.Server.Application.Dtos
+namespace Kaizen.Server.Application.Dtos
 {
     public class CompanyDto
     {
@@ -20,5 +20,8 @@
         public string? OtherSigns { get; set; }
 
         public string? OwnerName { get; set; } = default!;
+
+        public string PhoneNumbers { get; set; } = default!;
+        public string Emails { get; set; } = default!;
     }
 }

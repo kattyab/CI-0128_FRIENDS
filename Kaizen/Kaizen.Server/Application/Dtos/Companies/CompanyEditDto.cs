@@ -1,4 +1,4 @@
-﻿namespace Kaizen.Server.Application.Dtos.Companies;
+namespace Kaizen.Server.Application.Dtos.Companies;
 
 public class CompanyEditDto
 {
@@ -13,4 +13,7 @@ public class CompanyEditDto
     public string? Canton { get; set; }
     public string? Distrito { get; set; }
     public string? OtherSigns { get; set; }
+
+    public string PhoneNumbers { get; set; } = default!;
+    public string Emails { get; set; } = default!;
 }

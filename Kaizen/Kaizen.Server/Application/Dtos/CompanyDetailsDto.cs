@@ -1,4 +1,4 @@
-﻿namespace Kaizen.Server.Application.Dtos;
+namespace Kaizen.Server.Application.Dtos;
 public class CompanyDetailsDto
 {
     public string CompanyPK { get; set; }
@@ -17,4 +17,7 @@ public class CompanyDetailsDto
     public string Distrito { get; set; }
     public string OtherSigns { get; set; }
     public string Logo { get; set; }
+
+    public string PhoneNumbers { get; set; } = default!;
+    public string Emails { get; set; } = default!;
 }
