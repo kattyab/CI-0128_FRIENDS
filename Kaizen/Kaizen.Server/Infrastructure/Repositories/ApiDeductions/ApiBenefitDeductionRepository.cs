@@ -22,18 +22,18 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
 
         var benefits = new List<APIsDto>();
         const string query = @"SELECT 
-            adc.Id, 
-            adc.Name, 
-            adc.Endpoint AS Path, 
-            adc.HttpMethod, 
-            adc.AuthHeaderName,
-            adc.AuthToken, 
-            dbo.GetParametersJsonTemplate(adc.Endpoint) AS ParametersJson,
-            adc.ExpectedDataType
-        FROM dbo.Companies c
-        INNER JOIN dbo.OffersAPIs oa ON oa.CompanyPK = c.CompanyPK
-        INNER JOIN dbo.ApiDeductionConfigs adc ON adc.Id = oa.ApiConfigId
-        WHERE c.CompanyPK = @CompanyId;";
+                adc.Id, 
+                adc.Name, 
+                adc.Endpoint AS Path, 
+                adc.HttpMethod, 
+                adc.AuthHeaderName,
+                adc.AuthToken, 
+                dbo.GetParametersJsonTemplate(adc.Endpoint) AS ParametersJson,
+                adc.ExpectedDataType
+            FROM dbo.Companies c
+            INNER JOIN dbo.OffersAPIs oa ON oa.CompanyPK = c.CompanyPK
+            INNER JOIN dbo.ApiDeductionConfigs adc ON adc.Id = oa.ApiConfigId
+            WHERE c.CompanyPK = @CompanyId;";
 
         using var command = new SqlCommand(query, _connection);
         command.Parameters.Add("@CompanyId", SqlDbType.UniqueIdentifier).Value = companyId;
@@ -56,11 +56,13 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
         return benefits;
     }
 
-    public async Task<List<EmployeeBenefitParameterDto>> GetParametersForEmployeeAsync(Guid employeeId)
+    public async Task<List<EmployeeBenefitParameterDto>> GetParametersForCompanyAsync(Guid companyId)
     {
         if (_connection.State != ConnectionState.Open)
             await _connection.OpenAsync();
+
         var parameters = new List<EmployeeBenefitParameterDto>();
+
         const string query = @"SELECT 
             eap.EmployeeId, 
             adc.Id, 
@@ -69,9 +71,13 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
         FROM dbo.EmployeeApiParameters eap
         INNER JOIN dbo.ApiDeductionConfigs adc ON eap.ApiConfigId = adc.Id
         INNER JOIN dbo.ChosenAPIs ca ON adc.Id = ca.ApiID AND eap.EmployeeId = ca.EmployeePK
-        WHERE eap.EmployeeId = @EmployeeId;";
+        INNER JOIN dbo.Employees e ON eap.EmployeeId = e.EmpID
+        WHERE e.WorksFor = @CompanyId
+        AND e.IsDeleted = 0;";
+
         using var command = new SqlCommand(query, _connection);
-        command.Parameters.AddWithValue("@EmployeeId", employeeId);
+        command.Parameters.AddWithValue("@CompanyId", companyId);
+
         using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
@@ -83,6 +89,7 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
                 Value = reader.GetString(3)
             });
         }
+
         return parameters;
     }
 }

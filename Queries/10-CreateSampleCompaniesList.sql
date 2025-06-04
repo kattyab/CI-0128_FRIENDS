@@ -1,22 +1,22 @@
--- Crear persona dueño
+-- Crear persona dueï¿½o
 INSERT INTO Persons (Id, Name, LastName, Sex, BirthDate)
-VALUES ('2-1111-1111', 'Sofía', 'Navarro', 'Mujer', '1980-05-15');
+VALUES ('2-1111-1111', 'Sofï¿½a', 'Navarro', 'Mujer', '1980-05-15');
 
--- Crear usuario del dueño
+-- Crear usuario del dueï¿½o
 INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)
 VALUES (
   'sofia.navarro@example.com',
   'AQAAAAIAAYagAAAAEOBifWeNBudDjzVzfYLIzkT4FK+6XBP/BBvySlBybk5MLYxco9CNNkVpDOfQ8TgCEQ==',
   1,
-  'Dueño',
+  'DueÃ±o',
   (SELECT PersonPK FROM Persons WHERE Id = '2-1111-1111')
 );
 
--- Registrar como dueño
+-- Registrar como dueï¿½o
 INSERT INTO Owners (OwnerPK)
 VALUES ((SELECT PersonPK FROM Persons WHERE Id = '2-1111-1111'));
 
--- Crear empresa y asociarla al dueño
+-- Crear empresa y asociarla al dueï¿½o
 INSERT INTO Companies (
   CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate,
   MaxBenefits, WebPage, Description, PO
@@ -30,18 +30,18 @@ VALUES (
   '2015-08-20',
   15,
   'http://novatech.com',
-  'Empresa de soluciones tecnológicas',
+  'Empresa de soluciones tecnolï¿½gicas',
   '54321'
 );
 
 -- Crear 5 empleados y usuarios
 INSERT INTO Persons (Id, Name, LastName, Sex, BirthDate)
 VALUES 
-('2-2222-2222', 'Luis', 'Gómez', 'Hombre', '1990-04-10'),
-('2-3333-3333', 'Elena', 'Martínez', 'Mujer', '1992-09-25'),
-('2-4444-4444', 'Andrés', 'Castro', 'Hombre', '1988-12-30'),
+('2-2222-2222', 'Luis', 'Gï¿½mez', 'Hombre', '1990-04-10'),
+('2-3333-3333', 'Elena', 'Martï¿½nez', 'Mujer', '1992-09-25'),
+('2-4444-4444', 'Andrï¿½s', 'Castro', 'Hombre', '1988-12-30'),
 ('2-5555-5555', 'Daniela', 'Vargas', 'Mujer', '1991-07-07'),
-('2-6666-6666', 'Pablo', 'Sánchez', 'Hombre', '1985-03-17');
+('2-6666-6666', 'Pablo', 'Sï¿½nchez', 'Hombre', '1985-03-17');
 
 -- Usuarios (empleados)
 INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)

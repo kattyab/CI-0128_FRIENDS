@@ -24,6 +24,10 @@
         <span class="material-icons">workspace_premium</span>
         <span class="text">Agregar Beneficios</span>
       </router-link>
+      <router-link class="button" to="/payroll">
+        <span class="material-icons">receipt_long</span>
+        <span class="text">Pago de Planilla</span>
+      </router-link>
     </div>
   </aside>
 </template>
