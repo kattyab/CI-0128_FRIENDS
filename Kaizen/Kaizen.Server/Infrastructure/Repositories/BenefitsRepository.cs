@@ -8,7 +8,7 @@ using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories
 {
-    public class BenefitsRepository
+    public class BenefitsRepository : IBenefitsRepository
     {
         private readonly string _connectionString;
 
