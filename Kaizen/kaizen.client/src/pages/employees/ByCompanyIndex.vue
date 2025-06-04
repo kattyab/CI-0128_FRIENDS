@@ -26,9 +26,6 @@
               <a :href="`/employees/${employee.empID}`" class="btn btn-primary">
                 <span class="material-icons">visibility</span>
               </a>
-              <a :href="`/employees/${employee.empID}/edit`" class="btn btn-secondary ms-1">
-                <span class="material-icons">edit</span>
-              </a>
               <a @click="deleteEmployee(employee.empID)" class="btn btn-danger ms-1">
                 <span class="material-icons">delete</span>
               </a>
@@ -90,3 +87,10 @@
     }
   });
 </script>
+
+<style scoped>
+  .btn-primary {
+  background-color: #003c63;
+  border-color: #003c63;
+  }
+</style>
