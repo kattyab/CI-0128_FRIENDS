@@ -13,7 +13,7 @@
     </div>
 
     <div v-else>
-      <!-- Enployee Name -->
+      <!-- Employee Name -->
       <h1 class="text-center mb-4 mt-4 pt-4" style="color: #003c63;">
         {{ employee?.firstName }} {{ employee?.lastName }}
       </h1>
@@ -22,12 +22,9 @@
         <div class="col-md-6">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold">Datos Contractuales</h5>
-            <!-- Not sprint related -->
-            <!--
-              <button class="btn custom-btn-blue" @click="toggleEditContractual">
-                Editar
-              </button>
-            -->
+            <a :href="`/employees/${route.params.id}/edit`" class="btn btn-secondary btn-md">
+              Editar
+            </a>
           </div>
           <div class="p-3 border shadow-sm custom-box">
             <div class="mb-3">
@@ -41,10 +38,6 @@
             <div class="mb-3">
               <strong>Estado</strong>
               <div class="highlight-box">{{ employee.status }}</div>
-            </div>
-            <div class="mb-3">
-              <strong>Periodicidad</strong>
-              <div class="highlight-box">{{ employee.payCycle }}</div>
             </div>
             <div class="mb-3">
               <strong>Puesto</strong>
@@ -87,7 +80,7 @@
             </div>
             <div class="mb-3">
               <strong>Otras señas</strong>
-              <div class="highlight-box">{{ employee.otherSigns }}</div>
+              <div class="highlight-box">{{ employee.otherSigns || 'N/A' }}</div>
             </div>
           </div>
         </div>
@@ -101,10 +94,6 @@
   import axios from 'axios';
   import { useRoute } from 'vue-router';
 
-  //const email = "juan.perez@example.com"; // Empleado
-  const email = "miguel.torres@example.com"; //Supervisor
-  //const email = "ana.lopez@example.com"; // Administrador
-
   const route = useRoute();
   const isLoading = ref(true);
   const isEditingContractual = ref(false);
@@ -115,49 +104,54 @@
     isLoading.value = true;
     notFound.value = false;
 
-    // Log the employee ID from route params
     const empID = route.params.id;
     console.log("Employee ID:", empID);
 
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/EmployeeDetails/by-id/${empID}`);
+      const response = await axios.get(`${ import.meta.env.VITE_API_URL }/api/EmployeeDetails/by-id/${empID}`);
       const data = response.data;
 
       if (data) {
+        const allBenefits = [];
+        if (Array.isArray(data.chosenBenefitNames) && data.chosenBenefitNames.length > 0) {
+          allBenefits.push(...data.chosenBenefitNames);
+        }
+        if (Array.isArray(data.chosenApiNames) && data.chosenApiNames.length > 0) {
+          allBenefits.push(...data.chosenApiNames);
+        }
+
         employee.value = {
           id: data.id,
           firstName: data.firstName,
           lastName: data.lastName,
-          salary: `₡${data.grossSalary.toLocaleString()}`,
-          contractType: data.contractType,
+          salary: `₡${ data.grossSalary.toLocaleString() }`,
+        contractType: data.contractType,
           status: data.status ? 'Activo' : 'Inactivo',
-          payCycle: data.payCycle,
-          jobPosition: data.jobPosition,
-          role: data.role,
-          benefits: Array.isArray(data.benefits) && data.benefits.length > 0
-            ? data.benefits.join(', ')
-            : 'N/A',
-          startDate: new Date(data.startDate).toLocaleDateString('es-CR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }),
-          phoneNumbers: Array.isArray(data.phoneNumbers) ? data.phoneNumbers.join(', ') : 'N/A',
-          email: data.email,
-          province: data.province,
-          canton: data.canton,
-          otherSigns: data.otherSigns
-        };
-      } else {
-        console.warn('No data received from API.');
-        notFound.value = true;
-      }
-    } catch (error) {
-      console.error('Error fetching employee data:', error);
+            payCycle: data.payCycle,
+              jobPosition: data.jobPosition,
+                role: data.role,
+                  benefits: allBenefits.length > 0 ? allBenefits.join(', ') : 'N/A',
+                    startDate: new Date(data.startDate).toLocaleDateString('es-CR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    }),
+                      phoneNumbers: Array.isArray(data.phoneNumbers) ? data.phoneNumbers.join(', ') : 'N/A',
+                        email: data.email,
+                          province: data.province,
+                            canton: data.canton,
+                              otherSigns: data?.otherSigns
+      };
+    } else {
+      console.warn('No data received from API.');
       notFound.value = true;
-    } finally {
-      isLoading.value = false;
     }
+  } catch (error) {
+    console.error('Error fetching employee data:', error);
+    notFound.value = true;
+  } finally {
+    isLoading.value = false;
+  }
   }
 
   function toggleEditContractual() {
@@ -170,6 +164,12 @@
 </script>
 
 <style scoped>
+  .btn-secondary {
+    background-color: #003c63;
+    border-color: #003c63;
+    font-weight: bold;
+  }
+
   .container {
     color: #003c63;
     max-width: 1200px;
@@ -180,7 +180,7 @@
   .row.custom-gap {
     display: flex;
     flex-wrap: wrap;
-    gap: 3rem;
+    gap: 4rem;
   }
 
   .custom-gap .col-md-6 {

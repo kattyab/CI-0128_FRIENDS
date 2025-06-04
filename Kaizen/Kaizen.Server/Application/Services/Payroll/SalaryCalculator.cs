@@ -1,3 +1,4 @@
+using Kaizen.Server.API.Controllers;
 using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.Payroll;
 
@@ -7,20 +8,22 @@ namespace Kaizen.Server.Application.Services.Payroll
     {
         private const int BiweeklyPeriodDays = 15;
         private const int MonthlyPeriodDays = 30;
+        private const string BiweeklyPayrollType = "Biweekly";
+        private const string BiweeklyPayrollIdentifier = "biweekly";
 
-        public (decimal Gross, decimal Proportional) Calculate(decimal bruteSalary, int daysWorked, bool isBiweekly)
+        public (decimal Gross, decimal Proportional) Calculate(decimal bruteSalary, int daysWorked, PayrollRequest request)
         {
-            var totalDays = isBiweekly ? BiweeklyPeriodDays : MonthlyPeriodDays;
+            var totalDays = (request.Type == BiweeklyPayrollIdentifier) ? BiweeklyPeriodDays : MonthlyPeriodDays;
             var proportional = (bruteSalary / totalDays) * daysWorked;
             var gross = daysWorked == totalDays ? bruteSalary : proportional;
             return (gross, proportional);
         }
 
-        public decimal GetSalaryForDeductions(EmployeePayroll employee, decimal proportional, bool isBiweekly, bool isFullPeriod)
+        public decimal GetSalaryForDeductions(EmployeePayroll employee, decimal proportional, bool isFullPeriod)
         {
             return isFullPeriod
-                ? (isBiweekly ? employee.BruteSalary * 2 : employee.BruteSalary)
-                : (isBiweekly ? proportional * 2 : proportional);
+                ? ((employee.PayrollTypeDescription == BiweeklyPayrollType) ? employee.BruteSalary * 2 : employee.BruteSalary)
+                : ((employee.PayrollTypeDescription == BiweeklyPayrollType) ? proportional * 2 : proportional);
         }
     }
 

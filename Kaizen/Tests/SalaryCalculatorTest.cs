@@ -75,14 +75,15 @@ namespace Kaizen.Server.Tests.Payroll
         {
             var employee = new EmployeePayroll
             {
-                BruteSalary = 1500m
+                BruteSalary = 1500m,
+                PayrollTypeDescription = "Biweekly"
             };
             decimal proportional = 1500m;
             bool isBiweekly = true;
             bool isFullPeriod = true;
             decimal expected = employee.BruteSalary * 2m;
 
-            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isBiweekly, isFullPeriod);
+            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             Assert.AreEqual(expected, result);
         }
@@ -99,7 +100,7 @@ namespace Kaizen.Server.Tests.Payroll
             bool isFullPeriod = true;
             decimal expected = employee.BruteSalary;
 
-            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isBiweekly, isFullPeriod);
+            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             Assert.AreEqual(expected, result);
         }
@@ -109,14 +110,15 @@ namespace Kaizen.Server.Tests.Payroll
         {
             var employee = new EmployeePayroll
             {
-                BruteSalary = 1500m
+                BruteSalary = 1500m,
+                PayrollTypeDescription = "Biweekly"
             };
             decimal proportional = 500m;
             bool isBiweekly = true;
             bool isFullPeriod = false;
             decimal expected = proportional * 2m;
 
-            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isBiweekly, isFullPeriod);
+            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             Assert.AreEqual(expected, result);
         }
@@ -133,7 +135,7 @@ namespace Kaizen.Server.Tests.Payroll
             bool isFullPeriod = false;
             decimal expected = proportional;
 
-            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isBiweekly, isFullPeriod);
+            decimal result = _calculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             Assert.AreEqual(expected, result);
         }

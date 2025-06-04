@@ -16,9 +16,9 @@
             <span class="material-icons">account_circle</span>
             <span class="text">Aprobación de Horas</span>
           </router-link>
-          <router-link class="button" to="/registerbenefits">
+          <router-link class="button" to="/benefits/subscribe">
             <span class="material-icons">workspace_premium</span>
-            <span class="text">Registrar Beneficios</span>
+            <span class="text">Suscribir Beneficios</span>
           </router-link>
         </div>
       </aside>
