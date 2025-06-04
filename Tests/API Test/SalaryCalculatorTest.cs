@@ -174,4 +174,3 @@ namespace Kaizen.Server.Tests.Payroll
         }
     }
 }
-
