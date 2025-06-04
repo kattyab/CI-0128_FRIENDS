@@ -1,21 +1,23 @@
-using System.Reflection;
-using Microsoft.Data.SqlClient;
-using Kaizen.Server.Infrastructure.Services.IncomeTax;
-using Kaizen.Server.Application.Interfaces.IncomeTax;
-using Kaizen.Server.Infrastructure.Repositories;
-using Kaizen.Server.Application.Services.IncomeTax;
-using Kaizen.Server.Application.Interfaces.CCSS;
-using Kaizen.Server.Application.Services.CCSS;
-using Kaizen.Server.Infrastructure.Services.CCSS;
-using Kaizen.Server.Application.Interfaces.Services.Auth;
-using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
-using Kaizen.Server.Infrastructure.Services.ApiDeductions;
-using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
-using Kaizen.Server.Application.Services.BenefitDeductions;
-using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
+using Kaizen.Server.Application.Interfaces.CCSS;
+using Kaizen.Server.Application.Interfaces.Employees;
+using Kaizen.Server.Application.Interfaces.IncomeTax;
+using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Application.Services.ApiDeductions;
+using Kaizen.Server.Application.Services.BenefitDeductions;
+using Kaizen.Server.Application.Services.CCSS;
+using Kaizen.Server.Application.Services.IncomeTax;
+using Kaizen.Server.Infrastructure.Repositories;
+using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
+using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Repositories.Employees;
+using Kaizen.Server.Infrastructure.Services.ApiDeductions;
+using Kaizen.Server.Infrastructure.Services.Auth;
+using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Infrastructure.Services.IncomeTax;
+using Microsoft.Data.SqlClient;
+using System.Reflection;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -43,7 +45,6 @@ builder.Services.AddScoped<NotificationsRepository>();
 builder.Services.AddScoped<EmployeesRepository>();
 builder.Services.AddScoped<CommonHomepageRepository>();
 builder.Services.AddScoped<CompaniesListRepository>();
-builder.Services.AddScoped<EmployeeDetailsRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
@@ -66,6 +67,8 @@ builder.Services.AddScoped<IExternalApiCaller, ExternalApiCaller>();
 builder.Services.AddScoped<IBenefitDeductionServiceFactory, BenefitDeductionServiceFactory>();
 builder.Services.AddScoped<IBenefitDeductionRepository, BenefitDeductionRepository>();
 builder.Services.AddScoped<IEmployeeDeductionRepository, EmployeeDeductionRepository>();
+
+builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
