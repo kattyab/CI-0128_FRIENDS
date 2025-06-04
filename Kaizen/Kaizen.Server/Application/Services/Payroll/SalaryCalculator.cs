@@ -7,6 +7,7 @@ namespace Kaizen.Server.Application.Services.Payroll
     {
         private const int BiweeklyPeriodDays = 15;
         private const int MonthlyPeriodDays = 30;
+        private const string BiweeklyPayrollType = "Biweekly";
 
         public (decimal Gross, decimal Proportional) Calculate(decimal bruteSalary, int daysWorked, bool isBiweekly)
         {
@@ -16,11 +17,11 @@ namespace Kaizen.Server.Application.Services.Payroll
             return (gross, proportional);
         }
 
-        public decimal GetSalaryForDeductions(EmployeePayroll employee, decimal proportional, bool isBiweekly, bool isFullPeriod)
+        public decimal GetSalaryForDeductions(EmployeePayroll employee, decimal proportional, bool isFullPeriod)
         {
             return isFullPeriod
-                ? (isBiweekly ? employee.BruteSalary * 2 : employee.BruteSalary)
-                : (isBiweekly ? proportional * 2 : proportional);
+                ? ((employee.PayrollTypeDescription == BiweeklyPayrollType) ? employee.BruteSalary * 2 : employee.BruteSalary)
+                : ((employee.PayrollTypeDescription == BiweeklyPayrollType) ? proportional * 2 : proportional);
         }
     }
 

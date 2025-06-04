@@ -11,7 +11,7 @@ namespace Kaizen.Server.Application.Services.Payroll
     public class DeductionAggregator : IDeductionAggregator
     {
         private const decimal BiweeklyFactor = 2m;
-
+        private const string BiweeklyPayrollType = "Biweekly";
         private readonly IApiDeductionServiceFactory _apiFactory;
         private readonly IBenefitDeductionServiceFactory _benefitFactory;
         private readonly ICCSSCalculator _ccssCalculator;
@@ -31,7 +31,7 @@ namespace Kaizen.Server.Application.Services.Payroll
 
         public async Task<(Dictionary<string, decimal>, List<BenefitDeductionResult>, decimal, decimal, decimal)>
             GetAllDeductionsAsync(Guid companyId, EmployeePayroll employee, decimal proportionalSalary,
-                bool isFullPeriod, bool isBiweekly, decimal salaryForDeductions)
+                bool isFullPeriod, decimal salaryForDeductions)
         {
             var apiService = _apiFactory.Create(companyId);
             var benefitService = _benefitFactory.Create(companyId);
@@ -41,7 +41,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                 ? await benefitService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID)
                 : await benefitService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID, proportionalSalary);
 
-            if (isBiweekly)
+            if (employee.PayrollTypeDescription == BiweeklyPayrollType)
             {
                 apiDeductions = apiDeductions.ToDictionary(x => x.Key, x => x.Value / BiweeklyFactor);
                 foreach (var benefit in benefitDeductions)
@@ -50,7 +50,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             decimal ccss = CalculateCCSSDeduction(employee, salaryForDeductions);
             decimal income = CalculateIncomeTaxDeduction(employee, salaryForDeductions);
 
-            if (isBiweekly)
+            if (employee.PayrollTypeDescription == BiweeklyPayrollType)
             {
                 ccss /= BiweeklyFactor;
                 income /= BiweeklyFactor;
