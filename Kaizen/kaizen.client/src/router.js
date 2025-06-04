@@ -20,6 +20,7 @@ const router = createRouter({
         { path: 'employees', name: 'Employees Index', component: () => import('./pages/employees/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'employees/register', name: 'Register Employee', component: () => import('./pages/employees/register.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'employees/:id', name: 'Employee Details', component: () => import('./pages/employees/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
+        { path: 'employees/:id/edit', name: 'Employee Edit', component: () => import('./pages/employees/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true, requiredRoles: ['Supervisor'] } },
         { path: 'benefits/create', name: 'Benefit Creation', component: () => import('./pages/benefits/create.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'benefits/:id/edit', name: 'Edit Benefit', component: () => import('./pages/benefits/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
