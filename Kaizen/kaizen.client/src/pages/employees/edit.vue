@@ -1,6 +1,5 @@
 <template>
   <div class="container py-4">
-    <!-- Spinner -->
     <div v-if="isLoading" class="text-center mt-5">
       <div class="spinner-border text-primary mb-3" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -13,7 +12,6 @@
     </div>
 
     <div v-else>
-      <!-- Employee Name -->
       <h1 class="text-center mb-4 mt-4 pt-4" style="color: #003c63;">
         Editar Empleado
       </h1>
@@ -213,7 +211,6 @@
             </div>
           </div>
 
-          <!-- Centered buttons at bottom -->
           <div class="d-flex justify-content-center mt-4 mb-4 button-container">
             <button @click="saveChanges"
                     class="btn btn-success me-3"
@@ -226,7 +223,6 @@
             </button>
           </div>
 
-          <!-- Notification Messages -->
           <div class="row">
             <div class="col-2"></div>
             <div class="col-8">
@@ -301,13 +297,10 @@
     isLoading.value = true;
     notFound.value = false;
     const empID = route.params.id;
-    //const empID = 'C09401AA-9E9D-4ACF-AD16-C094DB0D4512';
-    console.log("Employee ID:", empID);
 
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/EmployeeDetails/by-id/${empID}`);
       const data = response.data;
-      console.log("hola", response.data)
       if (data) {
         const allBenefits = [];
         if (Array.isArray(data.chosenBenefitNames) && data.chosenBenefitNames.length > 0) {
@@ -344,7 +337,6 @@
           bankAccount: data.bankAccount,
         };
 
-        // Initialize editable data
         editableEmployee.value = {
           id: data.id,
           firstName: data.firstName,
@@ -373,7 +365,6 @@
           chosenApiNames: data.chosenApiNames || [],
         };
 
-        // Store original data for cancel functionality
         originalEmployee.value = { ...editableEmployee.value };
       } else {
         console.warn('No data received from API.');
@@ -394,19 +385,16 @@
     validationErrors.value = {};
     let isValid = true;
 
-    // Nombre - Not empty
     if (!editableEmployee.value.firstName || editableEmployee.value.firstName.trim() === '') {
       validationErrors.value.firstName = 'El nombre es requerido';
       isValid = false;
     }
 
-    // Apellidos - Not empty
     if (!editableEmployee.value.lastName || editableEmployee.value.lastName.trim() === '') {
       validationErrors.value.lastName = 'Los apellidos son requeridos';
       isValid = false;
     }
 
-    // Salario - decimal with up to 2 decimals
     const salaryPattern = /^\d+(\.\d{1,2})?$/;
     if (!editableEmployee.value.grossSalary || editableEmployee.value.grossSalary <= 0) {
       validationErrors.value.grossSalary = 'El salario debe ser mayor a 0';
@@ -416,20 +404,17 @@
       isValid = false;
     }
 
-    // Puesto - Not empty
     if (!editableEmployee.value.jobPosition || editableEmployee.value.jobPosition.trim() === '') {
       validationErrors.value.jobPosition = 'El puesto es requerido';
       isValid = false;
     }
 
-    // Cuenta Bancaria - Format CR and 20 numbers
     const bankAccountPattern = /^CR\d{20}$/;
     if (!editableEmployee.value.bankAccount || !bankAccountPattern.test(editableEmployee.value.bankAccount)) {
       validationErrors.value.bankAccount = 'Formato requerido: CRXXXXXXXXXXXXXXXXXXXX';
       isValid = false;
     }
 
-    // Teléfonos - comma separated format xxxx-xxxx
     const phonePattern = /^\d{4}-\d{4}$/;
     if (editableEmployee.value.phoneNumbersStr && editableEmployee.value.phoneNumbersStr.trim() !== '') {
       const phones = editableEmployee.value.phoneNumbersStr.split(',').map(phone => phone.trim());
@@ -440,7 +425,6 @@
       }
     }
 
-    // Cédula - format x-xxxx-xxxx or xxxxxxxxxxxx
     const cedulaPattern1 = /^\d-\d{4}-\d{4}$/;
     const cedulaPattern2 = /^\d{12}$/;
     if (!editableEmployee.value.id || (!cedulaPattern1.test(editableEmployee.value.id) && !cedulaPattern2.test(editableEmployee.value.id))) {
@@ -448,20 +432,17 @@
       isValid = false;
     }
 
-    // Correo - not null and xxx@xxx.xxx format
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!editableEmployee.value.email || !emailPattern.test(editableEmployee.value.email)) {
       validationErrors.value.email = 'Formato de correo inválido';
       isValid = false;
     }
 
-    // Provincia - not null
     if (!editableEmployee.value.province || editableEmployee.value.province.trim() === '') {
       validationErrors.value.province = 'La provincia es requerida';
       isValid = false;
     }
 
-    // Cantón - not null
     if (!editableEmployee.value.canton || editableEmployee.value.canton.trim() === '') {
       validationErrors.value.canton = 'El cantón es requerido';
       isValid = false;
@@ -473,27 +454,20 @@
   function cancelEdit() {
     validationErrors.value = {};
     hideNotifications();
-    // Restore original values (re-fetch from server data)
     editableEmployee.value = { ...originalEmployee.value };
   }
 
   async function saveChanges() {
-    // Hide any previous notifications
     hideNotifications();
 
     if (!validateForm()) {
       return;
     }
-    console.log(route.params.id);
 
     const empID = route.params.id;
-    //const empID = route.params.id;
     isSaving.value = true;
 
-    console.log("is", empID);
-
     try {
-      // Prepare data for API
       const updateData = {
         empId: empID,
         ...editableEmployee.value,
@@ -502,17 +476,14 @@
         startDate: editableEmployee.value.startDate
       };
 
-      // Make API call to update employee
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/api/EmployeeDetails/${empID}`,
         updateData
       );
 
       if (response.status === 200) {
-        // Update original data with saved values
         originalEmployee.value = { ...editableEmployee.value };
 
-        // Show success notification
         showSuccess('Datos actualizados correctamente');
       }
     } catch (error) {
@@ -530,7 +501,6 @@
 <style scoped>
   .container {
     color: #003c63;
-    /*    max-width: 1200px;*/
     margin: 0 auto;
     overflow-x: hidden;
   }
@@ -561,16 +531,12 @@
 
   .col-1 {
     flex: 1 1 48%;
-    /*    padding-left: 4rem;
-    padding-right: 4rem;*/
     min-width: 0;
   }
 
   @media (max-width: 768px) {
     .col-1 {
       flex: 1 1 100%;
-      /*      padding-left: 1rem;
-      padding-right: 1rem;*/
     }
   }
 
@@ -615,7 +581,6 @@
     border-color: #f2f2f2;
     border-radius: 10px;
     padding: 4px;
-    /*    min-height: 38px;*/
     background-color: #f2f2f2;
     text-indent: 5px;
   }

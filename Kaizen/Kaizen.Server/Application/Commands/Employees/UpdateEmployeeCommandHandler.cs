@@ -14,7 +14,6 @@ namespace Kaizen.Server.Application.Commands.Employees
 
         public async Task<bool> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
         {
-            // Business logic validation
             if (request.EmployeeDto == null)
             {
                 return false;
