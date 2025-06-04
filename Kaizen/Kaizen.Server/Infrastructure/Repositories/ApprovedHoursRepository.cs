@@ -1,44 +1,46 @@
 using System.Data;
 using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Infrastructure.Repositories;
 
-
-public class ApprovedHoursRepository(IConfiguration configuration)
+public class ApprovedHoursRepository : IApprovedHoursRepository
 {
+    private readonly string _connectionString;
 
-    private readonly string _connectionString =
-        configuration.GetConnectionString("KaizenDb")
-        ?? throw new InvalidOperationException(
-               "The connection string 'KaizenDb' is not defined in appsettings.json.");
-
+    public ApprovedHoursRepository(IConfiguration configuration)
+    {
+        _connectionString =
+            configuration.GetConnectionString("KaizenDb")
+            ?? throw new InvalidOperationException(
+                "The connection string 'KaizenDb' is not defined in appsettings.json.");
+    }
 
     public void InsertApprovedHour(ApprovedHoursDto dto)
     {
         const string commandText = @"
-        INSERT INTO ApprovedHours (
-            ApprovalID,
-            EmpID,
-            StartDate,
-            EndDate,
-            HoursWorked,
-            Status,
-            IsSentForApproval,
-            SupID
-        )
-        VALUES (
-            NEWID(),
-            @EmpID,
-            @StartDate,
-            @EndDate,
-            @HoursWorked,
-            NULL,
-            @IsSentForApproval,
-            NULL
-        );";
-
+            INSERT INTO ApprovedHours (
+                ApprovalID,
+                EmpID,
+                StartDate,
+                EndDate,
+                HoursWorked,
+                Status,
+                IsSentForApproval,
+                SupID
+            )
+            VALUES (
+                NEWID(),
+                @EmpID,
+                @StartDate,
+                @EndDate,
+                @HoursWorked,
+                NULL,
+                @IsSentForApproval,
+                NULL
+            );";
 
         SqlParameter[] parameters = [
             new("@EmpID", SqlDbType.UniqueIdentifier) { Value = dto.EmpID },
@@ -48,23 +50,23 @@ public class ApprovedHoursRepository(IConfiguration configuration)
             new("@IsSentForApproval", SqlDbType.Bit) { Value = dto.IsSentForApproval }
         ];
 
-
         SqlHelper.ExecuteNonQuery(_connectionString, commandText, CommandType.Text, parameters);
     }
+
     public List<ApprovedHoursDto> GetApprovedHoursByEmpId(Guid empId)
     {
         const string commandText = @"
-        SELECT 
-            ApprovalID,
-            EmpID,
-            SupID,
-            StartDate,
-            EndDate,
-            HoursWorked,
-            Status,
-            IsSentForApproval
-        FROM ApprovedHours
-        WHERE EmpID = @EmpID;";
+            SELECT 
+                ApprovalID,
+                EmpID,
+                SupID,
+                StartDate,
+                EndDate,
+                HoursWorked,
+                Status,
+                IsSentForApproval
+            FROM ApprovedHours
+            WHERE EmpID = @EmpID;";
 
         var result = new List<ApprovedHoursDto>();
 
@@ -91,23 +93,7 @@ public class ApprovedHoursRepository(IConfiguration configuration)
 
         return result;
     }
-    public async Task<bool> UpdateStatusAndSentAsync(Guid approvalID, string status, bool isSentForApproval)
-    {
-        using var connection = new SqlConnection(_connectionString);
-        await connection.OpenAsync();
 
-        var query = @"UPDATE ApprovedHours
-                  SET Status = @Status, IsSentForApproval = @IsSent
-                  WHERE ApprovalID = @ApprovalID";
-
-        using var command = new SqlCommand(query, connection);
-        command.Parameters.AddWithValue("@Status", status);
-        command.Parameters.AddWithValue("@IsSent", isSentForApproval);
-        command.Parameters.AddWithValue("@ApprovalID", approvalID);
-
-        var rowsAffected = await command.ExecuteNonQueryAsync();
-        return rowsAffected > 0;
-    }
     public List<ApprovedHoursDto> GetAllApprovedHours()
     {
         const string query = @"
@@ -129,8 +115,7 @@ public class ApprovedHoursRepository(IConfiguration configuration)
             FROM ApprovedHours ah
             JOIN Employees e ON ah.EmpID = e.EmpID
             JOIN Persons p ON e.PersonPK = p.PersonPK
-            JOIN Companies c ON e.WorksFor = c.CompanyPK
-        ";
+            JOIN Companies c ON e.WorksFor = c.CompanyPK";
 
         var result = new List<ApprovedHoursDto>();
 
@@ -158,14 +143,32 @@ public class ApprovedHoursRepository(IConfiguration configuration)
         return result;
     }
 
+    public async Task<bool> UpdateStatusAndSentAsync(Guid approvalID, string status, bool isSentForApproval)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var query = @"UPDATE ApprovedHours
+                      SET Status = @Status, IsSentForApproval = @IsSent
+                      WHERE ApprovalID = @ApprovalID";
+
+        using var command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@Status", status);
+        command.Parameters.AddWithValue("@IsSent", isSentForApproval);
+        command.Parameters.AddWithValue("@ApprovalID", approvalID);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
+
     public async Task<bool> UpdateStatusAsync(Guid approvalID, string status)
     {
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
 
         var query = @"UPDATE ApprovedHours
-                  SET Status = @Status
-                  WHERE ApprovalID = @ApprovalID";
+                      SET Status = @Status
+                      WHERE ApprovalID = @ApprovalID";
 
         using var command = new SqlCommand(query, connection);
         command.Parameters.AddWithValue("@Status", status);
@@ -174,9 +177,4 @@ public class ApprovedHoursRepository(IConfiguration configuration)
         var rowsAffected = await command.ExecuteNonQueryAsync();
         return rowsAffected > 0;
     }
-
-
-
-
-
 }

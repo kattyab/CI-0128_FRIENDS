@@ -19,6 +19,7 @@ using Kaizen.Server.Application.Services.ApiDeductions;
 using Kaizen.Server.Application.Services.Payroll;
 using Kaizen.Server.Application.Interfaces.Payroll;
 using Kaizen.Server.Infrastructure.Services.Payroll;
+using Kaizen.Server.Application.Interfaces.Repositories;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -59,7 +60,8 @@ builder.Services.AddScoped<BenefitCreationRepository>();
 builder.Services.AddScoped<CompanyDetailsRepository>();
 builder.Services.AddScoped<CompanyEmployeesRepository>();
 builder.Services.AddScoped<UserInfoRepository>();
-builder.Services.AddScoped<ApprovedHoursRepository>();
+builder.Services.AddScoped<IApprovedHoursRepository, ApprovedHoursRepository>();
+
 
 builder.Services.AddScoped<IIncomeTaxBracketProvider, IncomeTaxBracketFileProvider>();
 builder.Services.AddScoped<IIncomeTaxCalculator, IncomeTaxCalculator>();

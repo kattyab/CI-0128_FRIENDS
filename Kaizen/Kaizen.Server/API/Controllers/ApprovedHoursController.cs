@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Infrastructure.Repositories;
+using Kaizen.Server.Application.Interfaces.Repositories;
 
 namespace Kaizen.Server.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ApprovedHoursController(ApprovedHoursRepository approvedHoursRepository) : ControllerBase
+public class ApprovedHoursController(IApprovedHoursRepository approvedHoursRepository) : ControllerBase
 {
-    private readonly ApprovedHoursRepository _approvedHoursRepository = approvedHoursRepository;
+    private readonly IApprovedHoursRepository _approvedHoursRepository = approvedHoursRepository;
+
 
     [HttpPost("")]
     public IActionResult Create([FromBody] ApprovedHoursDto dto)
