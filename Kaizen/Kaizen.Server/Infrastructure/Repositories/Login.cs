@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos.Auth;
+using Kaizen.Server.Application.Dtos.Auth;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -132,6 +132,48 @@ namespace Kaizen.Server.Infrastructure.Repositories
             }
 
             return (Guid)companyPK;
+        }
+
+        public Guid GetAuthUserEmployeePK(AuthUserDto authUser)
+        {
+            if (IsUnauthorizedRole(authUser))
+            {
+                throw new Exception("User is not an employee.");
+            }
+            const string commandText = @"
+                SELECT E.EmpID
+                FROM Employees E
+                JOIN Users U ON E.PersonPK = U.PersonPK
+                WHERE U.UserPK = @UserPK;";
+
+            SqlParameter[] parameters = [
+                new SqlParameter("@UserPK", authUser.UserPK),
+             ];
+
+            object empIdObj = SqlHelper.ExecuteScalar(this._connectionString,
+                commandText,
+                CommandType.Text,
+                parameters);
+
+            if (empIdObj == null || empIdObj == DBNull.Value)
+            {
+                throw new Exception("Employee not found for this user.");
+            }
+
+            return (Guid)empIdObj;
+        }
+
+        private static readonly HashSet<string> AuthorizedRoles = new()
+        {
+            "Empleado",
+            "Administrador",
+            "Supervisor"
+        };
+
+        private static bool IsUnauthorizedRole(AuthUserDto authUser)
+        {
+            Console.WriteLine(authUser.Role);
+            return !AuthorizedRoles.Contains(authUser.Role);
         }
     }
 }

@@ -36,4 +36,11 @@ public class AuthService : IAuthService
         AuthUserDto authUser = this.GetAuthUser();
         return this._loginRepository.GetAuthUserCompanyPK(authUser);
     }
+
+    public Guid GetAuthUserEmployeePK()
+    {
+        AuthUserDto authUser = this.GetAuthUser();
+        return this._loginRepository.GetAuthUserEmployeePK(authUser);
+    }
+
 }
