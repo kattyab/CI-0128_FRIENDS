@@ -330,7 +330,7 @@ const benefitToUnsubscribe = ref(null);
 const benefitIndexToUnsubscribe = ref(null);
 const subscribedBenefitName = ref('');
 const maxBenefits = ref(0);
-  
+
 
 // Benefit calculation states
 const calculatedBenefitValue = ref(null);
@@ -453,16 +453,7 @@ const loadActiveBenefits = async () => {
       // Filter out benefits that are already subscribed
       availableBenefits.value = transformedBenefits.filter(availableBenefit => {
         return !activeBenefits.value.some(activeBenefit => {
-          // For API benefits (type === 'isapi' or method.type === 'specific'), compare apiId
-          if (availableBenefit.type?.toLowerCase() === 'isapi' || availableBenefit.method.type === 'specific') {
-            //console.log('Comparison is api', activeBenefit.benefitId, availableBenefit.benefitId)
-            return activeBenefit.apiId === availableBenefit.apiId;
-          }
-          // For regular benefits, compare benefitId
-          else {
-            //console.log('Comparison', activeBenefit.benefitId, availableBenefit.benefitId)
-            return activeBenefit.benefitId === availableBenefit.benefitId;
-          }
+          return activeBenefit.benefitId === availableBenefit.benefitId;
         });
       });
 
@@ -494,8 +485,6 @@ const transformBenefitMethod = (type, value) => {
         type: 'percentage',
         value: typeof value === 'number' ? value.toFixed(2) : '0.00'
       };
-    case 'isapi':
-      return { type: 'specific', value: 'Calculado externamente' };
     default:
       return { type: 'specific', value: value || 'Unknown' };
   }
@@ -621,7 +610,7 @@ const confirmFinalSubscription = async () => {
     } else {
       availableBenefitsError.value = 'Error de red. Reintentar más tarde.';
     }
-    
+
     errorMessage.value = errorMsg;
     showConfirmationModal.value = false;
   } finally {

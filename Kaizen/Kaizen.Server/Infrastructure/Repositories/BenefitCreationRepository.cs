@@ -51,10 +51,10 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     // Insert into the new Benefits table
                     string insertSql = @"
 INSERT INTO Benefits (Name, MinWorkDurationMonths, OfferedBy, IsFixed, FixedValue, IsPercentage, PercentageValue,
-    IsAPI, Path, NumParameters, IsFullTime, IsPartTime, IsByHours, IsByService
+    IsFullTime, IsPartTime, IsByHours, IsByService
 )
 VALUES (@Name, @MinWorkDurationMonths, @OfferedBy, @IsFixed, @FixedValue, @IsPercentage, @PercentageValue,
-    @IsAPI, @Path, @NumParameters, @IsFullTime, @IsPartTime, @IsByHours, @IsByService
+    @IsFullTime, @IsPartTime, @IsByHours, @IsByService
 );";
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn);
@@ -65,9 +65,6 @@ VALUES (@Name, @MinWorkDurationMonths, @OfferedBy, @IsFixed, @FixedValue, @IsPer
                     cmd.Parameters.AddWithValue("@FixedValue", benefit.FixedValue ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@IsPercentage", benefit.IsPercentage);
                     cmd.Parameters.AddWithValue("@PercentageValue", benefit.PercentageValue ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@IsAPI", benefit.IsAPI);
-                    cmd.Parameters.AddWithValue("@Path", string.IsNullOrEmpty(benefit.ApiPath) ? DBNull.Value : benefit.ApiPath);
-                    cmd.Parameters.AddWithValue("@NumParameters", benefit.NumParameters ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@IsFullTime", benefit.IsFullTime);
                     cmd.Parameters.AddWithValue("@IsPartTime", benefit.IsPartTime);
                     cmd.Parameters.AddWithValue("@IsByHours", benefit.IsByHours);

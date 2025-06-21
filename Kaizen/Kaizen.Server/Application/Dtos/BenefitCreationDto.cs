@@ -14,8 +14,5 @@
         public decimal? FixedValue { get; set; }
         public bool IsPercentage { get; set; }
         public decimal? PercentageValue { get; set; }
-        public bool IsAPI { get; set; }
-        public string? ApiPath { get; set; }
-        public int? NumParameters { get; set; }
     }
 }

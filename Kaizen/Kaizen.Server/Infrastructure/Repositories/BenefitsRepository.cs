@@ -1,9 +1,7 @@
-﻿using Kaizen.Server.Application.Dtos;
-using Kaizen.Server.Application.Dtos.Auth;
 using Kaizen.Server.Application.Dtos.Benefits;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
-using System;
 using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories
@@ -14,9 +12,65 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
         public BenefitsRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("KaizenDb")
+            this._connectionString = configuration.GetConnectionString("KaizenDb")
                 ?? throw new InvalidOperationException(
                     "La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
+        }
+
+        public List<BenefitDto> GetBenefits(Guid companyPK)
+        {
+            const string getBenefitsCommandText = @"
+                SELECT
+                    ID,
+                    Name,
+                    MinWorkDurationMonths,
+                    IsFixed,
+                    FixedValue,
+                    IsPercentage,
+                    PercentageValue,
+                    IsFullTime,
+                    IsPartTime,
+                    IsByHours,
+                    IsByService
+                FROM
+                    Benefits
+                WHERE
+                    OfferedBy = @OfferedBy";
+
+            SqlParameter[] getBenefitsParameters = [
+                new SqlParameter("@OfferedBy", companyPK)
+            ];
+
+            using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString,
+                getBenefitsCommandText,
+                CommandType.Text,
+                getBenefitsParameters);
+
+            List<BenefitDto> benefits = [];
+            while (reader.Read())
+            {
+                BenefitDto benefit = new()
+                {
+                    ID = reader.GetGuid(reader.GetOrdinal("ID")),
+                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                    MinWorkDurationMonths = reader.GetInt32(reader.GetOrdinal("MinWorkDurationMonths")),
+                    IsFixed = reader.GetBoolean(reader.GetOrdinal("IsFixed")),
+                    FixedValue = reader.IsDBNull(reader.GetOrdinal("FixedValue"))
+                        ? null
+                        : reader.GetDecimal(reader.GetOrdinal("FixedValue")),
+                    IsPercentage = reader.GetBoolean(reader.GetOrdinal("IsPercentage")),
+                    PercentageValue = reader.IsDBNull(reader.GetOrdinal("PercentageValue"))
+                        ? null
+                        : reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
+                    IsFullTime = reader.GetBoolean(reader.GetOrdinal("IsFullTime")),
+                    IsPartTime = reader.GetBoolean(reader.GetOrdinal("IsPartTime")),
+                    IsByHours = reader.GetBoolean(reader.GetOrdinal("IsByHours")),
+                    IsByService = reader.GetBoolean(reader.GetOrdinal("IsByService")),
+                };
+
+                benefits.Add(benefit);
+            }
+            return benefits;
         }
 
         public BenefitDto? GetBenefit(Guid guid, Guid companyPK)
@@ -33,9 +87,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     FixedValue,
                     IsPercentage,
                     PercentageValue,
-                    IsAPI,
-                    Path,
-                    NumParameters,
                     IsFullTime,
                     IsPartTime,
                     IsByHours,
@@ -71,18 +122,13 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     PercentageValue = reader.IsDBNull(reader.GetOrdinal("PercentageValue"))
                         ? null
                         : reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
-                    IsAPI = reader.GetBoolean(reader.GetOrdinal("IsAPI")),
-                    Path = reader.IsDBNull(reader.GetOrdinal("Path"))
-                        ? null
-                        : reader.GetString(reader.GetOrdinal("Path")),
-                    NumParameters = reader.IsDBNull(reader.GetOrdinal("NumParameters"))
-                        ? null
-                        : reader.GetInt32(reader.GetOrdinal("NumParameters")),
                     IsFullTime = reader.GetBoolean(reader.GetOrdinal("IsFullTime")),
                     IsPartTime = reader.GetBoolean(reader.GetOrdinal("IsPartTime")),
                     IsByHours = reader.GetBoolean(reader.GetOrdinal("IsByHours")),
                     IsByService = reader.GetBoolean(reader.GetOrdinal("IsByService")),
                 };
+
+                benefit.IsSubscribed = this.GetIfBenefitIsSubscribed(benefit.ID);
             }
 
             return benefit;
@@ -91,6 +137,11 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
         public void UpdateBenefit(BenefitDto benefit, Guid companyPK)
         {
+            if (this.GetIfBenefitIsSubscribed(benefit.ID))
+            {
+                throw new InvalidOperationException("Cannot update a benefit that is already subscribed to by employees.");
+            }
+
             const string updateBenefitCommandText = @"
                 UPDATE
                     Benefits
@@ -101,9 +152,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     FixedValue = @FixedValue,
                     IsPercentage = @IsPercentage,
                     PercentageValue = @PercentageValue,
-                    IsAPI = @IsAPI,
-                    Path = @Path,
-                    NumParameters = @NumParameters,
                     IsFullTime = @IsFullTime,
                     IsPartTime = @IsPartTime,
                     IsByHours = @IsByHours,
@@ -122,9 +170,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 new SqlParameter("@FixedValue", (object?)benefit.FixedValue ?? DBNull.Value),
                 new SqlParameter("@IsPercentage", benefit.IsPercentage),
                 new SqlParameter("@PercentageValue", (object?)benefit.PercentageValue ?? DBNull.Value),
-                new SqlParameter("@IsAPI", benefit.IsAPI),
-                new SqlParameter("@Path", (object?)benefit.Path ?? DBNull.Value),
-                new SqlParameter("@NumParameters", (object?)benefit.NumParameters ?? DBNull.Value),
                 new SqlParameter("@IsFullTime", benefit.IsFullTime),
                 new SqlParameter("@IsPartTime", benefit.IsPartTime),
                 new SqlParameter("@IsByHours", benefit.IsByHours),
@@ -135,6 +180,23 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 updateBenefitCommandText,
                 CommandType.Text,
                 updateBenefitParameters);
+        }
+
+        private bool GetIfBenefitIsSubscribed(Guid benefitID)
+        {
+            const string checkSubscriptionCommandText = @"
+                SELECT CASE WHEN EXISTS (
+                    SELECT 1 FROM ChosenBenefits WHERE BenefitID = @BenefitID
+                ) THEN 1 ELSE 0
+                END;";
+            SqlParameter[] checkSubscriptionParameters = [
+                new SqlParameter("@BenefitID", benefitID)
+            ];
+            object? isSubscribedResult = SqlHelper.ExecuteScalar(this._connectionString,
+                checkSubscriptionCommandText,
+                CommandType.Text,
+                checkSubscriptionParameters);
+            return isSubscribedResult is int && (int)isSubscribedResult == 1;
         }
     }
 }
