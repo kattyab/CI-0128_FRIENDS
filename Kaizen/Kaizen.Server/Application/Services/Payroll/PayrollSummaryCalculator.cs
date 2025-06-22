@@ -35,6 +35,8 @@ namespace Kaizen.Server.Application.Services.Payroll
             var (api, benefit, ccss, income, total) = await _deductionAggregator.GetAllDeductionsAsync(
                 request.CompanyId, employee, proportional, isFullPeriod, salaryForDeductions);
 
+            Console.WriteLine(employee.ContractType);
+
             return new PayrollSummary
             {
                 EmployeeId = employee.EmpID,
