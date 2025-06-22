@@ -23,10 +23,10 @@
         <span class="material-icons">person_add</span>
         <span class="text">Agregar Empleados</span>
       </router-link>
+      <router-link class="button" to="/benefits">
 
-      <router-link class="button" to="/benefits/create">
         <span class="material-icons">workspace_premium</span>
-        <span class="text">Agregar Beneficios</span>
+        <span class="text">Beneficios</span>
       </router-link>
 
       <router-link class="button" to="/payroll">

@@ -24,7 +24,9 @@ const router = createRouter({
         { path: 'employees/:id', name: 'Employee Details', component: () => import('./pages/employees/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
         { path: 'employees/:id/edit', name: 'Employee Edit', component: () => import('./pages/employees/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true, requiredRoles: ['Supervisor'] } },
-        { path: 'benefits/create', name: 'Benefit Creation', component: () => import('./pages/benefits/create.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'benefits', name: 'Benefits List', component: () => import('./pages/benefits/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'benefits/create', name: 'Create Benefit', component: () => import('./pages/benefits/create.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'benefits/:id', name: 'Show Benefit', component: () => import('./pages/benefits/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'benefits/:id/edit', name: 'Edit Benefit', component: () => import('./pages/benefits/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'benefits/subscribe', name: 'Benefit Subscription', component: () => import('./pages/benefits/subscribe.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Supervisor', 'Empleado'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
@@ -72,7 +74,7 @@ router.beforeEach(async (to, from, next) => {
       const registersHours = userInfo.data.registersHours;
 
       if (!registersHours) {
-        return next('/unauthorized'); 
+        return next('/unauthorized');
       }
     }
 
