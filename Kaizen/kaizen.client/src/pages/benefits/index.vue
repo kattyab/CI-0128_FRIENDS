@@ -12,7 +12,7 @@
         <thead>
           <tr>
             <th scope="col">Nombre</th>
-            <th scope="col">Minimum Hours</th>
+            <th scope="col">Tiempo mínimo (meses)</th>
             <th scope="col">Contratos</th>
             <th scope="col">Tipo</th>
             <th scope="col">Valor</th>
