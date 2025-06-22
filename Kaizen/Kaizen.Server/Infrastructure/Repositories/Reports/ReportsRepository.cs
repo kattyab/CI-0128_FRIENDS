@@ -21,6 +21,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                     gp.Period,
                     gp.ExecutedOn,
                     CONCAT(owner.Name, ' ', owner.LastName) AS OwnerFullName,
+                    c.CompanyName,
                     gp.TotalLaborCharges,
                     gp.TotalMoneyPaid,
                     ISNULL(SUM(CASE WHEN e.ContractType = 'Servicios Profesionales' THEN pr.BrutePaid ELSE 0 END), 0) AS ServiciosProfesionalesAmount,
@@ -38,7 +39,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                     gp.TotalLaborCharges,
                     gp.TotalMoneyPaid,
                     owner.Name,
-                    owner.LastName
+                    owner.LastName,
+                    c.CompanyName
                 ORDER BY gp.ExecutedOn DESC";
 
             using var connection = new SqlConnection(_connectionString);
@@ -61,6 +63,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                     Period = reader.GetString("Period"),
                     ExecutedOn = reader.GetDateTime("ExecutedOn"),
                     OwnerFullName = reader.GetString("OwnerFullName"),
+                    CompanyName = reader.GetString("CompanyName"),
                     TotalLaborCharges = reader.GetDecimal("TotalLaborCharges"),
                     TotalMoneyPaid = reader.GetDecimal("TotalMoneyPaid"),
                     ServiciosProfesionalesAmount = reader.GetDecimal("ServiciosProfesionalesAmount"),

@@ -5,6 +5,7 @@ namespace Kaizen.Server.Application.Dtos.Reports
         public string Period { get; set; }
         public DateTime ExecutedOn { get; set; }
         public string OwnerFullName { get; set; }
+        public string CompanyName { get; set; }
         public decimal TotalLaborCharges { get; set; }
         public decimal TotalMoneyPaid { get; set; }
         public decimal ServiciosProfesionalesAmount { get; set; }

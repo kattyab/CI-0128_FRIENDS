@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" ref="exportContainer">
     <div class="header">
       <button class="export-btn" @click="openExportModal">
         📤 Exportar
@@ -14,7 +14,7 @@
         </select>
       </div>
 
-      <div class="employee-info">
+      <div class="employee-info" ref="headerInfo">
         <div class="info-item">
           <span class="info-label">Nombre de la empresa:</span>
           <span class="info-value">{{ companyName }}</span>
@@ -30,8 +30,7 @@
       </div>
     </div>
 
-    <div class="payroll-content" v-if="currentPayrollData">
-      <!-- Salaries Section -->
+    <div class="payroll-content" v-if="currentPayrollData" ref="payrollContent">
       <div class="payroll-section">
         <h3 class="section-title" @click="toggleSection('salaries')" style="cursor: pointer;">
           Salarios
@@ -41,7 +40,7 @@
           <tbody>
             <tr class="payroll-row total-row">
               <td class="payroll-cell">Total salarios</td>
-              <td class="payroll-cell amount total-amount">
+              <td class="payroll-cell amount total-amount bold">
                 <span class="currency">₡</span>{{ formatAmount(totalSalarios) }}
               </td>
             </tr>
@@ -57,7 +56,6 @@
         </table>
       </div>
 
-      <!-- Legal Deductions Section -->
       <div class="payroll-section">
         <h3 class="section-title" @click="toggleSection('legalDeductions')" style="cursor: pointer;">
           Deducciones Legales
@@ -67,7 +65,7 @@
           <tbody>
             <tr class="payroll-row total-row">
               <td class="payroll-cell">Total pagos de ley</td>
-              <td class="payroll-cell amount total-amount">
+              <td class="payroll-cell amount total-amount bold">
                 <span class="currency">₡</span>{{ formatAmount(currentPayrollData.totalLaborCharges) }}
               </td>
             </tr>
@@ -83,7 +81,6 @@
         </table>
       </div>
 
-      <!-- Total Employer Cost Section -->
       <div class="payroll-section">
         <h3 class="section-title" @click="toggleSection('totalCost')" style="cursor: pointer;">
           Costo total empleador
@@ -93,7 +90,7 @@
           <tbody>
             <tr class="payroll-row total-row">
               <td class="payroll-cell">Costo total empleador</td>
-              <td class="payroll-cell amount total-amount">
+              <td class="payroll-cell amount total-amount bold">
                 <span class="currency">₡</span>{{ formatAmount(currentPayrollData.totalMoneyPaid) }}
               </td>
             </tr>
@@ -121,7 +118,6 @@
       <div class="error-text">Error al cargar los datos: {{ error }}</div>
     </div>
 
-    <!-- Export Modal -->
     <div v-if="showExportModal" class="modal-overlay" @click="closeExportModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -131,7 +127,7 @@
 
         <div class="modal-body">
           <p class="modal-description">
-            Seleccione cómo desea exportar el reporte de nómina para el período {{ formatPeriodDisplay(selectedPeriod) }}:
+            Seleccione cómo desea exportar el reporte de planilla para el período {{ formatPeriodDisplay(selectedPeriod) }}:
           </p>
 
           <div class="export-options">
@@ -155,7 +151,7 @@
 
         <div class="modal-footer">
           <button class="modal-cancel-btn" @click="closeExportModal">
-            Cancelar
+            Cerrar
           </button>
         </div>
       </div>
@@ -166,6 +162,91 @@
 <script setup>
   import { ref, computed, watch, onMounted } from 'vue'
   import axios from 'axios'
+  import html2pdf from 'html2pdf.js'
+
+  const DECIMAL_PLACES = 2
+  const THOUSANDS_SEPARATOR = '.'
+  const DECIMAL_SEPARATOR = ','
+  const DEFAULT_AMOUNT = '0,00'
+  const PDF_MARGIN = 10
+  const PDF_SCALE = 2
+  const PDF_QUALITY = 0.98
+  const PDF_FORMAT = 'a4'
+  const PDF_ORIENTATION = 'portrait'
+  const PDF_UNIT = 'mm'
+  const PDF_IMAGE_TYPE = 'jpeg'
+  const CONTAINER_PADDING = '20px'
+  const CONTAINER_COLOR = '#003c63'
+  const FONT_FAMILY = 'Arial, sans-serif'
+  const HEADER_MARGIN_BOTTOM = '20px'
+  const HEADER_INFO_MARGIN_BOTTOM = '30px'
+  const LOCALE_ES_CR = 'es-CR'
+  const DATE_FORMAT_OPTIONS = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }
+  const FALLBACK_DATE = 'N/A'
+
+  const MONTH_NAMES = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ]
+
+  const GUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+
+  const API_ENDPOINT_TEMPLATE = '/api/Reports/company/'
+
+  const ERROR_MESSAGES = {
+    GUID_NOT_FOUND: 'Company GUID not found in URL',
+    FETCH_DEFAULT: 'Error fetching payroll data'
+  }
+
+  const SALARY_ITEM_CONFIGS = [
+    {
+      key: 'porHorasAmount',
+      label: 'Salario por horas'
+    },
+    {
+      key: 'tiempoCompletoAmount',
+      label: 'Salario tiempo completo'
+    },
+    {
+      key: 'serviciosProfesionalesAmount',
+      label: 'Salario servicios profesionales'
+    }
+  ]
+
+  const LEGAL_DEDUCTION_CONFIGS = [
+    { key: 'sem', label: 'SEM' },
+    { key: 'ivm', label: 'IVM' },
+    {
+      key: 'cuotaPatronalBancoPopular',
+      label: 'Cuota Patronal Banco Popular'
+    },
+    {
+      key: 'asignacionesFamiliares',
+      label: 'Asignaciones Familiares'
+    },
+    { key: 'imas', label: 'IMAS' },
+    { key: 'ina', label: 'INA' },
+    {
+      key: 'aporteBancoPopular',
+      label: 'Aporte Banco Popular'
+    },
+    { key: 'fcl', label: 'FCL' },
+    {
+      key: 'fondoPensionesComplementarias',
+      label: 'Fondo de Pensiones Complementarias'
+    },
+    { key: 'ins', label: 'INS' }
+  ]
+
+  const SECTION_NAMES = {
+    SALARIES: 'salaries',
+    LEGAL_DEDUCTIONS: 'legalDeductions',
+    TOTAL_COST: 'totalCost'
+  }
 
   const selectedPeriod = ref('')
   const payrollDataList = ref([])
@@ -173,21 +254,21 @@
   const error = ref(null)
   const pdfDownloaded = ref(false)
   const emailSent = ref(false)
-  const companyName = ref('Kaizen')
-  const companyGuid = ref('')
   const showExportModal = ref(false)
-
-  const API_BASE_URL = import.meta.env.VITE_API_URL
+  const companyName = ref('')
+  const companyGuid = ref('')
 
   const collapsedSections = ref({
-    salaries: false,
-    legalDeductions: false,
-    totalCost: false,
+    [SECTION_NAMES.SALARIES]: false,
+    [SECTION_NAMES.LEGAL_DEDUCTIONS]: false,
+    [SECTION_NAMES.TOTAL_COST]: false
   })
 
-  function toggleSection(sectionKey) {
-    collapsedSections.value[sectionKey] = !collapsedSections.value[sectionKey]
-  }
+  const exportContainer = ref(null)
+  const headerInfo = ref(null)
+  const payrollContent = ref(null)
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL
 
   const availablePeriods = computed(() => {
     return payrollDataList.value.map(item => item.period).sort((a, b) => {
@@ -209,70 +290,34 @@
     if (!currentPayrollData.value) return []
 
     const data = currentPayrollData.value
-    return [
-      {
-        key: 'porHorasAmount',
-        label: 'Salario por horas',
-        amount: data.porHorasAmount
-      },
-      {
-        key: 'tiempoCompletoAmount',
-        label: 'Salario tiempo completo',
-        amount: data.tiempoCompletoAmount
-      },
-      {
-        key: 'serviciosProfesionalesAmount',
-        label: 'Salario servicios profesionales',
-        amount: data.serviciosProfesionalesAmount
-      }
-    ]
+    return SALARY_ITEM_CONFIGS.map(config => ({
+      key: config.key,
+      label: config.label,
+      amount: data[config.key]
+    }))
   })
 
   const legalDeductions = computed(() => {
     if (!currentPayrollData.value) return []
 
     const data = currentPayrollData.value
-    return [
-      { key: 'sem', label: 'SEM', amount: data.sem },
-      { key: 'ivm', label: 'IVM', amount: data.ivm },
-      {
-        key: 'cuotaPatronalBancoPopular',
-        label: 'Cuota Patronal Banco Popular',
-        amount: data.cuotaPatronalBancoPopular
-      },
-      {
-        key: 'asignacionesFamiliares',
-        label: 'Asignaciones Familiares',
-        amount: data.asignacionesFamiliares
-      },
-      { key: 'imas', label: 'IMAS', amount: data.imas },
-      { key: 'ina', label: 'INA', amount: data.ina },
-      {
-        key: 'aporteBancoPopular',
-        label: 'Aporte Banco Popular',
-        amount: data.aporteBancoPopular
-      },
-      { key: 'fcl', label: 'FCL', amount: data.fcl },
-      {
-        key: 'fondoPensionesComplementarias',
-        label: 'Fondo de Pensiones Complementarias',
-        amount: data.fondoPensionesComplementarias
-      },
-      { key: 'ins', label: 'INS', amount: data.ins }
-    ]
+    return LEGAL_DEDUCTION_CONFIGS.map(config => ({
+      key: config.key,
+      label: config.label,
+      amount: data[config.key]
+    }))
   })
 
   function extractGuidFromUrl() {
     const currentUrl = window.location.href
-
-    const guidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
-    const match = currentUrl.match(guidPattern)
+    const match = currentUrl.match(GUID_PATTERN)
 
     if (match) {
       return match[0]
     }
+
     const pathParts = window.location.pathname.split('/')
-    const guidIndex = pathParts.findIndex(part => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(part))
+    const guidIndex = pathParts.findIndex(part => GUID_PATTERN.test(part))
 
     if (guidIndex !== -1) {
       return pathParts[guidIndex]
@@ -282,37 +327,29 @@
   }
 
   function formatAmount(amount) {
-    if (typeof amount !== 'number') return '0,00'
+    if (typeof amount !== 'number') return DEFAULT_AMOUNT
 
-    const parts = amount.toFixed(2).split('.')
+    const parts = amount.toFixed(DECIMAL_PLACES).split('.')
     const integerPart = parts[0]
     const decimalPart = parts[1]
 
-    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-    return `${formattedInteger},${decimalPart}`
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, THOUSANDS_SEPARATOR)
+    return `${formattedInteger}${DECIMAL_SEPARATOR}${decimalPart}`
   }
 
   function formatPeriodDisplay(period) {
     const [month, year] = period.split('-')
-    const monthNames = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ]
-    return `${monthNames[parseInt(month) - 1]} ${year}`
+    return `${MONTH_NAMES[parseInt(month) - 1]} ${year}`
   }
 
   function formatExecutionDate(dateString) {
-    if (!dateString) return 'N/A'
+    if (!dateString) return FALLBACK_DATE
 
     try {
       const date = new Date(dateString)
-      return date.toLocaleDateString('es-CR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
+      return date.toLocaleDateString(LOCALE_ES_CR, DATE_FORMAT_OPTIONS)
     } catch (e) {
-      return 'N/A'
+      return FALLBACK_DATE
     }
   }
 
@@ -324,12 +361,12 @@
       const guid = extractGuidFromUrl()
 
       if (!guid) {
-        throw new Error('Company GUID not found in URL')
+        throw new Error(ERROR_MESSAGES.GUID_NOT_FOUND)
       }
 
       companyGuid.value = guid
 
-      const apiEndpoint = `${API_BASE_URL}/api/Reports/company/${guid}`
+      const apiEndpoint = `${API_BASE_URL}${API_ENDPOINT_TEMPLATE}${guid}`
 
       const response = await axios.get(apiEndpoint)
 
@@ -337,18 +374,25 @@
 
       if (response.data.length > 0) {
         selectedPeriod.value = availablePeriods.value[0]
+        companyName.value = response.data[0].companyName
       }
 
     } catch (err) {
-      error.value = err.response?.data?.message || err.message || 'Error fetching payroll data'
+      error.value = err.response?.data?.message || err.message || ERROR_MESSAGES.FETCH_DEFAULT
       console.error('Error fetching payroll data:', err)
     } finally {
       loading.value = false
     }
   }
 
+  function toggleSection(sectionName) {
+    collapsedSections.value[sectionName] = !collapsedSections.value[sectionName]
+  }
+
   function openExportModal() {
     showExportModal.value = true
+    pdfDownloaded.value = false
+    emailSent.value = false
   }
 
   function closeExportModal() {
@@ -356,43 +400,56 @@
   }
 
   function handleEmail() {
-    console.log('Sending email for period:', selectedPeriod.value)
-
-    // Hide modal and show email success status
-    closeExportModal()
-
-    // Here you would implement the actual email sending functionality
-    // For now, we'll simulate it
-    alert('Enviando por correo electrónico...')
-
-    setTimeout(() => {
-      emailSent.value = true
-    }, 1000)
+    emailSent.value = true
+    showExportModal.value = false
   }
 
   function handleDownloadPDF() {
-    console.log('Downloading PDF for period:', selectedPeriod.value)
-    console.log('Data:', currentPayrollData.value)
+    if (!exportContainer.value) return
 
-    // Hide modal and show PDF download success status
-    closeExportModal()
+    const pdfExportWrapper = document.createElement('div')
+    pdfExportWrapper.style.padding = CONTAINER_PADDING
+    pdfExportWrapper.style.color = CONTAINER_COLOR
+    pdfExportWrapper.style.fontFamily = FONT_FAMILY
 
-    // Here you would implement the actual PDF generation and download
-    // For now, we'll simulate it
-    alert('Generando PDF...')
+    const periodTitle = document.createElement('h2')
+    periodTitle.textContent = `Reporte de Nómina - ${formatPeriodDisplay(selectedPeriod.value)}`
+    periodTitle.style.textAlign = 'center'
+    periodTitle.style.marginBottom = HEADER_MARGIN_BOTTOM
+    pdfExportWrapper.appendChild(periodTitle)
 
-    setTimeout(() => {
-      pdfDownloaded.value = true
-    }, 1000)
-  }
+    if (headerInfo.value) {
+      const headerClone = headerInfo.value.cloneNode(true)
+      headerClone.style.marginBottom = HEADER_INFO_MARGIN_BOTTOM
+      pdfExportWrapper.appendChild(headerClone)
+    }
 
-  // Legacy function for backward compatibility
-  function exportData() {
-    openExportModal()
+    if (payrollContent.value) {
+      const payrollClone = payrollContent.value.cloneNode(true)
+      pdfExportWrapper.appendChild(payrollClone)
+    }
+
+    const pdfOptions = {
+      margin: PDF_MARGIN,
+      filename: `reporte_planilla_${selectedPeriod.value}.pdf`,
+      image: { type: PDF_IMAGE_TYPE, quality: PDF_QUALITY },
+      html2canvas: { scale: PDF_SCALE },
+      jsPDF: { unit: PDF_UNIT, format: PDF_FORMAT, orientation: PDF_ORIENTATION }
+    }
+
+    html2pdf()
+      .set(pdfOptions)
+      .from(pdfExportWrapper)
+      .save()
+      .then(() => {
+        pdfDownloaded.value = true
+      })
+      .catch(err => {
+        console.error('Error generating PDF:', err)
+      })
   }
 
   watch(selectedPeriod, (newPeriod) => {
-    console.log(`Selected period changed to: ${newPeriod}`)
     pdfDownloaded.value = false
     emailSent.value = false
   })
@@ -495,11 +552,24 @@
     font-weight: 400;
   }
 
-  .payroll-content {
+  .pdf-export-wrapper {
+    background-color: white;
+    color: #003c63;
     padding: 30px;
   }
 
+  .pdf-period-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .payroll-content {
+  }
+
   .payroll-section {
+    margin-top: 10px;
     margin-bottom: 30px;
   }
 
@@ -510,17 +580,12 @@
     margin-bottom: 15px;
     padding-bottom: 8px;
     border-bottom: 2px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     user-select: none;
   }
 
   .toggle-arrow {
     font-weight: 700;
-    user-select: none;
-    width: 20px;
-    text-align: right;
+    font-size: 18px;
   }
 
   .payroll-table {
@@ -562,167 +627,103 @@
         border-bottom-right-radius: 10px;
       }
 
-      .payroll-row.total-row:hover {
-        background-color: #e6e6e6;
-      }
-
-        .payroll-row.total-row:hover > td:first-child {
-          border-top-left-radius: 10px;
-          border-bottom-left-radius: 10px;
-        }
-
-        .payroll-row.total-row:hover > td:last-child {
-          border-top-right-radius: 10px;
-          border-bottom-right-radius: 10px;
-        }
-
   .payroll-cell {
-    padding: 12px 20px;
-    text-align: left;
+    padding: 10px 15px;
+    font-size: 15px;
     color: #003c63;
   }
 
     .payroll-cell.amount {
-      padding: 12px 20px;
       text-align: right;
-      font-weight: 600;
-      color: #003c63;
     }
 
-    .payroll-cell.total-amount {
-      color: #003c63;
-      font-size: 16px;
-      font-weight: 600;
-    }
+  .total-amount {
+    font-weight: 700;
+  }
 
   .currency {
-    color: #003c63;
-    margin-right: 4px;
-    opacity: 0.7;
+    font-weight: 600;
+    margin-right: 6px;
   }
 
   .status-section {
     margin-top: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
   }
 
   .status-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    color: #006400;
+    font-weight: 600;
   }
-
-    .status-item:last-child {
-      margin-bottom: 0;
-    }
 
   .status-icon {
-    color: #00c3b6;
-    font-weight: bold;
-    font-size: 16px;
+    font-weight: 700;
+    font-size: 20px;
   }
 
-  .status-text {
-    color: #00c3b6;
-    font-weight: 500;
-  }
-
-  .loading-section {
-    padding: 40px;
-    text-align: center;
-  }
-
-  .loading-text {
-    color: #003c63;
-    font-size: 16px;
-  }
-
+  .loading-section,
   .error-section {
-    padding: 40px;
     text-align: center;
+    padding: 40px 20px;
+    font-weight: 600;
+    font-size: 18px;
+    color: #a00000;
   }
 
-  .error-text {
-    color: #dc3545;
-    font-size: 16px;
-  }
-
-  /* Modal Styles */
   .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(4px);
   }
 
   .modal-content {
     background: white;
     border-radius: 12px;
+    max-width: 450px;
     width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    animation: modalSlideIn 0.3s ease-out;
-  }
-
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-50px) scale(0.95);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.3);
+    display: flex;
+    flex-direction: column;
   }
 
   .modal-header {
-    padding: 24px 24px 0 24px;
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 700;
+    font-size: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .modal-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #003c63;
-    margin: 0;
-  }
-
   .modal-close {
-    background: none;
+    background: transparent;
     border: none;
-    font-size: 24px;
-    color: #6b7280;
+    font-size: 28px;
     cursor: pointer;
-    padding: 4px;
+    color: #003c63;
+    font-weight: 700;
     line-height: 1;
-    transition: color 0.2s ease;
   }
-
-    .modal-close:hover {
-      color: #003c63;
-    }
 
   .modal-body {
-    padding: 24px;
+    padding: 20px;
   }
 
   .modal-description {
-    font-size: 16px;
-    color: #6b7280;
-    margin-bottom: 24px;
-    line-height: 1.5;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #003c63;
   }
 
   .export-options {
@@ -735,114 +736,60 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 16px;
-    border: 2px solid #e2e8f0;
     border-radius: 8px;
-    background: white;
+    padding: 12px 16px;
+    border: 1px solid #003c63;
     cursor: pointer;
-    transition: all 0.2s ease;
+    background: white;
+    transition: all 0.3s ease;
     text-align: left;
-    width: 100%;
   }
 
     .export-option-btn:hover {
+      background: #003c63;
+      color: white;
       border-color: #003c63;
-      background-color: #f8fafc;
-      transform: translateY(-1px);
     }
 
   .option-icon {
-    font-size: 24px;
-    width: 32px;
-    text-align: center;
+    font-size: 28px;
+    flex-shrink: 0;
   }
 
   .option-content {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .option-title {
+    font-weight: 700;
     font-size: 16px;
-    font-weight: 600;
-    color: #003c63;
-    margin-bottom: 4px;
   }
 
   .option-description {
-    font-size: 14px;
-    color: #6b7280;
+    font-size: 13px;
   }
 
   .modal-footer {
-    padding: 0 24px 24px 24px;
+    padding: 16px 20px;
+    border-top: 1px solid #e2e8f0;
     display: flex;
     justify-content: flex-end;
   }
 
   .modal-cancel-btn {
-    background: none;
-    border: 1px solid #d1d5db;
-    color: #6b7280;
-    padding: 8px 16px;
+    background: #f44336;
+    color: white;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 18px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
   }
 
     .modal-cancel-btn:hover {
-      background-color: #f3f4f6;
-      color: #374151;
+      background: #d32f2f;
     }
-
-  @media (max-width: 768px) {
-    .container {
-      margin: 10px;
-    }
-
-    .header {
-      padding: 15px;
-    }
-
-    .employee-info {
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .payroll-content {
-      padding: 20px;
-    }
-
-    .export-btn {
-      position: static;
-      margin-top: 15px;
-      align-self: flex-start;
-    }
-
-    .modal-content {
-      width: 95%;
-      margin: 20px;
-    }
-
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-      padding-left: 16px;
-      padding-right: 16px;
-    }
-
-    .export-options {
-      gap: 8px;
-    }
-
-    .export-option-btn {
-      padding: 12px;
-      gap: 12px;
-    }
-
-    .option-icon {
-      font-size: 20px;
-      width: 24px;
-    }
-  }
 </style>
