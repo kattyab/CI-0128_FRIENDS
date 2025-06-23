@@ -570,14 +570,14 @@
 
   .payroll-section {
     margin-top: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
   }
 
   .section-title {
     font-size: 18px;
     font-weight: 700;
     color: #003c63;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     padding-bottom: 8px;
     border-bottom: 2px solid #e2e8f0;
     user-select: none;
