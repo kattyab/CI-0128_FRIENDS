@@ -85,5 +85,30 @@ namespace Kaizen.Server.API.Controllers
                 return this.StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
+        [HttpDelete("{guid}")]
+        public IActionResult Delete(Guid guid)
+        {
+            if (this._authService.IsAuthenticated() == false)
+            {
+                return this.Unauthorized();
+            }
+
+            try
+            {
+                if (!this.ModelState.IsValid)
+                {
+                    return this.BadRequest(this.ModelState);
+                }
+
+                this._benefitsRepository.DeleteBenefit(guid);
+
+                return this.NoContent();
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
     }
 }

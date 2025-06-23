@@ -4,7 +4,7 @@
     <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
       <div></div>
       <a class="btn btn-lg btn-primary self-align-end" href="/benefits/create">
-          Crear beneficio
+        Crear beneficio
       </a>
     </div>
     <div class="mx-4">
@@ -23,54 +23,166 @@
           <tr class="position-relative" v-for="(item, index) in data" :key="index">
             <th scope="row">{{ item.name }}</th>
             <td>{{ item.minWorkDurationMonths }}</td>
-              <td>
-                <div v-if="item.isFullTime">Tiempo completo</div>
-                <div v-if="item.isPartTime">Medio tiempo</div>
-                <div v-if="item.isByHours">Por horas</div>
-                <div v-if="item.isByService">Por servicio</div>
-              </td>
+            <td>
+              <div v-if="item.isFullTime">Tiempo completo</div>
+              <div v-if="item.isPartTime">Medio tiempo</div>
+              <div v-if="item.isByHours">Por horas</div>
+              <div v-if="item.isByService">Por servicio</div>
+            </td>
             <td>{{ item.isFixed ? "Fijo" : "Porcentaje" }}</td>
             <td>{{ item.isFixed ? '₡' + item.fixedValue : item.percentageValue + '%' }}</td>
             <td>
               <a :href="`/benefits/${item.id}`" class="btn btn-primary">
                 <span class="material-icons">visibility</span>
               </a>
-              <!-- TODO use a post request in this page -->
-              <a :href="`/benefits/${item.id}`" class="btn btn-danger ms-1">
+              <button @click="openDeleteModal(item)"
+                      class="btn btn-danger ms-1"
+                      type="button">
                 <span class="material-icons">delete</span>
-              </a>
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <div v-if="showFormError" class="form-error-message alert alert-danger mt-3 mb-3 justify-content-center">
+      {{ formErrorMessage }}
+    </div>
+    <div v-if="showSuccessMessage" class="success-message alert alert-success mt-3 mb-3 justify-content-center">
+      {{ successMessage }}
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal"
+         class="modal fade show"
+         style="display: block;"
+         tabindex="-1"
+         aria-labelledby="deleteModalLabel">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+            <button type="button"
+                    class="btn-close"
+                    @click="closeDeleteModal"
+                    aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ¿Está seguro que desea eliminar el beneficio "{{ itemToDelete?.name }}"?
+            <br>
+            <small class="text-muted">Esta acción no se puede deshacer.</small>
+          </div>
+          <div class="modal-footer">
+            <button type="button"
+                    class="btn btn-secondary"
+                    @click="closeDeleteModal">
+              Cancelar
+            </button>
+            <button type="button"
+                    class="btn btn-danger"
+                    @click="confirmDelete">
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal backdrop -->
+    <div v-if="showDeleteModal"
+         class="modal-backdrop fade show"
+         @click="closeDeleteModal"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import axios from "axios";
+  import { ref, onMounted } from "vue";
+  import axios from "axios";
 
-const data = ref([]);
+  const data = ref([]);
+  const itemToDelete = ref(null);
+  const showDeleteModal = ref(false);
 
-async function fetchData() {
-  try {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/benefits`, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log("Data fetched successfully:", response.data);
-        data.value = response.data;
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        throw error;
-      });
-  } catch (e) {
-    console.log(e);
+  const showFormError = ref(false);
+  const formErrorMessage = ref('');
+  const showSuccessMessage = ref(false);
+  const successMessage = ref('');
+
+  async function fetchData() {
+    try {
+      axios
+        .get(`${import.meta.env.VITE_API_URL}/api/benefits`, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log("Data fetched successfully:", response.data);
+          data.value = response.data;
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          throw error;
+        });
+    } catch (e) {
+      console.log(e);
+    }
   }
-}
 
-onMounted(fetchData);
+  function openDeleteModal(item) {
+    itemToDelete.value = item;
+    showDeleteModal.value = true;
+  }
+
+  function closeDeleteModal() {
+    showDeleteModal.value = false;
+    itemToDelete.value = null;
+  }
+
+  const showError = (message) => {
+    formErrorMessage.value = message;
+    showFormError.value = true;
+  };
+
+  const showSuccess = (message) => {
+    successMessage.value = message;
+    showSuccessMessage.value = true;
+  };
+
+  async function deleteBenefit(id) {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/benefits/${id}`, {
+        withCredentials: true,
+      });
+      console.log("Benefit deleted successfully");
+      showSuccess("El beneficio fue eliminado exitosamente.");
+      // Refresh the data after successful deletion
+      await fetchData();
+    } catch (error) {
+      console.error("Error deleting benefit:", error);
+      showError("Hubo un error eliminando el beneficio. Inténtelo más tarde");
+      throw error;
+    }
+  }
+
+  async function confirmDelete() {
+    if (itemToDelete.value) {
+      try {
+        await deleteBenefit(itemToDelete.value.id);
+        closeDeleteModal();
+      } catch (error) {
+        console.error("Failed to delete benefit:", error);
+        // You might want to show an error message to the user here
+      }
+    }
+  }
+
+  onMounted(fetchData);
 </script>
+
+<style>
+.alert {
+  margin-left: 20em;
+  margin-right: 20em;
+  text-align: center;
+}
+</style>

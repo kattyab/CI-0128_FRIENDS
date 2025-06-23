@@ -1,3 +1,4 @@
+using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Infrastructure.Helpers;
@@ -180,6 +181,22 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 updateBenefitCommandText,
                 CommandType.Text,
                 updateBenefitParameters);
+        }
+
+        public void DeleteBenefit(Guid guid)
+        {
+            const string deleteBenefitCommandText = @"
+                DELETE Benefits
+                WHERE ID = @ID;";
+
+            SqlParameter[] deleteBenefitParameters = [
+                new SqlParameter("@ID", guid),
+            ];
+
+            SqlHelper.ExecuteNonQuery(this._connectionString,
+                deleteBenefitCommandText,
+                CommandType.Text,
+                deleteBenefitParameters);
         }
 
         private bool GetIfBenefitIsSubscribed(Guid benefitID)
