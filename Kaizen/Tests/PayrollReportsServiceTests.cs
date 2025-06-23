@@ -21,12 +21,6 @@ namespace Kaizen.Server.Tests.Application.Services.Reports
             _payrollReportsService = new PayrollReportsService(_mockReportsRepository.Object);
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _mockReportsRepository?.Reset();
-        }
-
         [Test]
         public void Constructor_WithValidRepository_ShouldCreateInstance()
         {
