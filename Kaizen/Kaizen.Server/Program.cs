@@ -1,31 +1,33 @@
+using Kaizen.Server.Application.Configuraton;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.Benefits;
-using System.Reflection;
-using Microsoft.Data.SqlClient;
-using Kaizen.Server.Infrastructure.Services.IncomeTax;
-using Kaizen.Server.Application.Interfaces.IncomeTax;
-using Kaizen.Server.Application.Services.IncomeTax;
-using Kaizen.Server.Infrastructure.Repositories;
 using Kaizen.Server.Application.Interfaces.CCSS;
 using Kaizen.Server.Application.Interfaces.Employees;
+using Kaizen.Server.Application.Interfaces.IncomeTax;
+using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Application.Interfaces.Services;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Application.Services.ApiDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Application.Services.CCSS;
+using Kaizen.Server.Application.Services.IncomeTax;
+using Kaizen.Server.Application.Services.Payroll;
+using Kaizen.Server.Infrastructure.Repositories;
 using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
-using Kaizen.Server.Application.Services.Payroll;
-using Kaizen.Server.Application.Interfaces.Payroll;
 using Kaizen.Server.Infrastructure.Services.Payroll;
-using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Repositories.Employees;
+using Kaizen.Server.Infrastructure.Services;
 using Kaizen.Server.Infrastructure.Services.ApiDeductions;
 using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.CCSS;
-using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Services.Reports;
-using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Infrastructure.Services.IncomeTax;
+using Microsoft.Data.SqlClient;
+using System.Reflection;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -35,6 +37,8 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddUserSecrets(Assembly.GetExecutingAssembly())
     .AddEnvironmentVariables();
+
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection(nameof(EmailConfiguration)));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SqlConnection>(sp =>
@@ -97,6 +101,8 @@ builder.Services.AddPayrollServices();
 builder.Services.AddReportsServices();
 
 builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
