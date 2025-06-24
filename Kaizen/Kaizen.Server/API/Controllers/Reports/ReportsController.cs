@@ -27,9 +27,7 @@ namespace Kaizen.Server.API.Controllers.Reports
                     .Select(report => _payrollReportsService.CalculateLaborCharges(report))
                     .ToList();
 
-                var orderedReports = OrderReportsByPeriodDescending(reportsWithCharges);
-
-                return Ok(orderedReports);
+                return Ok(reportsWithCharges);
             }
             catch (ArgumentException ex)
             {
@@ -39,23 +37,6 @@ namespace Kaizen.Server.API.Controllers.Reports
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-        }
-
-        private List<OwnerPayrollReport> OrderReportsByPeriodDescending(List<OwnerPayrollReport> reports)
-        {
-            return reports
-                .OrderByDescending(report =>
-                {
-                    DateTime.TryParseExact(
-                        report.Period,
-                        "MM-yyyy",
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.None,
-                        out var parsedDate
-                    );
-                    return parsedDate;
-                })
-                .ToList();
         }
     }
 }
