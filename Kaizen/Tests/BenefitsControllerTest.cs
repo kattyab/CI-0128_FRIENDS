@@ -9,6 +9,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
+using Kaizen.Server.Application.Interfaces.Repositories;
 
 namespace Tests.BenefitsControllerTests
 {
@@ -34,6 +35,49 @@ namespace Tests.BenefitsControllerTests
     }
 
     [Test]
+    public void Index_UnauthenticatedUser_ReturnsUnauthorized()
+    {
+      _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(false);
+
+      var result = _controller.Index();
+
+      Assert.IsInstanceOf<UnauthorizedResult>(result);
+    }
+
+    [Test]
+    public void Index_AuthenticatedUser_ReturnsOkWithBenefits()
+    {
+      var companyGuid = Guid.NewGuid();
+      var benefits = new List<BenefitDto>
+        {
+            new BenefitDto { ID = Guid.NewGuid(), Name = "Benefit 1" },
+            new BenefitDto { ID = Guid.NewGuid(), Name = "Benefit 2" }
+        };
+      _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
+      _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Returns(companyGuid);
+      _mockBenefitsRepository.Setup(r => r.GetBenefits(companyGuid)).Returns(benefits);
+
+      var result = _controller.Index();
+
+      var okResult = result as OkObjectResult;
+      Assert.IsNotNull(okResult);
+      Assert.AreEqual(benefits, okResult.Value);
+    }
+
+    [Test]
+    public void Index_ExceptionThrown_ReturnsInternalServerError()
+    {
+      _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
+      _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Throws(new Exception("Error"));
+
+      var result = _controller.Index();
+
+      var objectResult = result as ObjectResult;
+      Assert.IsNotNull(objectResult);
+      Assert.AreEqual(500, objectResult.StatusCode);
+    }
+
+    [Test]
     public async Task Show_UnauthenticatedUser_ReturnsUnauthorized()
     {
       _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(false);
@@ -46,44 +90,44 @@ namespace Tests.BenefitsControllerTests
     [Test]
     public async Task Show_BenefitNotFound_ReturnsNotFound()
     {
-        _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
-        _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Returns(Guid.NewGuid());
-        _mockBenefitsRepository.Setup(r => r.GetBenefit(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns((BenefitDto?)null);
+      _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
+      _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Returns(Guid.NewGuid());
+      _mockBenefitsRepository.Setup(r => r.GetBenefit(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns((BenefitDto?)null);
 
-        var result = _controller.Show(Guid.NewGuid());
+      var result = _controller.Show(Guid.NewGuid());
 
-        Assert.IsInstanceOf<NotFoundResult>(result);
+      Assert.IsInstanceOf<NotFoundResult>(result);
     }
 
     [Test]
     public async Task Show_ValidRequest_ReturnsOkWithBenefit()
     {
-        var guid = Guid.NewGuid();
-        var companyGuid = Guid.NewGuid();
-        var benefit = new BenefitDto { ID = guid, Name = "Test Benefit" };
+      var guid = Guid.NewGuid();
+      var companyGuid = Guid.NewGuid();
+      var benefit = new BenefitDto { ID = guid, Name = "Test Benefit" };
 
-        _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
-        _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Returns(companyGuid);
-        _mockBenefitsRepository.Setup(r => r.GetBenefit(guid, companyGuid)).Returns(benefit);
+      _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
+      _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Returns(companyGuid);
+      _mockBenefitsRepository.Setup(r => r.GetBenefit(guid, companyGuid)).Returns(benefit);
 
-        var result = _controller.Show(guid);
+      var result = _controller.Show(guid);
 
-        var okResult = result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        Assert.AreEqual(benefit, okResult.Value);
+      var okResult = result as OkObjectResult;
+      Assert.IsNotNull(okResult);
+      Assert.AreEqual(benefit, okResult.Value);
     }
 
     [Test]
     public async Task Show_ExceptionThrown_ReturnsInternalServerError()
     {
-        _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
-        _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Throws(new Exception("Error"));
+      _mockAuthService.Setup(a => a.IsAuthenticated()).Returns(true);
+      _mockAuthService.Setup(a => a.GetAuthUserCompanyPK()).Throws(new Exception("Error"));
 
-        var result = _controller.Show(Guid.NewGuid());
+      var result = _controller.Show(Guid.NewGuid());
 
-        var objectResult = result as ObjectResult;
-        Assert.IsNotNull(objectResult);
-        Assert.AreEqual(500, objectResult.StatusCode);
+      var objectResult = result as ObjectResult;
+      Assert.IsNotNull(objectResult);
+      Assert.AreEqual(500, objectResult.StatusCode);
     }
-    }
+  }
 }

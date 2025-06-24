@@ -65,7 +65,6 @@
                 <option value="" disabled>Seleccione un tipo</option>
                 <option value="fixedAmount">Monto fijo</option>
                 <option value="percentage">Porcentaje</option>
-                <option value="api">API</option>
               </select>
               <div class="invalid-feedback" v-if="validationErrors.benefitType">
                 {{ validationErrors.benefitType }}
@@ -98,29 +97,6 @@
               </div>
             </div>
 
-            <div v-if="formData.benefitType === 'api'">
-              <label for="apiUrl" class="form-label">URL de API</label>
-              <input type="url" class="form-control input-type mb-3"
-                     id="apiUrl" v-model="formData.apiUrl" :class="{ 'is-invalid': validationErrors.apiUrl }"
-                     placeholder="http://example.com" required>
-              <div class="invalid-feedback" v-if="validationErrors.apiUrl">
-                {{ validationErrors.apiUrl }}
-              </div>
-
-              <div>
-                <label for="parameterQuantity" class="form-label mt-3">Cantidad de parámetros</label>
-                <select class="form-select input-type mb-3" id="parameterQuantity"
-                        v-model.number="formData.parameterQuantity"
-                        :class="{ 'is-invalid': validationErrors.parameterQuantity }" required>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                </select>
-                <div class="invalid-feedback" v-if="validationErrors.parameterQuantity">
-                  {{ validationErrors.parameterQuantity }}
-                </div>
-              </div>
-            </div>
             <div class="d-flex justify-content-center pt-3 pb-3">
               <button type="button" class="btn btn-secondary btn-lg btn-block me-2" @click="resetForm">Cancelar</button>
               <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isSubmitting">
@@ -167,8 +143,6 @@
         benefitType: '',
         fixedAmount: null,
         percentage: null,
-        apiUrl: '',
-        parameterQuantity: 1
       });
 
       const validationErrors = reactive({});
@@ -237,16 +211,6 @@
             errors.percentage = 'El porcentaje debe estar entre 0 y 100';
             hasErrors = true;
           }
-        } else if (formData.benefitType === 'api') {
-          const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-          if (!formData.apiUrl || !urlPattern.test(formData.apiUrl)) {
-            errors.apiUrl = 'Debe ingresar una URL válida';
-            hasErrors = true;
-          }
-          if (![1, 2, 3].includes(formData.parameterQuantity)) {
-            errors.parameterQuantity = 'Debe seleccionar una cantidad válida de parámetros';
-            hasErrors = true;
-          }
         }
 
         Object.keys(validationErrors).forEach(key => {
@@ -296,9 +260,6 @@
             fixedValue: formData.benefitType === 'fixedAmount' ? formData.fixedAmount : null,
             isPercentage: formData.benefitType === 'percentage',
             percentageValue: formData.benefitType === 'percentage' ? formData.percentage : null,
-            isAPI: formData.benefitType === 'api',
-            apiPath: formData.benefitType === 'api' ? formData.apiUrl : null,
-            numParameters: formData.benefitType === 'api' ? formData.parameterQuantity : null
           };
 
           const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitCreation/benefitCreation`, benefitData);
@@ -342,8 +303,6 @@
         formData.benefitType = '';
         formData.fixedAmount = null;
         formData.percentage = null;
-        formData.apiUrl = '';
-        formData.parameterQuantity = 1;
 
         Object.keys(validationErrors).forEach(key => {
           delete validationErrors[key];
