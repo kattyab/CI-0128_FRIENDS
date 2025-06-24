@@ -25,126 +25,77 @@
       "comment": "",
       "command": "click",
       "target": "linkText=Iniciar sesión",
-      "targets": [
-        ["linkText=Iniciar sesión", "linkText"],
-        ["css=.login-link", "css:finder"],
-        ["xpath=//a[contains(text(),'Iniciar sesión')]", "xpath:link"],
-        ["xpath=//div[@id='app']/div/div/main/header/nav/div/div/div[2]/a[2]", "xpath:idRelative"],
-        ["xpath=//a[contains(@href, '/auth/login')]", "xpath:href"],
-        ["xpath=//a[2]", "xpath:position"],
-        ["xpath=//a[contains(.,'Iniciar sesión')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "049ce5f9-be92-47a9-ad3f-34b32f810ac1",
       "comment": "",
       "command": "click",
       "target": "id=username",
-      "targets": [
-        ["id=username", "id"],
-        ["css=#username", "css:finder"],
-        ["xpath=//input[@id='username']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/form/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "472e8018-186f-4165-a48a-7393591c6115",
       "comment": "",
       "command": "type",
       "target": "id=username",
-      "targets": [
-        ["id=username", "id"],
-        ["css=#username", "css:finder"],
-        ["xpath=//input[@id='username']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/form/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
+      "targets": [],
       "value": "carlos.ramirez@example.com"
     }, {
       "id": "dfb9eb7a-85ed-4024-a2f2-6491c61138b2",
       "comment": "",
       "command": "click",
       "target": "id=password",
-      "targets": [
-        ["id=password", "id"],
-        ["css=#password", "css:finder"],
-        ["xpath=//input[@id='password']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//div[2]/div/input", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "8f65e962-fd0d-40e0-aa27-afdbb10b77cd",
       "comment": "",
       "command": "type",
       "target": "id=password",
-      "targets": [
-        ["id=password", "id"],
-        ["css=#password", "css:finder"],
-        ["xpath=//input[@id='password']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//div[2]/div/input", "xpath:position"]
-      ],
+      "targets": [],
       "value": "Password"
     }, {
       "id": "5a4b08e2-3bca-4bf7-b9a2-eaa93e5fb500",
       "comment": "",
       "command": "click",
       "target": "css=.login-btn",
-      "targets": [
-        ["css=.login-btn", "css:finder"],
-        ["xpath=//button[@type='submit']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/form/button", "xpath:idRelative"],
-        ["xpath=//form/button", "xpath:position"],
-        ["xpath=//button[contains(.,'INICIAR SESIÓN')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
+    }, {
+      "id": "timeout-between-login-and-subbutton",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.sub-button:nth-child(1) > .text",
+      "targets": [],
+      "value": "10000"
     }, {
       "id": "75546914-e671-4de4-819b-c646cca30386",
       "comment": "",
       "command": "click",
       "target": "css=.sub-button:nth-child(1) > .text",
-      "targets": [
-        ["css=.sub-button:nth-child(1) > .text", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/aside/div[2]/div/div/a/span", "xpath:idRelative"],
-        ["xpath=//div/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Reporte de Pago de Planillas')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "d66e0e0d-e945-435d-823f-def5e037774e",
       "comment": "",
       "command": "click",
       "target": "css=.export-btn",
-      "targets": [
-        ["css=.export-btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/main/div/div/button", "xpath:idRelative"],
-        ["xpath=//main/div/div/button", "xpath:position"],
-        ["xpath=//button[contains(.,'📤 Exportar')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "90794297-3059-4ace-9d8e-a02f6079df1d",
       "comment": "",
       "command": "click",
       "target": "css=.download-btn",
-      "targets": [
-        ["css=.download-btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/main/div/div[3]/div/div[2]/div/button[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/div/button[2]", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "6084e386-a8b8-41a5-9d1a-306508c7b314",
       "comment": "",
       "command": "click",
       "target": "css=.modal-cancel-btn",
-      "targets": [
-        ["css=.modal-cancel-btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/main/div/div[3]/div/div[3]/button", "xpath:idRelative"],
-        ["xpath=//div[3]/button", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }]
   }],
