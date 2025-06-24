@@ -23,6 +23,12 @@
         <span class="material-icons">person_add</span>
         <span class="text">Agregar Empleados</span>
       </router-link>
+
+      <router-link class="button" to="/benefits">
+        <span class="material-icons">workspace_premium</span>
+        <span class="text">Beneficios</span>
+      </router-link>
+
       <router-link class="button" to="/benefits/subscribe">
         <span class="material-icons">workspace_premium</span>
         <span class="text">Suscribir Beneficios</span>

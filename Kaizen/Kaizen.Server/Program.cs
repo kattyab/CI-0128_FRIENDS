@@ -25,6 +25,7 @@ using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.CCSS;
 using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Services.Reports;
+using Kaizen.Server.Application.Interfaces.Repositories;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";

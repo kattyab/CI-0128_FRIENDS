@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Kaizen.Server.Infrastructure.Repositories;
-using Kaizen.Server.Application.Dtos.Benefits;
+using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Auth;
+using Kaizen.Server.Application.Dtos.Benefits;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
+using Kaizen.Server.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Kaizen.Server.API.Controllers
 {
@@ -12,6 +14,26 @@ namespace Kaizen.Server.API.Controllers
     {
         private readonly IAuthService _authService = authService;
         private readonly IBenefitsRepository _benefitsRepository = benefitsRepository;
+
+        [HttpGet("")]
+        public IActionResult Index()
+        {
+            if (this._authService.IsAuthenticated() == false)
+            {
+                return this.Unauthorized();
+            }
+
+            try
+            {
+                Guid companyPK = this._authService.GetAuthUserCompanyPK();
+                List<BenefitDto> benefits = this._benefitsRepository.GetBenefits(companyPK);
+                return this.Ok(benefits);
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
 
         [HttpGet("{guid}")]
         public IActionResult Show(Guid guid)
