@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Kaizen.Server.Application.Services.Payroll;
 using Kaizen.Server.Application.Dtos.Payroll;
+using Kaizen.Server.API.Controllers;
 using System;
 
 namespace Kaizen.Server.Tests.Payroll
@@ -16,14 +17,22 @@ namespace Kaizen.Server.Tests.Payroll
             _calculator = new SalaryCalculator();
         }
 
+        /* ===== Cálculos: Bi-semanal ===== */
+
         [Test]
         public void Calculate_BiweeklyFullPeriod_ReturnsGrossEqualBruteAndProportionalEqualBrute()
         {
             decimal bruteSalary = 1500m;
             int daysWorked = 15;
-            bool isBiweekly = true;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var request = new PayrollRequest(
+                "unit@test.com",
+                Guid.Empty,
+                new DateTime(2025, 1, 1),
+                new DateTime(2025, 1, 15),
+                "biweekly");
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, request);
 
             Assert.AreEqual(bruteSalary, result.Gross);
             Assert.AreEqual(bruteSalary, result.Proportional);
@@ -34,23 +43,37 @@ namespace Kaizen.Server.Tests.Payroll
         {
             decimal bruteSalary = 1500m;
             int daysWorked = 5;
-            bool isBiweekly = true;
             decimal expectedProportional = (bruteSalary / 15m) * daysWorked;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var request = new PayrollRequest(
+                "unit@test.com",
+                Guid.Empty,
+                new DateTime(2025, 1, 1),
+                new DateTime(2025, 1, 15),
+                "biweekly");
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, request);
 
             Assert.AreEqual(expectedProportional, result.Proportional);
             Assert.AreEqual(expectedProportional, result.Gross);
         }
+
+        /* ===== Cálculos: Mensual ===== */
 
         [Test]
         public void Calculate_MonthlyFullPeriod_ReturnsGrossEqualBruteAndProportionalEqualBrute()
         {
             decimal bruteSalary = 3000m;
             int daysWorked = 30;
-            bool isBiweekly = false;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var request = new PayrollRequest(
+                "unit@test.com",
+                Guid.Empty,
+                new DateTime(2025, 1, 1),
+                new DateTime(2025, 1, 30),
+                "monthly");
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, request);
 
             Assert.AreEqual(bruteSalary, result.Gross);
             Assert.AreEqual(bruteSalary, result.Proportional);
@@ -61,14 +84,22 @@ namespace Kaizen.Server.Tests.Payroll
         {
             decimal bruteSalary = 3000m;
             int daysWorked = 10;
-            bool isBiweekly = false;
             decimal expectedProportional = (bruteSalary / 30m) * daysWorked;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var request = new PayrollRequest(
+                "unit@test.com",
+                Guid.Empty,
+                new DateTime(2025, 1, 1),
+                new DateTime(2025, 1, 30),
+                "monthly");
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, request);
 
             Assert.AreEqual(expectedProportional, result.Proportional);
             Assert.AreEqual(expectedProportional, result.Gross);
         }
+
+        /* ===== Salario para deducciones ===== */
 
         [Test]
         public void GetSalaryForDeductions_BiweeklyFullPeriod_ReturnsBruteTimesTwo()
@@ -79,7 +110,6 @@ namespace Kaizen.Server.Tests.Payroll
                 PayrollTypeDescription = "Biweekly"
             };
             decimal proportional = 1500m;
-            bool isBiweekly = true;
             bool isFullPeriod = true;
             decimal expected = employee.BruteSalary * 2m;
 
@@ -93,10 +123,10 @@ namespace Kaizen.Server.Tests.Payroll
         {
             var employee = new EmployeePayroll
             {
-                BruteSalary = 3000m
+                BruteSalary = 3000m,
+                PayrollTypeDescription = "Monthly"
             };
             decimal proportional = 3000m;
-            bool isBiweekly = false;
             bool isFullPeriod = true;
             decimal expected = employee.BruteSalary;
 
@@ -114,7 +144,6 @@ namespace Kaizen.Server.Tests.Payroll
                 PayrollTypeDescription = "Biweekly"
             };
             decimal proportional = 500m;
-            bool isBiweekly = true;
             bool isFullPeriod = false;
             decimal expected = proportional * 2m;
 
@@ -128,10 +157,10 @@ namespace Kaizen.Server.Tests.Payroll
         {
             var employee = new EmployeePayroll
             {
-                BruteSalary = 3000m
+                BruteSalary = 3000m,
+                PayrollTypeDescription = "Monthly"
             };
             decimal proportional = 1000m;
-            bool isBiweekly = false;
             bool isFullPeriod = false;
             decimal expected = proportional;
 
@@ -141,4 +170,3 @@ namespace Kaizen.Server.Tests.Payroll
         }
     }
 }
-
