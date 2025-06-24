@@ -43,10 +43,19 @@ namespace Kaizen.Server.API.Controllers.Reports
 
         private List<OwnerPayrollReport> OrderReportsByPeriodDescending(List<OwnerPayrollReport> reports)
         {
-            return reports.OrderByDescending(report =>
-                DateTime.ParseExact(report.Period, "MM-yyyy", CultureInfo.InvariantCulture)
-            ).ToList();
+            return reports
+                .OrderByDescending(report =>
+                {
+                    DateTime.TryParseExact(
+                        report.Period,
+                        "MM-yyyy",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out var parsedDate
+                    );
+                    return parsedDate;
+                })
+                .ToList();
         }
-
     }
 }

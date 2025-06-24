@@ -164,6 +164,8 @@
   import axios from 'axios'
   import html2pdf from 'html2pdf.js'
 
+  const userEmail = ref('')
+
   const DECIMAL_PLACES = 2
   const THOUSANDS_SEPARATOR = '.'
   const DECIMAL_SEPARATOR = ','
@@ -271,9 +273,13 @@
   const API_BASE_URL = import.meta.env.VITE_API_URL
 
   const availablePeriods = computed(() => {
-    return payrollDataList.value.map(item => item.period).sort((a, b) => {
-      return b.localeCompare(a)
-    })
+    return payrollDataList.value
+      .map(item => item.period)
+      .sort((a, b) => {
+        const dateA = new Date(a.split('-')[1], parseInt(a.split('-')[0]) - 1)
+        const dateB = new Date(b.split('-')[1], parseInt(b.split('-')[0]) - 1)
+        return dateB - dateA
+      })
   })
 
   const currentPayrollData = computed(() => {
@@ -353,6 +359,18 @@
     }
   }
 
+  async function fetchAuthenticatedUser() {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/login/authenticate`, {
+        withCredentials: true
+      })
+
+      userEmail.value = response.data.email
+    } catch (err) {
+      console.error('No se pudo obtener el usuario autenticado', err)
+    }
+  }
+
   async function fetchPayrollData() {
     try {
       loading.value = true
@@ -399,9 +417,69 @@
     showExportModal.value = false
   }
 
-  function handleEmail() {
-    emailSent.value = true
-    showExportModal.value = false
+  async function handleEmail() {
+    if (!exportContainer.value) return
+
+    const pdfExportWrapper = document.createElement('div')
+    pdfExportWrapper.style.padding = CONTAINER_PADDING
+    pdfExportWrapper.style.color = CONTAINER_COLOR
+    pdfExportWrapper.style.fontFamily = FONT_FAMILY
+
+    const periodTitle = document.createElement('h2')
+    periodTitle.textContent = `Reporte de Nómina - ${formatPeriodDisplay(selectedPeriod.value)}`
+    periodTitle.style.textAlign = 'center'
+    periodTitle.style.marginBottom = HEADER_MARGIN_BOTTOM
+    pdfExportWrapper.appendChild(periodTitle)
+
+    if (headerInfo.value) {
+      const headerClone = headerInfo.value.cloneNode(true)
+      headerClone.style.marginBottom = HEADER_INFO_MARGIN_BOTTOM
+      pdfExportWrapper.appendChild(headerClone)
+    }
+
+    if (payrollContent.value) {
+      const payrollClone = payrollContent.value.cloneNode(true)
+      pdfExportWrapper.appendChild(payrollClone)
+    }
+
+    try {
+      const pdfBlob = await html2pdf()
+        .set({
+          margin: PDF_MARGIN,
+          image: { type: PDF_IMAGE_TYPE, quality: PDF_QUALITY },
+          html2canvas: { scale: PDF_SCALE },
+          jsPDF: { unit: PDF_UNIT, format: PDF_FORMAT, orientation: PDF_ORIENTATION }
+        })
+        .from(pdfExportWrapper)
+        .outputPdf('blob')
+
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        const base64Data = reader.result.split(',')[1]
+
+        const emailPayload = {
+          to: [userEmail.value],
+          subject: `Reporte de Nómina - ${formatPeriodDisplay(selectedPeriod.value)}`,
+          body: 'Adjunto encontrará el reporte de planilla en formato PDF.',
+          fileName: `reporte_planilla_${selectedPeriod.value}.pdf`,
+          base64Content: base64Data
+        }
+
+        try {
+          await axios.post(`${API_BASE_URL}/api/emails/send-pdf`, emailPayload)
+          emailSent.value = true
+          showExportModal.value = false
+        } catch (err) {
+          console.error('Error sending email:', err)
+          alert('Error al enviar el correo.')
+        }
+      }
+
+      reader.readAsDataURL(pdfBlob)
+    } catch (err) {
+      console.error('Error generating PDF:', err)
+      alert('Error al generar el PDF.')
+    }
   }
 
   function handleDownloadPDF() {
@@ -456,6 +534,7 @@
 
   onMounted(() => {
     fetchPayrollData()
+    fetchAuthenticatedUser()
   })
 </script>
 
