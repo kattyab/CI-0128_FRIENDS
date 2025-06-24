@@ -5,6 +5,7 @@ using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.CCSS;
 using Kaizen.Server.Application.Interfaces.IncomeTax;
 using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Infrastructure.Contexts;
 
 namespace Kaizen.Server.Application.Services.Payroll
 {
@@ -30,16 +31,17 @@ namespace Kaizen.Server.Application.Services.Payroll
         }
 
         public async Task<(Dictionary<string, decimal>, List<BenefitDeductionResult>, decimal, decimal, decimal)>
-            GetAllDeductionsAsync(Guid companyId, EmployeePayroll employee, decimal proportionalSalary,
-                bool isFullPeriod, decimal salaryForDeductions)
+    GetAllDeductionsAsync(Guid companyId, EmployeePayroll employee, decimal proportionalSalary,
+        bool isFullPeriod, decimal salaryForDeductions, PayrollTransactionContext context = null)
         {
             var apiService = _apiFactory.Create(companyId);
             var benefitService = _benefitFactory.Create(companyId);
 
-            var apiDeductions = await apiService.GetDeductionsForEmployeeAsync(employee.EmpID);
+            var apiDeductions = await apiService.GetDeductionsForEmployeeAsync(employee.EmpID, context);
+
             var benefitDeductions = isFullPeriod
-                ? await benefitService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID)
-                : await benefitService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID, proportionalSalary);
+                ? await benefitService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID, context)
+                : await benefitService.GetBenefitDeductionsForEmployeeAsync(employee.EmpID, proportionalSalary, context);
 
             if (employee.PayrollTypeDescription == BiweeklyPayrollType)
             {
@@ -47,6 +49,7 @@ namespace Kaizen.Server.Application.Services.Payroll
                 foreach (var benefit in benefitDeductions)
                     benefit.DeductionValue /= BiweeklyFactor;
             }
+
             decimal ccss = CalculateCCSSDeduction(employee, salaryForDeductions);
             decimal income = CalculateIncomeTaxDeduction(employee, salaryForDeductions);
 
@@ -57,7 +60,6 @@ namespace Kaizen.Server.Application.Services.Payroll
             }
 
             var total = apiDeductions.Values.Sum() + benefitDeductions.Sum(x => x.DeductionValue) + ccss + income;
-
             return (apiDeductions, benefitDeductions, ccss, income, total);
         }
 

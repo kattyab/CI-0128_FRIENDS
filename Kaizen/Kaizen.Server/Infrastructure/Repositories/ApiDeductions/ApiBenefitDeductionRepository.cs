@@ -1,7 +1,9 @@
 using System.Data;
 using Kaizen.Server.Application.Dtos.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
+using Kaizen.Server.Infrastructure.Contexts;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 
@@ -14,11 +16,21 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
         _connection = connection;
     }
 
-
-    public async Task<List<APIsDto>> GetBenefitsAsync(Guid companyId)
+    private static async Task EnsureOpenAsync(SqlConnection connection, string label)
     {
-        if (_connection.State != ConnectionState.Open)
-            await _connection.OpenAsync();
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+
+#if DEBUG
+        Debug.WriteLine($"[DEBUG] Using connection from: {label}");
+#endif
+    }
+
+    public async Task<List<APIsDto>> GetBenefitsAsync(Guid companyId, PayrollTransactionContext context = null)
+    {
+        var connectionToUse = context?.Connection ?? _connection;
+        string label = context?.Connection != null ? "PayrollTransactionContext" : "Default Repository Connection";
+        await EnsureOpenAsync(connectionToUse, label);
 
         var benefits = new List<APIsDto>();
         const string query = @"SELECT 
@@ -35,10 +47,10 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
             INNER JOIN dbo.ApiDeductionConfigs adc ON adc.Id = oa.ApiConfigId
             WHERE c.CompanyPK = @CompanyId;";
 
-        using var command = new SqlCommand(query, _connection);
+        using var command = new SqlCommand(query, connectionToUse);
         command.Parameters.Add("@CompanyId", SqlDbType.UniqueIdentifier).Value = companyId;
-        using var reader = await command.ExecuteReaderAsync();
 
+        using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
             benefits.Add(new APIsDto
@@ -53,16 +65,17 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
                 ExpectedDataType = reader.IsDBNull(7) ? null : reader.GetString(7)
             });
         }
+
         return benefits;
     }
 
-    public async Task<List<EmployeeBenefitParameterDto>> GetParametersForCompanyAsync(Guid companyId)
+    public async Task<List<EmployeeBenefitParameterDto>> GetParametersForCompanyAsync(Guid companyId, PayrollTransactionContext context = null)
     {
-        if (_connection.State != ConnectionState.Open)
-            await _connection.OpenAsync();
+        var connectionToUse = context?.Connection ?? _connection;
+        string label = context?.Connection != null ? "PayrollTransactionContext" : "Default Repository Connection";
+        await EnsureOpenAsync(connectionToUse, label);
 
         var parameters = new List<EmployeeBenefitParameterDto>();
-
         const string query = @"SELECT 
             eap.EmployeeId, 
             adc.Id, 
@@ -75,7 +88,7 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
         WHERE e.WorksFor = @CompanyId
         AND e.IsDeleted = 0;";
 
-        using var command = new SqlCommand(query, _connection);
+        using var command = new SqlCommand(query, connectionToUse);
         command.Parameters.AddWithValue("@CompanyId", companyId);
 
         using var reader = await command.ExecuteReaderAsync();
