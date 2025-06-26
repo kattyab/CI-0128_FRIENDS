@@ -63,18 +63,27 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "timeout-between-login-and-subbutton",
-      "comment": "",
-      "command": "waitForElementVisible",
-      "target": "css=.sub-button:nth-child(1) > .text",
-      "targets": [],
-      "value": "10000"
-    }, {
-      "id": "75546914-e671-4de4-819b-c646cca30386",
+      "id": "56181a80-5d49-4e1b-8d66-e5d5d02d5d19",
       "comment": "",
       "command": "click",
-      "target": "css=.sub-button:nth-child(1) > .text",
-      "targets": [],
+      "target": "css=.reports-toggle > .material-icons:nth-child(1)",
+      "targets": [
+        ["css=.reports-toggle > .material-icons:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/aside/div[2]/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/button/span", "xpath:position"],
+        ["xpath=//span[contains(.,'assessment')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "b9d31774-06ab-4960-a157-33889b882177",
+      "comment": "",
+      "command": "click",
+      "target": "css=.popup-button:nth-child(1) > .text",
+      "targets": [
+        ["css=.popup-button:nth-child(1) > .text", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/aside/div[2]/div/div[2]/a/span", "xpath:idRelative"],
+        ["xpath=//div/div[2]/a/span", "xpath:position"]
+      ],
       "value": ""
     }, {
       "id": "d66e0e0d-e945-435d-823f-def5e037774e",
@@ -97,6 +106,17 @@
       "target": "css=.modal-cancel-btn",
       "targets": [],
       "value": ""
+    }, {
+      "id": "775eb3e6-830f-49ca-aa42-c07a2118f13c",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.status-text",
+      "targets": [
+        ["css=.status-text", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/main/div/div[2]/div[4]/div/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div[2]", "xpath:position"]
+      ],
+      "value": "PDF descargado correctamente"
     }]
   }],
   "suites": [{
