@@ -26,6 +26,11 @@
         <span class="text">Suscribir Beneficios</span>
       </router-link>
 
+      <router-link class="button" to="/dashboardemployee">
+        <span class="material-icons">dashboard</span>
+        <span class="text">Dashboard</span>
+      </router-link>
+
       <div class="reports-section" ref="reports_section">
         <button class="button reports-toggle" @click="ToggleReports">
           <span class="material-icons">assessment</span>
