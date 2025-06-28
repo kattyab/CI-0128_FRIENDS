@@ -1,116 +1,118 @@
 <template>
   <div class="contenedor-principal">
     <h1 class="text-2xl font-bold mb-4 text-center">Dashboard Empleado</h1>
+    <div v-if="salaries.length > 0">
+      <div class="mb-4">
+        <p class="h4">{{ employee.name }}</p>
+        <div class="row px-3">
+          <div class="col text-start">{{ employee.contractType }}</div>
+          <div class="col text-center">Fecha inicio: {{ employee.startDate }}</div>
+          <div class="col text-end">{{ employee.role }}</div>
+        </div>
+      </div>
 
-    <div class="mb-4">
-      <p class="h4">{{ employee.name }}</p>
-      <div class="row px-3">
-        <div class="col text-start">{{ employee.contractType }}</div>
-        <div class="col text-center">Fecha inicio: {{ employee.startDate }}</div>
-        <div class="col text-end">{{ employee.role }}</div>
+
+
+
+      <div class="row g-4">
+
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded shadow">
+            <h2 class="h5 mb-3">Beneficios Inscritos</h2>
+            <div v-if="benefits.length > 0" class="d-flex flex-wrap gap-2">
+              <span v-for="benefit in benefits"
+                    :key="benefit.name"
+                    class="badge bg-success text-light p-2">
+                {{ benefit.name }}: ₡{{ benefit.cost.toLocaleString() }}
+              </span>
+            </div>
+            <p v-else class="text-muted fst-italic">No se han seleccionado beneficios</p>
+            <div class="mt-3 fw-bold">Total: ₡{{ totalBenefits.toLocaleString() }}</div>
+          </div>
+        </div>
+
+
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded shadow">
+            <h2 class="h5 mb-3">Deducciones</h2>
+            <div class="d-flex flex-wrap gap-2">
+              <span v-for="deduction in deductions"
+                    :key="deduction.name"
+                    class="badge bg-danger text-light p-2">
+                {{ deduction.name }}: ₡{{ deduction.cost.toLocaleString() }}
+              </span>
+            </div>
+            <div class="mt-3 fw-bold">Total: ₡{{ totalDeductions.toLocaleString() }}</div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <div class="row g-4 mt-4 mb-6">
+
+
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded shadow">
+            <p class="fw-semibold mb-3">Resumen de Rebajos</p>
+
+            <div class="d-flex justify-content-between mb-2">
+              <span>Porcentaje Retenido:</span>
+              <span class="text-danger">
+                {{ ((totalBenefits + totalDeductions) / salary.gross * 100).toFixed(2) }}%
+              </span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <span>Total Rebajos:</span>
+              <span>₡{{ (totalBenefits + totalDeductions).toLocaleString() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded shadow">
+            <p class="fw-semibold mb-3">Resumen Salarial</p>
+
+            <div class="d-flex justify-content-between mb-2">
+              <span>Salario Bruto:</span>
+              <span>₡{{ salary.gross.toLocaleString() }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <span>Salario Neto:</span>
+              <span>₡{{ salary.net.toLocaleString() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-8 border-t border-gray-300" />
+
+
+      <div class="row g-4">
+
+        <div class="grid grid-cols-2 gap-4">
+
+          <div>
+            <p class="h4 text-start mb-2">Distribución Salarial</p>
+            <SalaryChart :gross="salary.gross" :deductions="totalBenefits + totalDeductions" />
+          </div>
+
+          <hr class="my-8 border-t border-gray-300" />
+
+
+          <div>
+            <p class="h4 text-start mb-2">Historial Salarial</p>
+            <SalaryHistoryChart :salaries="salaries" />
+          </div>
+        </div>
       </div>
     </div>
-
-
-
-
-    <div class="row g-4">
-
-      <div class="col-md-6">
-        <div class="bg-light p-4 rounded shadow">
-          <h2 class="h5 mb-3">Beneficios Inscritos</h2>
-          <div class="d-flex flex-wrap gap-2">
-            <span v-for="benefit in benefits"
-                  :key="benefit.name"
-                  class="badge bg-success text-light p-2">
-              {{ benefit.name }}: ₡{{ benefit.cost.toLocaleString() }}
-            </span>
-          </div>
-          <div class="mt-3 fw-bold">Total: ₡{{ totalBenefits.toLocaleString() }}</div>
-        </div>
-      </div>
-
-
-      <div class="col-md-6">
-        <div class="bg-light p-4 rounded shadow">
-          <h2 class="h5 mb-3">Deducciones</h2>
-          <div class="d-flex flex-wrap gap-2">
-            <span v-for="deduction in deductions"
-                  :key="deduction.name"
-                  class="badge bg-danger text-light p-2">
-              {{ deduction.name }}: ₡{{ deduction.cost.toLocaleString() }}
-            </span>
-          </div>
-          <div class="mt-3 fw-bold">Total: ₡{{ totalDeductions.toLocaleString() }}</div>
-        </div>
-      </div>
+    <div v-else class="text-center mt-6">
+      <p class="text-danger fw-bold fs-5">No hay planillas recientes</p>
     </div>
-
-
-
-
-    <div class="row g-4 mt-4 mb-6">
-
-
-      <div class="col-md-6">
-        <div class="bg-light p-4 rounded shadow">
-          <p class="fw-semibold mb-3">Resumen de Rebajos</p>
-
-          <div class="d-flex justify-content-between mb-2">
-            <span>Porcentaje Retenido:</span>
-            <span class="text-danger">
-              {{ ((totalBenefits + totalDeductions) / salary.gross * 100).toFixed(2) }}%
-            </span>
-          </div>
-
-          <div class="d-flex justify-content-between">
-            <span>Total Rebajos:</span>
-            <span>₡{{ (totalBenefits + totalDeductions).toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="bg-light p-4 rounded shadow">
-          <p class="fw-semibold mb-3">Resumen Salarial</p>
-
-          <div class="d-flex justify-content-between mb-2">
-            <span>Salario Bruto:</span>
-            <span>₡{{ salary.gross.toLocaleString() }}</span>
-          </div>
-
-          <div class="d-flex justify-content-between">
-            <span>Salario Neto:</span>
-            <span>₡{{ salary.net.toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="my-8 border-t border-gray-300" />
-
-
-    <div class="row g-4">
-
-      <div class="grid grid-cols-2 gap-4">
-
-        <div>
-          <p class="h4 text-start mb-2">Distribución Salarial</p>
-          <SalaryChart :gross="salary.gross" :deductions="totalBenefits + totalDeductions" />
-        </div>
-
-        <hr class="my-8 border-t border-gray-300" />
-
-
-        <div>
-          <p class="h4 text-start mb-2">Historial Salarial</p>
-          <SalaryHistoryChart :salaries="salaries" />
-        </div>
-      </div>
-    </div>
-
-
-
   </div>
 </template>
 

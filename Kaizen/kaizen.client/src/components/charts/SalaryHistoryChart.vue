@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     chartData() {
-      const labels = ['Pago 1', 'Pago 2', 'Pago 3']
+      const labels = this.salaries.map((_, i) => `Pago ${i + 1}`)
       const grossData = this.salaries.map(s => s.gross)
       const netData = this.salaries.map(s => s.net)
 
