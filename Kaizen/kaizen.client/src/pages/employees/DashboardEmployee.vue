@@ -7,7 +7,6 @@
       <div class="row px-3">
         <div class="col text-start">{{ employee.contractType }}</div>
         <div class="col text-center">Fecha inicio: {{ employee.startDate }}</div>
-        <div class="col text-center">Tiempo inscrito: {{ employee.subscriptionDuration }}</div>
         <div class="col text-end">{{ employee.role }}</div>
       </div>
     </div>
@@ -16,7 +15,7 @@
 
 
     <div class="row g-4">
-      <!-- Beneficios -->
+
       <div class="col-md-6">
         <div class="bg-light p-4 rounded shadow">
           <h2 class="h5 mb-3">Beneficios Inscritos</h2>
@@ -31,7 +30,7 @@
         </div>
       </div>
 
-      <!-- Deducciones -->
+
       <div class="col-md-6">
         <div class="bg-light p-4 rounded shadow">
           <h2 class="h5 mb-3">Deducciones</h2>
@@ -49,8 +48,10 @@
 
 
 
-    <div class="row g-4 mt-4">
-      <!-- Tarjeta izquierda: Rebajos -->
+
+    <div class="row g-4 mt-4 mb-6">
+
+
       <div class="col-md-6">
         <div class="bg-light p-4 rounded shadow">
           <p class="fw-semibold mb-3">Resumen de Rebajos</p>
@@ -69,7 +70,6 @@
         </div>
       </div>
 
-      <!-- Tarjeta derecha: Salarios -->
       <div class="col-md-6">
         <div class="bg-light p-4 rounded shadow">
           <p class="fw-semibold mb-3">Resumen Salarial</p>
@@ -87,22 +87,26 @@
       </div>
     </div>
 
-    <!-- Link al detalle 
-    <div class="text-center mt-3">
-      <router-link to="/detalle" class="text-decoration-underline text-primary">
-        Ir al detalle
-      </router-link>
-    </div>-->
+    <hr class="my-8 border-t border-gray-300" />
 
 
+    <div class="row g-4">
+
+      <div class="grid grid-cols-2 gap-4">
+
+        <div>
+          <p class="h4 text-start mb-2">Distribución Salarial</p>
+          <SalaryChart :gross="salary.gross" :deductions="totalBenefits + totalDeductions" />
+        </div>
+
+        <hr class="my-8 border-t border-gray-300" />
 
 
-    <div class="grid grid-cols-2 gap-4 mt-6">
-      <!-- Gráfico horizontal existente -->
-      <SalaryChart :gross="salary.gross" :deductions="totalBenefits + totalDeductions" />
-
-      <!-- Nuevo gráfico de historial -->
-      <SalaryHistoryChart :salaries="salaries" />
+        <div>
+          <p class="h4 text-start mb-2">Historial Salarial</p>
+          <SalaryHistoryChart :salaries="salaries" />
+        </div>
+      </div>
     </div>
 
 
@@ -111,8 +115,9 @@
 </template>
 
 <script>
-  import SalaryChart from '../../components/charts/SalaryChart.vue'
-  import SalaryHistoryChart from '../../components/charts/SalaryHistoryChart.vue'
+  import axios from 'axios';
+  import SalaryChart from '../../components/charts/SalaryChart.vue';
+  import SalaryHistoryChart from '../../components/charts/SalaryHistoryChart.vue';
 
   export default {
     name: 'EmployeeDashboard',
@@ -125,29 +130,24 @@
     data() {
       return {
         employee: {
-          name: 'Erick S.',
-          contractType: 'Tiempo Completo',
-          startDate: '07/01/2025',
-          subscriptionDuration: '8 meses',
-          role: 'Drip Master',
+          name: '',
+          contractType: '',
+          startDate: '',
+          role: '',
         },
-        benefits: [
-          { name: 'GYM', cost: 5000 },
-          { name: 'HBO', cost: 5000 },
-        ],
-        deductions: [
-          { name: 'Renta', cost: 5000 },
-          { name: 'CCSS', cost: 5000 },
-        ],
+        benefits: [],
+        deductions: [],
         salary: {
-          gross: 100000,
-          net: 100000,
+          gross: 0,
+          net: 0,
         },
-        salaries: [
-          { gross: 100000, net: 80000 },
-          { gross: 100000, net: 80000 },
-          { gross: 100000, net: 80000 },
-        ],
+        salaries: [],
+
+        userPK: null,
+        empID: null,
+        fechaInicioTrabajo: '',
+        nombreEmpleado: '',
+        apellidoEmpleado: '',
       };
     },
 
@@ -159,8 +159,72 @@
         return this.deductions.reduce((sum, d) => sum + d.cost, 0);
       },
     },
+
+    methods: {
+      formatDate(isoDate) {
+        const fecha = new Date(isoDate);
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const anio = fecha.getFullYear();
+        return `${dia}-${mes}-${anio}`;
+      },
+
+      async getEmployeeDashboard() {
+        try {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/EmployeeDashboard`);
+          const data = response.data;
+
+
+          this.userPK = data.userPK;
+          this.empID = data.empID;
+          this.fechaInicioTrabajo = this.formatDate(data.startDate);
+
+          this.nombreEmpleado = data.name;
+          this.apellidoEmpleado = data.lastName;
+
+          this.employee.name = `${data.name} ${data.lastName}`;
+          this.employee.contractType = data.contractType;
+          this.employee.startDate = this.fechaInicioTrabajo;
+          this.employee.role = data.jobPosition;
+
+
+          const latestPayroll = data.recentPayrolls[0];
+          if (latestPayroll) {
+            this.salary.gross = latestPayroll.brutePaid;
+            this.salary.net = latestPayroll.netPaid;
+          }
+
+
+          this.salaries = data.recentPayrolls.map(p => ({
+            gross: p.brutePaid,
+            net: p.netPaid,
+          }));
+
+
+          this.benefits = data.optionalDeductions.map(od => ({
+            name: od.optionalDeductionName,
+            cost: od.optionalDeductionAmount,
+          }));
+
+          if (latestPayroll) {
+            this.deductions = [
+              { name: 'Renta', cost: latestPayroll.incomeTax },
+              { name: 'CCSS', cost: latestPayroll.ccss },
+            ];
+          }
+
+        } catch (error) {
+          console.error("Error al obtener el dashboard del empleado:", error);
+        }
+      },
+    },
+
+    mounted() {
+      this.getEmployeeDashboard();
+    },
   };
 </script>
+
 
 
 <style scoped>

@@ -63,7 +63,7 @@ export default {
         plugins: {
           legend: { position: 'top' },
           title: {
-            display: true,
+            display: false,
             text: 'Historial de Pagos (Bruto vs Neto)',
           },
         },
