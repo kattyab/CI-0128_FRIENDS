@@ -61,7 +61,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             catch (Exception ex)
             {
                 await transactionContext.RollbackAsync();
-                throw ex;
+                throw;
             }
         }
 
