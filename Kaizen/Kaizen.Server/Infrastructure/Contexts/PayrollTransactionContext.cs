@@ -16,7 +16,7 @@ namespace Kaizen.Server.Infrastructure.Contexts
         public async Task OpenAsync()
         {
             await Connection.OpenAsync();
-            Transaction = Connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            Transaction = Connection.BeginTransaction(IsolationLevel.RepeatableRead);
         }
 
         public async Task CommitAsync()
