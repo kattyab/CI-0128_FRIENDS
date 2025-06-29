@@ -21,7 +21,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
             ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
             IsPercentage, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
         FROM dbo.Benefits
-        WHERE OfferedBy = @CompanyID AND IsAPI = 0;
+        WHERE OfferedBy = @CompanyID;
     ";
             using var command = new SqlCommand(sql, _connection);
             command.Parameters.AddWithValue("@CompanyID", companyID);
