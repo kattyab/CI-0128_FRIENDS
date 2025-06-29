@@ -1,5 +1,8 @@
+using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Dtos.Payroll;
+using Kaizen.Server.Application.Dtos.Reports;
 using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -7,6 +10,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
 {
     public class PayrollRepository : IPayrollRepository
     {
+        private readonly string _connectionString;
+
         private readonly IConfiguration _configuration;
         private readonly IPayrollDataTransformer _dataTransformer;
         private readonly IEmployeePayrollRepository _employeeRepository;
@@ -16,6 +21,10 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
             IPayrollDataTransformer dataTransformer,
             IEmployeePayrollRepository employeeRepository)
         {
+            this._connectionString = configuration.GetConnectionString("KaizenDb")
+                ?? throw new InvalidOperationException(
+                    "La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
+
             _configuration = configuration;
             _dataTransformer = dataTransformer;
             _employeeRepository = employeeRepository;
@@ -67,6 +76,64 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
             deductionsParameters.TypeName = "dbo.OptionalDeductionsType";
 
             await sqlCommand.ExecuteNonQueryAsync();
+        }
+
+        public List<HistoricRangePayroll> GetEmployeeHistoricRangePayrolls(Guid employeeId, DateTime start, DateTime end)
+        {
+            const string getEmployeeHistoricRangePayrollsCommandText = @"
+                SELECT
+                    e.ContractType,
+                    e.JobPosition,
+                    gp.ExecutedOn AS PayrollDate,
+                    p.BrutePaid AS BruteSalary,
+                    p.NetPaid AS NetSalary,
+                    (p.IncomeTax + p.CCSS) AS ObligatoryDeductions,
+                    ISNULL(SUM(od.Amount), 0) AS OptionalDeductions
+                FROM
+                    Payrolls p
+                INNER JOIN
+                    Employees e ON p.PaidTo = e.EmpID
+                INNER JOIN
+                    GeneralPayrolls gp ON p.GeneralPayrollPk = gp.GeneralPayrollsID
+                LEFT JOIN
+                    OptionalDeductions od ON p.PayrollID = od.PayrollID
+                WHERE
+                    p.PaidTo = @EmployeeId
+                    AND CAST(gp.ExecutedOn AS DATE) BETWEEN @Start AND @End
+                GROUP BY
+                    e.ContractType, e.JobPosition, gp.ExecutedOn, p.PayrollID, p.BrutePaid, p.NetPaid, p.IncomeTax, p.CCSS
+            ";
+
+            SqlParameter[] getEmployeeHistoricRangePayrollsParameters = [
+                new SqlParameter("@EmployeeId", employeeId),
+                new SqlParameter("@Start", start),
+                new SqlParameter("@End", end)
+            ];
+
+            using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString,
+                getEmployeeHistoricRangePayrollsCommandText,
+                CommandType.Text,
+                getEmployeeHistoricRangePayrollsParameters);
+
+            List<HistoricRangePayroll> historicPayrolls = [];
+            while (reader.Read())
+            {
+                HistoricRangePayroll historicPayroll = new()
+                {
+                    ContractType = reader.GetString(reader.GetOrdinal("ContractType")),
+                    JobPosition = reader.GetString(reader.GetOrdinal("JobPosition")),
+                    PayrollDate = reader.GetDateTime(reader.GetOrdinal("PayrollDate")),
+                    BruteSalary = reader.GetDecimal(reader.GetOrdinal("BruteSalary")),
+                    NetSalary = reader.GetDecimal(reader.GetOrdinal("NetSalary")),
+                    ObligatoryDeductions = reader.GetDecimal(reader.GetOrdinal("ObligatoryDeductions")),
+                    OptionalDeductions = reader.IsDBNull(reader.GetOrdinal("OptionalDeductions"))
+                        ? 0
+                        : reader.GetDecimal(reader.GetOrdinal("OptionalDeductions"))
+                };
+
+                historicPayrolls.Add(historicPayroll);
+            }
+            return historicPayrolls;
         }
     }
 }
