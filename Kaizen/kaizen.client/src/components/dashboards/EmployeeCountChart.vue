@@ -1,6 +1,8 @@
 <!-- src/components/dashboards/EmployeeCountChart.vue -->
 <script setup>
+import { ref, onMounted } from 'vue'
 import { Bar } from 'vue-chartjs'
+import axios from 'axios'
 import {
   Chart,
   BarElement,
@@ -12,21 +14,11 @@ import {
 
 Chart.register(BarElement, CategoryScale, LinearScale, Title, Legend)
 
-/* ── DATOS (ejemplo) ── */
-const chartData = {
-  labels: ['Mayo', 'Abril', 'Marzo'],
-  datasets: [
-    { label: 'Tiempo completo', data: [3, 8, 16], backgroundColor: '#7de2e2' },
-    { label: 'Horas',           data: [6, 14, 18], backgroundColor: '#0096c7' },
-    { label: 'Servicios Profesionales', data: [5, 6, 6], backgroundColor: '#43779f' }
-  ]
-}
-
-/* ── OPCIONES ── */
+const chartData = ref({ labels: [], datasets: [] })
 const chartOptions = {
   responsive: true,
-  maintainAspectRatio: true,  // respeta aspectRatio
-  aspectRatio: 1.6,           // ancho = 1.6 × alto
+  maintainAspectRatio: true,
+  aspectRatio: 1.6,
   layout: { padding: { top: 10 } },
   plugins: {
     title: {
@@ -65,6 +57,57 @@ const chartOptions = {
   },
   elements: { bar: { borderRadius: 4, borderSkipped: false } }
 }
+
+function getMonthName(month, year) {
+  // Devuelve el nombre del mes en español
+  return new Date(year, month - 1, 1).toLocaleString('es-ES', { month: 'long' })
+}
+
+onMounted(async () => {
+  // Obtén el companyPk dinámicamente igual que en payroll.vue
+  let companyPk = localStorage.getItem('companyPk');
+  if (!companyPk) {
+    // Intenta obtenerlo desde el backend si no está en localStorage
+    try {
+      const pay = await fetch('/api/login/payroll-info', { credentials: 'include' });
+      if (pay.ok) {
+        const { companyId } = await pay.json();
+        companyPk = companyId;
+        if (companyPk) localStorage.setItem('companyPk', companyPk);
+      }
+    } catch {
+      console.error('No se pudo obtener companyPk del backend');
+    }
+  }
+  if (!companyPk) {
+    console.error('No se encontró companyPk');
+    return;
+  }
+  const res = await axios.get('/api/owner-dashboard/contract-counts-last-3-months', {
+    params: { companyPk }
+  })
+  const data = res.data
+  // Determinar los meses y tipos de contrato únicos
+  const months = [...new Set(data.map(d => `${d.year}-${d.month}`))]
+  const monthLabels = data.length > 0 ? months.map(m => {
+    const [y, mo] = m.split('-')
+    return getMonthName(Number(mo), Number(y))
+  }) : []
+  const contractTypes = [...new Set(data.map(d => d.contractType))]
+  // Construir datasets
+  const datasets = contractTypes.map((type, idx) => {
+    const colorList = ['#7de2e2', '#0096c7', '#43779f', '#fbbf24', '#ef4444']
+    return {
+      label: type,
+      data: months.map(m => {
+        const found = data.find(d => d.contractType === type && `${d.year}-${d.month}` === m)
+        return found ? found.count : 0
+      }),
+      backgroundColor: colorList[idx % colorList.length]
+    }
+  })
+  chartData.value = { labels: monthLabels, datasets }
+})
 </script>
 
 <template>

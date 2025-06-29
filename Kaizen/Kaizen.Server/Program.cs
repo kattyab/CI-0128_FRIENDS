@@ -133,6 +133,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<GeneralPayrollRepository>();
+builder.Services.AddScoped<OwnerDashboardRepository>();
 
 var app = builder.Build();
 
