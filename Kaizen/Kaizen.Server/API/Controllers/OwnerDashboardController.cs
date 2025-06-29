@@ -28,5 +28,14 @@ namespace Kaizen.Server.API.Controllers
             var results = await _dashboardRepository.GetLast3PayrollsAsync(companyPk);
             return Ok(results);
         }
+
+        [HttpGet("payroll-cost-breakdown")]
+        public async Task<IActionResult> GetPayrollCostBreakdown([FromQuery] Guid companyPk)
+        {
+            var result = await _dashboardRepository.GetPayrollCostBreakdownAsync(companyPk);
+            if (result == null)
+                return NotFound();
+            return Ok(result);
+        }
     }
 }

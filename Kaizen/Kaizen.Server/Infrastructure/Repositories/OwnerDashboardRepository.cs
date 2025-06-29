@@ -121,5 +121,52 @@ namespace Kaizen.Server.Infrastructure.Repositories
             public DateTime ExecutedOn { get; set; }
             public decimal TotalMoneyPaid { get; set; }
         }
+
+        public class PayrollCostBreakdownDto
+        {
+            public decimal Beneficios { get; set; }
+            public decimal Obligatorias { get; set; }
+            public decimal Cargas { get; set; }
+            public decimal Salarios { get; set; }
+        }
+
+        public async Task<PayrollCostBreakdownDto?> GetPayrollCostBreakdownAsync(Guid companyPk)
+        {
+            const string sql = @"
+                SELECT TOP 1
+                    TotalDeductionsBenefits,
+                    TotalObligatoryDeductions,
+                    TotalLaborCharges,
+                    TotalMoneyPaid
+                FROM GeneralPayrolls
+                WHERE PaidBy = @companyPk
+                ORDER BY ExecutedOn DESC
+            ";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@companyPk", companyPk);
+                await conn.OpenAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        var beneficios = reader.GetDecimal(reader.GetOrdinal("TotalDeductionsBenefits"));
+                        var obligatorias = reader.GetDecimal(reader.GetOrdinal("TotalObligatoryDeductions"));
+                        var cargas = reader.GetDecimal(reader.GetOrdinal("TotalLaborCharges"));
+                        var total = reader.GetDecimal(reader.GetOrdinal("TotalMoneyPaid"));
+                        var salarios = total - (beneficios + obligatorias + cargas);
+                        return new PayrollCostBreakdownDto
+                        {
+                            Beneficios = beneficios,
+                            Obligatorias = obligatorias,
+                            Cargas = cargas,
+                            Salarios = salarios
+                        };
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

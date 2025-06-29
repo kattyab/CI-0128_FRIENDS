@@ -95,7 +95,12 @@
             password: this.password
           });
 
-          this.$router.push('/landing-page');
+          // Redirige según el rol
+          if (response.data && response.data.role === 'Dueño') {
+            this.$router.push('/dashboard-owner');
+          } else {
+            this.$router.push('/landing-page');
+          }
         }
         catch (err) {
           if (!err.response) {

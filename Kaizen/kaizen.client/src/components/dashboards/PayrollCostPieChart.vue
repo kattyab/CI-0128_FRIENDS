@@ -1,6 +1,8 @@
+<!-- src/components/dashboards/PayrollCostChart.vue -->
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Pie } from 'vue-chartjs'
+import axios from 'axios'
 import {
   Chart,
   ArcElement,
@@ -8,33 +10,23 @@ import {
   Legend
 } from 'chart.js'
 
+/* ─────── REGISTRO DE COMPONENTES CHART.JS ─────── */
 Chart.register(ArcElement, Tooltip, Legend)
 
+/* ─────── DATOS REACTIVOS ─────── */
 const chartData = ref({
-  labels: [
-    'Cargas Sociales',
-    'Salario Tiempo Completo',
-    'Servicios Profesionales',
-    'Salarios por Horas'
-  ],
-  datasets: [
-    {
-      data: [47.6, 19, 9.5, 23.8],
-      backgroundColor: [
-        '#7de2e2',
-        '#0096c7',
-        '#43779f',
-        '#5fd0e6' // celeste claro en vez de amarillo
-      ],
-      borderWidth: 1
-    }
-  ]
+  labels: ['Beneficios', 'Deducciones obligatorias', 'Cargas Sociales', 'Salarios'],
+  datasets: [{
+    data: [0, 0, 0, 0],
+    backgroundColor: ['#7de2e2', '#0096c7', '#43779f', '#5fd0e6'],
+    borderWidth: 1
+  }]
 })
 
+/* ─────── OPCIONES DEL GRÁFICO ─────── */
 const chartOptions = {
   responsive: true,
-  maintainAspectRatio: true,
-  aspectRatio: 1.6,
+  maintainAspectRatio: false,      // altura controlada por CSS
   layout: { padding: { top: 10 } },
   plugins: {
     title: {
@@ -61,38 +53,79 @@ const chartOptions = {
     },
     tooltip: {
       callbacks: {
-        label: function(ctx) {
-          const label = ctx.label || ''
-          const value = ctx.parsed || 0
-          return `${label}: ${value}%`
-        }
+        label: ({ label = '', parsed = 0 }) =>
+          `${label}: ₡${parsed.toLocaleString('es-CR', { maximumFractionDigits: 0 })}`
       }
     }
   }
 }
+
+/* ─────── HELPER: CONVIERTE A NÚMERO Y GARANTIZA >0 ─────── */
+const toNumber = v => Number.parseFloat(v) || 0
+const sanitize = arr => arr.every(v => v === 0) ? [1, 1, 1, 1] : arr
+
+/* ─────── OBTENCIÓN DE DATOS ─────── */
+onMounted(async () => {
+  /* 1) Averigua companyPk (localStorage ➜ backend) */
+  let companyPk = localStorage.getItem('companyPk')
+  if (!companyPk) {
+    try {
+      const res = await fetch('/api/login/payroll-info', { credentials: 'include' })
+      if (res.ok) {
+        const { companyId } = await res.json()
+        companyPk = companyId
+        companyPk && localStorage.setItem('companyPk', companyPk)
+      }
+    } catch (err) {
+      console.error('No se pudo obtener companyPk del backend', err)
+    }
+  }
+  if (!companyPk) return console.warn('Sin companyPk — se aborta el fetch')
+
+  /* 2) Pide breakdown al backend */
+  try {
+    const { data } = await axios.get(
+      '/api/owner-dashboard/payroll-cost-breakdown',
+      { params: { companyPk } }
+    )
+
+    /* 3) Normaliza y actualiza (⚠️ nueva referencia) */
+    const dataset = sanitize([
+      toNumber(data.beneficios),
+      toNumber(data.obligatorias),
+      toNumber(data.cargas),
+      toNumber(data.salarios)
+    ])
+
+    chartData.value = {
+      ...chartData.value,
+      datasets: [{ ...chartData.value.datasets[0], data: dataset }]
+    }
+  } catch (err) {
+    console.error('Error fetching payroll-cost-breakdown:', err)
+    /* Fallback visual (todos 1) */
+    chartData.value = {
+      ...chartData.value,
+      datasets: [{ ...chartData.value.datasets[0], data: [1, 1, 1, 1] }]
+    }
+  }
+})
 </script>
 
 <template>
   <div class="pie-chart-container">
-    <div class="pie-chart-wrapper">
-      <Pie :data="chartData" :options="chartOptions" />
-    </div>
+    <Pie :data="chartData" :options="chartOptions" />
   </div>
 </template>
 
 <style scoped>
 .pie-chart-container {
   width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
+  max-width: 650px;
+  margin: 1rem auto 0;
+  /* Altura fija para evitar canvas colapsado */
+  height: 340px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 1rem;
-}
-.pie-chart-wrapper {
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
 }
 </style>
