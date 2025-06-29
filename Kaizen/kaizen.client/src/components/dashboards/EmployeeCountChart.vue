@@ -103,7 +103,7 @@ onMounted(async () => {
     const [y, mo] = m.split('-'); return monthName(+mo, +y)
   })
   const types = [...new Set(data.map(d => d.contractType))]
-  const colors = ['#7de2e2','#0096c7','#43779f','#fbbf24','#ef4444']
+  const colors = ['#7de2e2','#0096c7','#43779f','#5fd0e6','#ef4444']
   const datasets = types.map((t,i) => ({
     label: t,
     data: months.map(m => {
@@ -128,5 +128,6 @@ onMounted(async () => {
   width: 100%;
   max-width: 520px;
   margin: 0 auto;
+  margin-top: 1rem;
 }
 </style>

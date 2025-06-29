@@ -1,7 +1,9 @@
 <template>
   <section class="dashboard-grid">
-    <EmployeeCountChart />
-    <!-- aquí irán los demás gráficos / tablas -->
+    <div class="charts-row">
+      <EmployeeCountChart />
+      <PayrollCostPieChart />
+    </div>
     <div class="ultimos-pagos-wrapper">
       <h2 class="ultimos-pagos-title">Ultimos Pagos</h2>
       <table class="ultimos-pagos-table">
@@ -13,20 +15,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Mayo</td>
-            <td>01/06/2025</td>
-            <td><b>$10 000</b></td>
+          <tr v-for="(pago, i) in lastPayrolls" :key="i" :class="{ 'row-alt': i % 2 === 1 }">
+            <td>{{ pago.period }}</td>
+            <td>{{ new Date(pago.executedOn).toLocaleDateString('es-CR') }}</td>
+            <td><b>${{ pago.totalMoneyPaid.toLocaleString('es-CR') }}</b></td>
           </tr>
-          <tr class="row-alt">
-            <td>Abril</td>
-            <td>01/05/2025</td>
-            <td><b>$9 800</b></td>
-          </tr>
-          <tr>
-            <td>Marzo</td>
-            <td>01/04/2025</td>
-            <td><b>$9 700</b></td>
+          <tr v-if="lastPayrolls.length === 0">
+            <td colspan="3">No hay pagos recientes</td>
           </tr>
         </tbody>
       </table>
@@ -40,31 +35,58 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import EmployeeCountChart from '@/components/dashboards/EmployeeCountChart.vue'
+import PayrollCostPieChart from '@/components/dashboards/PayrollCostPieChart.vue'
+import axios from 'axios'
+
+const lastPayrolls = ref([])
+
+onMounted(async () => {
+  let companyPk = localStorage.getItem('companyPk')
+  if (!companyPk) {
+    try {
+      const pay = await fetch('/api/login/payroll-info', { credentials: 'include' })
+      if (pay.ok) {
+        const { companyId } = await pay.json()
+        companyPk = companyId
+        if (companyPk) localStorage.setItem('companyPk', companyPk)
+      }
+    } catch {
+      console.error('No se pudo obtener companyPk del backend')
+    }
+  }
+  if (!companyPk) return
+  try {
+    const res = await axios.get('/api/owner-dashboard/last-3-payrolls', { params: { companyPk } })
+    lastPayrolls.value = res.data
+  } catch  {
+    lastPayrolls.value = []
+  }
+})
 </script>
 
 <style scoped>
-.dashboard-btn-wrapper {
+.dashboard-grid {
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.charts-row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  margin-top: 2rem;
-}
-.dashboard-btn {
-  background: #003c63;
-  color: #fff;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-.dashboard-btn:hover {
-  background: #00508a;
+  align-items: flex-start;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 .ultimos-pagos-wrapper {
-  max-width: 420px;
-  margin: 2rem auto 0 auto;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto 0 auto;
   text-align: center;
 }
 .ultimos-pagos-title {
@@ -93,5 +115,25 @@ import EmployeeCountChart from '@/components/dashboards/EmployeeCountChart.vue'
 }
 .ultimos-pagos-table .row-alt {
   background: #f3f6f9;
+}
+.dashboard-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+  margin-bottom: 3rem; /* Espacio extra antes del footer */
+}
+.dashboard-btn {
+  background: #003c63;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.dashboard-btn:hover {
+  background: #00508a;
 }
 </style>

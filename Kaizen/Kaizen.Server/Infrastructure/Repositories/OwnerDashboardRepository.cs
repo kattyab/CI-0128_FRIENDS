@@ -73,13 +73,53 @@ namespace Kaizen.Server.Infrastructure.Repositories
             }
             return results;
         }
-    }
 
-    public class ContractCountResult
-    {
-        public string ContractType { get; set; } = string.Empty;
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int Count { get; set; }
+        public async Task<List<LastPayrollDto>> GetLast3PayrollsAsync(Guid companyPk)
+        {
+            var results = new List<LastPayrollDto>();
+            const string sql = @"
+                SELECT TOP 3
+                    Period,
+                    ExecutedOn,
+                    TotalMoneyPaid
+                FROM GeneralPayrolls
+                WHERE PaidBy = @companyPk
+                ORDER BY ExecutedOn DESC
+            ";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@companyPk", companyPk);
+                await conn.OpenAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        results.Add(new LastPayrollDto
+                        {
+                            Period = reader["Period"]?.ToString() ?? string.Empty,
+                            ExecutedOn = reader.GetDateTime(reader.GetOrdinal("ExecutedOn")),
+                            TotalMoneyPaid = reader.GetDecimal(reader.GetOrdinal("TotalMoneyPaid"))
+                        });
+                    }
+                }
+            }
+            return results;
+        }
+
+        public class ContractCountResult
+        {
+            public string ContractType { get; set; } = string.Empty;
+            public int Year { get; set; }
+            public int Month { get; set; }
+            public int Count { get; set; }
+        }
+
+        public class LastPayrollDto
+        {
+            public string Period { get; set; } = string.Empty;
+            public DateTime ExecutedOn { get; set; }
+            public decimal TotalMoneyPaid { get; set; }
+        }
     }
 }

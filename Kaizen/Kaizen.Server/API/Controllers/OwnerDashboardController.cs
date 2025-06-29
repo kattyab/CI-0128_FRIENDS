@@ -21,5 +21,12 @@ namespace Kaizen.Server.API.Controllers
             var results = await _dashboardRepository.GetContractCountsLast3MonthsAsync(companyPk);
             return Ok(results);
         }
+
+        [HttpGet("last-3-payrolls")]
+        public async Task<IActionResult> GetLast3Payrolls([FromQuery] Guid companyPk)
+        {
+            var results = await _dashboardRepository.GetLast3PayrollsAsync(companyPk);
+            return Ok(results);
+        }
     }
 }
