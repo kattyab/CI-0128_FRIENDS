@@ -31,8 +31,8 @@ const router = createRouter({
         { path: 'benefits/subscribe', name: 'Benefit Subscription', component: () => import('./pages/benefits/subscribe.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Supervisor', 'Empleado'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true } },
-        { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] },
-        },
+        { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] }, },
+        { path: '/reports/historicrange', name: 'Payroll Historic Range', component: () => import('./pages/reports/HistoricRange.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
       ]
     },
     {
