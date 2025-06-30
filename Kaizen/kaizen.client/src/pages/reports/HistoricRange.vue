@@ -194,19 +194,19 @@ function exportDownload() {
     "\n" +
     payrollData.value
       .map((e) => {
-        return `${e.contractType},${e.jobPosition},${formatDate(e.payrollDate)},₡${e.bruteSalary.toLocaleString("en-US")},-₡${e.obligatoryDeductions.toLocaleString("en-US")
-          },-₡${e.optionalDeductions.toLocaleString("en-US")},₡${e.netSalary.toLocaleString("en-US")}`;
+        return `${e.contractType},${e.jobPosition},${formatDate(e.payrollDate)},${e.bruteSalary},-${e.obligatoryDeductions
+          },-${e.optionalDeductions},${e.netSalary}`;
       })
       .join("\n") +
     "\n" +
-    `,,,₡${payrollData.value.reduce((a, c) => {
-      return a + c.bruteSalary.toLocaleString("en-US");
-    }, 0)},-₡${payrollData.value.reduce((a, c) => {
-      return a + c.obligatoryDeductions.toLocaleString("en-US");
-    }, 0)},-₡${payrollData.value.reduce((a, c) => {
-      return a + c.optionalDeductions.toLocaleString("en-US");
-    }, 0)},₡${payrollData.value.reduce((a, c) => {
-      return a + c.netSalary.toLocaleString("en-US");
+    `,,,${payrollData.value.reduce((a, c) => {
+      return a + c.bruteSalary;
+    }, 0)},-${payrollData.value.reduce((a, c) => {
+      return a + c.obligatoryDeductions;
+    }, 0)},-${payrollData.value.reduce((a, c) => {
+      return a + c.optionalDeductions;
+    }, 0)},${payrollData.value.reduce((a, c) => {
+      return a + c.netSalary;
     }, 0)}`;
 
   const encodedUri = encodeURI(csvContent);
