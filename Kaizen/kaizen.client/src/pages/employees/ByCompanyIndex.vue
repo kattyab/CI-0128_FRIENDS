@@ -26,9 +26,10 @@
               <a :href="`/employees/${employee.empID}`" class="btn btn-primary">
                 <span class="material-icons">visibility</span>
               </a>
-              <a @click="deleteEmployee(employee.empID)" class="btn btn-danger ms-1">
+              <button @click="deleteEmployee(employee.empID)" :disabled="isCompanyDeleted"
+                 class="btn btn-danger ms-1">
                 <span class="material-icons">delete</span>
-              </a>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -46,6 +47,19 @@
   const loading = ref(true);
   const error = ref(null);
   const emailComponent = ref('');
+
+  const isCompanyDeleted = ref(null);
+
+  const checkCompanyStatus = async () => {
+    try {
+      const response = await axios.get('/api/Auth/isCompanyDeleted')
+      isCompanyDeleted.value = response.data
+      console.log('Company Status', isCompanyDeleted.value)
+    } catch (err) {
+      console.error('Error:', err)
+      isCompanyDeleted.value = false;
+    }
+  };
 
   const deleteEmployee = async (empID) => {
     try {
@@ -73,6 +87,7 @@
 
   onMounted(async () => {
     try {
+      checkCompanyStatus();
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, {
         withCredentials: true,
       });
@@ -92,5 +107,9 @@
   .btn-primary {
   background-color: #003c63;
   border-color: #003c63;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
   }
 </style>

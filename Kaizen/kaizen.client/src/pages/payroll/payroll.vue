@@ -46,7 +46,7 @@
 
           <hr class="my-4" />
           <button class="btn btn-primary w-100"
-                  :disabled="!valid || periodAlreadyExists">
+                  :disabled="!valid || periodAlreadyExists || isCompanyDeleted">
             Procesar nueva planilla
           </button>
         </form>
@@ -94,6 +94,7 @@
 
 <script setup>
   import { ref, computed, onMounted, watch } from "vue";
+  import axios from "axios";
 
   const currentUser = ref("");
   const companyId = ref("");
@@ -136,7 +137,21 @@
   const existingPeriods = ref(new Set());
   const periodAlreadyExists = ref(false);
 
+  const isCompanyDeleted = ref(null);
+
+  const checkCompanyStatus = async () => {
+    try {
+      const response = await axios.get('/api/Auth/isCompanyDeleted')
+      isCompanyDeleted.value = response.data
+    } catch (err) {
+      console.error('Error:', err)
+      isCompanyDeleted.value = false;
+    }
+  };
+
   onMounted(async () => {
+    checkCompanyStatus();
+
     const auth = await fetch("/api/login/authenticate", { credentials: "include" });
     if (auth.ok) {
       currentUser.value = (await auth.json()).email ?? "usuario@local";

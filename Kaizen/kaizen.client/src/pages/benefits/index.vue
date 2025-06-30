@@ -36,9 +36,10 @@
                 <span class="material-icons">visibility</span>
               </a>
               <!-- TODO use a post request in this page -->
-              <a :href="`/benefits/${item.id}`" class="btn btn-danger ms-1">
+              <button class="btn btn-danger ms-1" :disabled="isCompanyDeleted"
+                      @click="$router.push(`/benefits/${item.id}`)">
                 <span class="material-icons">delete</span>
-              </a>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -48,29 +49,52 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import axios from "axios";
+  import { ref, onMounted } from "vue";
+  import { useRouter } from 'vue-router'
+  import axios from "axios";
 
-const data = ref([]);
+  const isCompanyDeleted = ref(null)
+  const router = useRouter()
 
-async function fetchData() {
-  try {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/benefits`, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log("Data fetched successfully:", response.data);
-        data.value = response.data;
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        throw error;
-      });
-  } catch (e) {
-    console.log(e);
+  const data = ref([]);
+
+  const checkCompanyStatus = async () => {
+    try {
+      const response = await axios.get('/api/Auth/isCompanyDeleted')
+      isCompanyDeleted.value = response.data
+    } catch (err) {
+      console.error('Error:', err)
+      isCompanyDeleted.value = false;
+    }
   }
-}
 
-onMounted(fetchData);
+  async function fetchData() {
+    try {
+      axios
+        .get(`${import.meta.env.VITE_API_URL}/api/benefits`, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log("Data fetched successfully:", response.data);
+          data.value = response.data;
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          throw error;
+        });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  onMounted(() => {
+    fetchData();
+    checkCompanyStatus();
+  });
 </script>
+
+<style>
+  .btn:disabled {
+    opacity: 0.5;
+  }
+</style>
