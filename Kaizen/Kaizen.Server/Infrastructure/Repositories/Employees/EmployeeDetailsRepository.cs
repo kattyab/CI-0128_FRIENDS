@@ -1,5 +1,6 @@
 ﻿using Kaizen.Server.Application.Dtos.Employees;
 using Kaizen.Server.Application.Interfaces.Employees;
+using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -92,11 +93,25 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-
             using var transaction = connection.BeginTransaction();
-
             try
             {
+                const string validationQuery = @"
+    SELECT c.IsDeleted 
+    FROM Employees e
+    INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
+    WHERE e.PersonPK = @EmpId";
+
+                using var validationCommand = new SqlCommand(validationQuery, connection, transaction);
+                validationCommand.Parameters.Add(new SqlParameter("@EmpId", SqlDbType.UniqueIdentifier) { Value = empId });
+
+                var isDeleted = await validationCommand.ExecuteScalarAsync() as bool?;
+
+                if (isDeleted != false)
+                {
+                    return false;
+                }
+
                 var personPK = await GetPersonPKAsync(empId, connection, transaction);
                 if (personPK == null)
                 {

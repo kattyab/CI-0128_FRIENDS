@@ -50,12 +50,15 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
                     // Insert into the new Benefits table
                     string insertSql = @"
-INSERT INTO Benefits (Name, MinWorkDurationMonths, OfferedBy, IsFixed, FixedValue, IsPercentage, PercentageValue,
-    IsFullTime, IsPartTime, IsByHours, IsByService
-)
-VALUES (@Name, @MinWorkDurationMonths, @OfferedBy, @IsFixed, @FixedValue, @IsPercentage, @PercentageValue,
-    @IsFullTime, @IsPartTime, @IsByHours, @IsByService
-);";
+IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @OfferedBy) = 0
+BEGIN
+    INSERT INTO Benefits (Name, MinWorkDurationMonths, OfferedBy, IsFixed, FixedValue, IsPercentage, PercentageValue,
+        IsFullTime, IsPartTime, IsByHours, IsByService
+    )
+    VALUES (@Name, @MinWorkDurationMonths, @OfferedBy, @IsFixed, @FixedValue, @IsPercentage, @PercentageValue,
+        @IsFullTime, @IsPartTime, @IsByHours, @IsByService
+    )
+END;";
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn);
                     cmd.Parameters.AddWithValue("@Name", benefit.Name);

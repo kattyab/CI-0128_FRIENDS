@@ -31,14 +31,17 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     string hashedPassword = hasher.HashPassword(company.user.Email, company.user.PasswordHash);
 
                     string insertSql = @"
-                        INSERT INTO Persons (PersonPK, Id, Name, LastName, Sex, BirthDate, Province, Canton, OtherSigns)
-                        VALUES (@PersonPK, @Id, @Name, @LastName, @Sex, @BirthDate, @OwnerProvince, @OwnerCanton, @OwnerOtherSigns);
+                        IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+                        BEGIN
+                            INSERT INTO Persons (PersonPK, Id, Name, LastName, Sex, BirthDate, Province, Canton, OtherSigns)
+                            VALUES (@PersonPK, @Id, @Name, @LastName, @Sex, @BirthDate, @OwnerProvince, @OwnerCanton, @OwnerOtherSigns);
 
-                        INSERT INTO Users (UserPK, Email, PasswordHash, Active, Role, PersonPK)
-                        VALUES (@UserPK, @Email, @PasswordHash, @Active, @Role, @PersonPK);
+                            INSERT INTO Users (UserPK, Email, PasswordHash, Active, Role, PersonPK)
+                            VALUES (@UserPK, @Email, @PasswordHash, @Active, @Role, @PersonPK);
 
-                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
-                        VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
+                            INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
+                            VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
+                        END
                         ";
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn, transaction);

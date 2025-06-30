@@ -250,7 +250,8 @@ public class CompaniesRepository(IConfiguration configuration)
                 Distrito = @Distrito,
                 OtherSigns = @OtherSigns
             WHERE
-                CompanyPK = @CompanyPK;";
+                CompanyPK = @CompanyPK
+                AND IsDeleted = 0;";
 
         SqlParameter[] updateCompanyParameters = [
             new SqlParameter("@CompanyPK", companyPK),
@@ -277,11 +278,14 @@ public class CompaniesRepository(IConfiguration configuration)
             .Where(p => !string.IsNullOrWhiteSpace(p)));
 
         const string deletePhoneNumbersCommandText = @"
+    IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+    BEGIN
             DELETE FROM
                 CompaniesPhoneNumbers
             WHERE
                 CompanyPK = @CompanyPK AND
-                Number NOT IN (SELECT value FROM STRING_SPLIT(@PhoneNumbers, ','));";
+                Number NOT IN (SELECT value FROM STRING_SPLIT(@PhoneNumbers, ','))
+    END;";
 
         SqlParameter[] deletePhoneNumbersParameters = [
             new SqlParameter("@CompanyPK", companyPK),
@@ -294,6 +298,8 @@ public class CompaniesRepository(IConfiguration configuration)
             deletePhoneNumbersParameters);
 
         const string insertPhoneNumbersCommandText = @"
+            IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+            BEGIN
             INSERT INTO
                 CompaniesPhoneNumbers (CompanyPK, Number)
             SELECT
@@ -301,7 +307,8 @@ public class CompaniesRepository(IConfiguration configuration)
             FROM
                 STRING_SPLIT(@PhoneNumbers, ',')
             WHERE
-                value NOT IN (SELECT Number FROM CompaniesPhoneNumbers WHERE CompanyPK = @CompanyPK);";
+                value NOT IN (SELECT Number FROM CompaniesPhoneNumbers WHERE CompanyPK = @CompanyPK)
+            END;";
 
         SqlParameter[] insertPhoneNumbersParameters = [
             new SqlParameter("@CompanyPK", companyPK),
@@ -316,11 +323,14 @@ public class CompaniesRepository(IConfiguration configuration)
         string emails = string.Join(",", companyEditDto.Emails.Split(',')
             .Where(e => !string.IsNullOrWhiteSpace(e)));
         const string deleteEmailsCommandText = @"
+            IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+            BEGIN
             DELETE FROM
                 CompaniesEmails
             WHERE
                 CompanyPK = @CompanyPK AND
-                CompanyEmail NOT IN (SELECT value FROM STRING_SPLIT(@Emails, ','));";
+                CompanyEmail NOT IN (SELECT value FROM STRING_SPLIT(@Emails, ','))
+            END;";
 
         SqlParameter[] deleteEmailsParameters = [
             new SqlParameter("@CompanyPK", companyPK),
@@ -332,6 +342,8 @@ public class CompaniesRepository(IConfiguration configuration)
             deleteEmailsParameters);
 
         const string insertEmailsCommandText = @"
+            IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+            BEGIN
             INSERT INTO
                 CompaniesEmails (CompanyPK, CompanyEmail)
             SELECT
@@ -339,7 +351,8 @@ public class CompaniesRepository(IConfiguration configuration)
             FROM
                 STRING_SPLIT(@Emails, ',')
             WHERE
-                value NOT IN (SELECT CompanyEmail FROM CompaniesEmails WHERE CompanyPK = @CompanyPK);";
+                value NOT IN (SELECT CompanyEmail FROM CompaniesEmails WHERE CompanyPK = @CompanyPK)
+            END;";
 
         SqlParameter[] insertEmailsParameters = [
             new SqlParameter("@CompanyPK", companyPK),

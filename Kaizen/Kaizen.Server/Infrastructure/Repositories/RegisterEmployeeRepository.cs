@@ -48,6 +48,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
                         companyPK = result.ToString();
                     }
 
+
+
                     var hasher = new PasswordHasher<string>();
                     string hashedPassword = hasher.HashPassword(employee.Email, employee.Password);
 
@@ -56,24 +58,29 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     Guid personPK = Guid.NewGuid();
 
                     string insertSql = @"
-INSERT INTO Persons (PersonPK, Id, Name, LastName, Sex, BirthDate, Province, Canton, OtherSigns)
-VALUES (@PersonPK, @Id, @Name, @LastName, @Sex, @BirthDate, @Province, @Canton, @OtherSigns);
-
-INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)
-VALUES (@Email, @PasswordHash, 1, @Role, @PersonPK);
-
-INSERT INTO PersonPhoneNumbers (PersonPK, Number)
-VALUES (@PersonPK, @PhoneNumber);
-
-INSERT INTO Employees (PersonPK, WorksFor, JobPosition, ContractType, WorkHours, StartDate, BankAccount, BruteSalary, PayCycleType)
-VALUES (@PersonPK, @CompanyPK, @JobPosition, @ContractType, 0, @StartDate, @BankAccount, @BruteSalary, @PayCycleType);
-";
+IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+BEGIN
+    INSERT INTO Persons (PersonPK, Id, Name, LastName, Sex, BirthDate, Province, Canton, OtherSigns)
+    VALUES (@PersonPK, @Id, @Name, @LastName, @Sex, @BirthDate, @Province, @Canton, @OtherSigns);
+    
+    INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)
+    VALUES (@Email, @PasswordHash, 1, @Role, @PersonPK);
+    
+    INSERT INTO PersonPhoneNumbers (PersonPK, Number)
+    VALUES (@PersonPK, @PhoneNumber);
+    
+    INSERT INTO Employees (PersonPK, WorksFor, JobPosition, ContractType, WorkHours, StartDate, BankAccount, BruteSalary, PayCycleType)
+    VALUES (@PersonPK, @CompanyPK, @JobPosition, @ContractType, 0, @StartDate, @BankAccount, @BruteSalary, @PayCycleType);
+END";
 
                     if (employee.Role == "Administrador")
                     {
                         insertSql += @"
-INSERT INTO Admins (AdminPK, CompanyPK)
-VALUES (@PersonPK, @CompanyPK);";
+IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+BEGIN
+    INSERT INTO Admins (AdminPK, CompanyPK)
+    VALUES (@PersonPK, @CompanyPK)
+END";
                     }
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn);

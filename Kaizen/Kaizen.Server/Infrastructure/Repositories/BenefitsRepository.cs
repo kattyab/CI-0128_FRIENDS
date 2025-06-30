@@ -143,6 +143,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
             }
 
             const string updateBenefitCommandText = @"
+            IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @OfferedBy) = 0
+            BEGIN
                 UPDATE
                     Benefits
                 SET
@@ -158,7 +160,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     IsByService = @IsByService
                 WHERE
                     ID = @ID AND
-                    OfferedBy = @OfferedBy;";
+                    OfferedBy = @OfferedBy
+            END;";
 
             SqlParameter[] updateBenefitParameters = [
                 new SqlParameter("@ID", benefit.ID),
