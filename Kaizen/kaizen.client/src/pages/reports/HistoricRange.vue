@@ -28,11 +28,8 @@
         </div>
       </div>
       <div>
-        <button
-          class="btn btn-lg btn-primary self-align-end"
-          :disabled="payrollData.length == 0"
-          @click="openExportModal"
-        >
+        <button class="btn btn-lg btn-primary self-align-end" :disabled="payrollData.length == 0"
+          @click="openExportModal">
           Exportar
         </button>
       </div>
@@ -55,41 +52,41 @@
             <td>{{ item.contractType }}</td>
             <td>{{ item.jobPosition }}</td>
             <td>{{ formatDate(item.payrollDate) }}</td>
-            <td>{{ item.bruteSalary }}</td>
-            <td>{{ item.obligatoryDeductions }}</td>
-            <td>{{ item.optionalDeductions }}</td>
-            <td>{{ item.netSalary }}</td>
+            <td>₡{{ item.bruteSalary.toLocaleString("en-US") }}</td>
+            <td>-₡{{ item.obligatoryDeductions.toLocaleString("en-US") }}</td>
+            <td>-₡{{ item.optionalDeductions.toLocaleString("en-US") }}</td>
+            <td>₡{{ item.netSalary.toLocaleString("en-US") }}</td>
           </tr>
           <tr class="">
             <td></td>
             <td></td>
             <td></td>
             <td class="fw-bold">
-              {{
+              ₡{{
                 payrollData.reduce((a, c) => {
                   return a + c.bruteSalary;
-                }, 0)
+                }, 0).toLocaleString("en-US")
               }}
             </td>
             <td class="fw-bold">
-              {{
+              -₡{{
                 payrollData.reduce((a, c) => {
                   return a + c.obligatoryDeductions;
-                }, 0)
+                }, 0).toLocaleString("en-US")
               }}
             </td>
             <td class="fw-bold">
-              {{
+              -₡{{
                 payrollData.reduce((a, c) => {
                   return a + c.optionalDeductions;
-                }, 0)
+                }, 0).toLocaleString("en-US")
               }}
             </td>
             <td class="fw-bold">
-              {{
+              ₡{{
                 payrollData.reduce((a, c) => {
                   return a + c.netSalary;
-                }, 0)
+                }, 0).toLocaleString("en-US")
               }}
             </td>
           </tr>
@@ -102,12 +99,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Opciones de Exportación</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div class="card-group">
@@ -202,20 +194,19 @@ function exportDownload() {
     "\n" +
     payrollData.value
       .map((e) => {
-        return `${e.contractType},${e.jobPosition},${formatDate(e.payrollDate)},${e.bruteSalary},${
-          e.obligatoryDeductions
-        },${e.optionalDeductions},${e.netSalary}`;
+        return `${e.contractType},${e.jobPosition},${formatDate(e.payrollDate)},₡${e.bruteSalary.toLocaleString("en-US")},-₡${e.obligatoryDeductions.toLocaleString("en-US")
+          },-₡${e.optionalDeductions.toLocaleString("en-US")},₡${e.netSalary.toLocaleString("en-US")}`;
       })
       .join("\n") +
     "\n" +
-    `,,,${payrollData.value.reduce((a, c) => {
-      return a + c.bruteSalary;
-    }, 0)},${payrollData.value.reduce((a, c) => {
-      return a + c.obligatoryDeductions;
-    }, 0)},${payrollData.value.reduce((a, c) => {
-      return a + c.optionalDeductions;
-    }, 0)},${payrollData.value.reduce((a, c) => {
-      return a + c.netSalary;
+    `,,,₡${payrollData.value.reduce((a, c) => {
+      return a + c.bruteSalary.toLocaleString("en-US");
+    }, 0)},-₡${payrollData.value.reduce((a, c) => {
+      return a + c.obligatoryDeductions.toLocaleString("en-US");
+    }, 0)},-₡${payrollData.value.reduce((a, c) => {
+      return a + c.optionalDeductions.toLocaleString("en-US");
+    }, 0)},₡${payrollData.value.reduce((a, c) => {
+      return a + c.netSalary.toLocaleString("en-US");
     }, 0)}`;
 
   const encodedUri = encodeURI(csvContent);

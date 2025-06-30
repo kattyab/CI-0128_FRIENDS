@@ -102,6 +102,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
                     AND CAST(gp.ExecutedOn AS DATE) BETWEEN @Start AND @End
                 GROUP BY
                     e.ContractType, e.JobPosition, gp.ExecutedOn, p.PayrollID, p.BrutePaid, p.NetPaid, p.IncomeTax, p.CCSS
+                ORDER BY gp.ExecutedOn DESC
             ";
 
             SqlParameter[] getEmployeeHistoricRangePayrollsParameters = [
