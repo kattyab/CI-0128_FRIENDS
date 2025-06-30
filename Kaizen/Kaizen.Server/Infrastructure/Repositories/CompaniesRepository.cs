@@ -363,4 +363,44 @@ public class CompaniesRepository(IConfiguration configuration)
             CommandType.Text,
             insertEmailsParameters);
     }
+
+
+    public void DeleteCompany(Guid companyPK)
+    {
+        using SqlConnection connection = new(this._connectionString);
+        connection.Open();
+
+        using SqlTransaction transaction = connection.BeginTransaction();
+        try
+        {
+            SqlParameter[] checkParameters = [
+                new SqlParameter("@CompanyPK", companyPK)
+            ];
+
+            using SqlCommand checkCommand = new("sp_IsTherePayroll", connection, transaction);
+            checkCommand.CommandType = CommandType.StoredProcedure;
+            checkCommand.Parameters.AddRange(checkParameters);
+
+            object result = checkCommand.ExecuteScalar();
+            bool hasPayroll = Convert.ToBoolean(result);
+
+            string deleteStoredProcedure = hasPayroll ? "sp_SoftDeleteCompany" : "sp_FullDeleteCompany";
+
+            SqlParameter[] deleteParameters = [
+                new SqlParameter("@CompanyPK", companyPK)
+            ];
+
+            using SqlCommand deleteCommand = new(deleteStoredProcedure, connection, transaction);
+            deleteCommand.CommandType = CommandType.StoredProcedure;
+            deleteCommand.Parameters.AddRange(deleteParameters);
+
+            deleteCommand.ExecuteNonQuery();
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+        }
+    }
 }

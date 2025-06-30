@@ -95,4 +95,35 @@ public class CompaniesController(
 
         return this.NotFound();
     }
+
+    [HttpDelete("delete")]
+    public IActionResult DeleteCompany()
+    {
+        try
+        {
+            try
+            {
+                if (!this.ModelState.IsValid)
+                {
+                    return this.BadRequest(this.ModelState);
+                }
+
+                Guid companyPK = this._authService.GetAuthUserCompanyPK();
+                this._companiesRepository.DeleteCompany(companyPK);
+
+                return this.Ok();
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+        catch (Exception)
+        {
+            // Ignore, return not found if any error occurs
+        }
+
+        return this.NotFound();
+    }
+
 }
