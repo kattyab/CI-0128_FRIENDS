@@ -8,7 +8,7 @@
 
     <h5>Menu</h5>
 
-    <div class="menu d-flex flex-column">
+    <div class="menu d-flex flex-column" v-if="company_pk">
       <router-link class="button" to="/landing-page">
         <span class="material-icons">apartment</span>
         <span class="text">Inicio</span>
@@ -130,6 +130,7 @@
       company_pk.value = response.data
     } catch (error) {
       console.error("Error fetching company ID:", error)
+      company_pk.value = null
     }
   }
 
