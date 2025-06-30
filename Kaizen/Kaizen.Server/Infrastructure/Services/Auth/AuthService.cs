@@ -37,6 +37,12 @@ public class AuthService : IAuthService
         return this._loginRepository.GetAuthUserCompanyPK(authUser);
     }
 
+    public bool GetIsCompanyDeleted()
+    {
+        Guid companyPK = GetAuthUserCompanyPK();
+        return this._loginRepository.GetIsCompanyDeleted(companyPK);
+    }
+
     public Guid GetAuthUserEmployeePK()
     {
         AuthUserDto authUser = this.GetAuthUser();
