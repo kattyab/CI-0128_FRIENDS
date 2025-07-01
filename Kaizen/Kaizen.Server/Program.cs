@@ -102,6 +102,9 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+builder.Services.AddScoped<IGeneralPayrollReportRepository, GeneralPayrollReportRepository>();
+
+
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
