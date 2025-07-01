@@ -93,7 +93,9 @@
           const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/login/login`, {
             email: this.username,
             password: this.password
-          });
+          }//,
+          //{ withCredentials: true }
+          );
 
           this.$router.push('/landing-page');
         }

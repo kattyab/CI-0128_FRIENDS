@@ -22,10 +22,10 @@ public class EmployeesController : ControllerBase
     [HttpGet("")]
     public IActionResult Index()
     {
-        /*if (this._authService.IsAuthenticated() == false)
+        if (this._authService.IsAuthenticated() == false)
         {
             return this.Unauthorized();
-        }*/
+        }
 
         Guid companyPK = this._authService.GetAuthUserCompanyPK();
 
