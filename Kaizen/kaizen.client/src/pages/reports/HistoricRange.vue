@@ -52,42 +52,26 @@
             <td>{{ item.contractType }}</td>
             <td>{{ item.jobPosition }}</td>
             <td>{{ formatDate(item.payrollDate) }}</td>
-            <td>₡{{ item.bruteSalary.toLocaleString("en-US") }}</td>
-            <td>-₡{{ item.obligatoryDeductions.toLocaleString("en-US") }}</td>
-            <td>-₡{{ item.optionalDeductions.toLocaleString("en-US") }}</td>
-            <td>₡{{ item.netSalary.toLocaleString("en-US") }}</td>
+            <td>₡{{ formatNumber(item.bruteSalary) }}</td>
+            <td>-₡{{ formatNumber(item.obligatoryDeductions) }}</td>
+            <td>-₡{{ formatNumber(item.optionalDeductions) }}</td>
+            <td>₡{{ formatNumber(item.netSalary) }}</td>
           </tr>
           <tr class="">
             <td></td>
             <td></td>
             <td></td>
             <td class="fw-bold">
-              ₡{{
-                payrollData.reduce((a, c) => {
-                  return a + c.bruteSalary;
-                }, 0).toLocaleString("en-US")
-              }}
+              ₡{{formatNumber(payrollData.reduce((a, c) => a + c.bruteSalary, 0))}}
             </td>
             <td class="fw-bold">
-              -₡{{
-                payrollData.reduce((a, c) => {
-                  return a + c.obligatoryDeductions;
-                }, 0).toLocaleString("en-US")
-              }}
+              -₡{{formatNumber(payrollData.reduce((a, c) => a + c.obligatoryDeductions, 0))}}
             </td>
             <td class="fw-bold">
-              -₡{{
-                payrollData.reduce((a, c) => {
-                  return a + c.optionalDeductions;
-                }, 0).toLocaleString("en-US")
-              }}
+              -₡{{formatNumber(payrollData.reduce((a, c) => a + c.optionalDeductions, 0))}}
             </td>
             <td class="fw-bold">
-              ₡{{
-                payrollData.reduce((a, c) => {
-                  return a + c.netSalary;
-                }, 0).toLocaleString("en-US")
-              }}
+              ₡{{formatNumber(payrollData.reduce((a, c) => a + c.netSalary, 0))}}
             </td>
           </tr>
         </tbody>
@@ -154,6 +138,10 @@ const payrollHeaders = ref([
 ]);
 const payrollData = ref([]);
 
+function formatNumber(num) {
+  return Number(num).toLocaleString("es-CR", { maximumFractionDigits: 0 });
+}
+
 function openExportModal() {
   modalObject.value.show();
 }
@@ -185,38 +173,39 @@ function exportEmail() {
 }
 
 function exportDownload() {
-  const empleado = data.value.employees.find((x) => x.EmpId == searchData.employeeId);
-  const empleadoName = `${empleado.name}_${empleado.lastName}`;
+  const empleado = data.value.employees.find((x) => x.id == searchData.value.employeeId);
+  const empleadoName = empleado ? `${empleado.name} ${empleado.lastName}` : "";
+  const empresaName = data.value.companyName || "";
+  const fechaInicio = searchData.value.start ? formatDate(searchData.value.start) : "";
+  const fechaFin = searchData.value.end ? formatDate(searchData.value.end) : "";
+
+  const BOM = "\uFEFF";
+
+  const infoHeader =
+    `Empresa:,${empresaName}\n` +
+    `Empleado:,${empleadoName}\n` +
+    `Fecha inicio de planilla:,${fechaInicio}\n` +
+    `Fecha final de planilla:,${fechaFin}\n\n`;
 
   const csvContent =
-    "data:text/csv;charset=utf-8," +
+    BOM +
+    infoHeader +
     Object.values(payrollHeaders.value).join(",") +
     "\n" +
     payrollData.value
       .map((e) => {
-        return `${e.contractType},${e.jobPosition},${formatDate(e.payrollDate)},${e.bruteSalary},-${e.obligatoryDeductions
-          },-${e.optionalDeductions},${e.netSalary}`;
+        return `${e.contractType},${e.jobPosition},${formatDate(e.payrollDate)},₡${formatNumber(e.bruteSalary)},-₡${formatNumber(e.obligatoryDeductions)},-₡${formatNumber(e.optionalDeductions)},₡${formatNumber(e.netSalary)}`;
       })
       .join("\n") +
     "\n" +
-    `,,,${payrollData.value.reduce((a, c) => {
-      return a + c.bruteSalary;
-    }, 0)},-${payrollData.value.reduce((a, c) => {
-      return a + c.obligatoryDeductions;
-    }, 0)},-${payrollData.value.reduce((a, c) => {
-      return a + c.optionalDeductions;
-    }, 0)},${payrollData.value.reduce((a, c) => {
-      return a + c.netSalary;
-    }, 0)}`;
+    `,,,₡${formatNumber(payrollData.value.reduce((a, c) => a + c.bruteSalary, 0))},-₡${formatNumber(payrollData.value.reduce((a, c) => a + c.obligatoryDeductions, 0))},-₡${formatNumber(payrollData.value.reduce((a, c) => a + c.optionalDeductions, 0))},₡${formatNumber(payrollData.value.reduce((a, c) => a + c.netSalary, 0))}`;
 
-  const encodedUri = encodeURI(csvContent);
+  const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
   link.setAttribute(
     "download",
-    `reporte_planilla_historico_${empleadoName}_${formatDate(searchData.value.start)}_${formatDate(
-      searchData.value.end
-    )}.csv`
+    `reporte_planilla_historico_${empleadoName.replace(/ /g, "_")}_${fechaInicio}_${fechaFin}.csv`
   );
   document.body.appendChild(link);
   link.click();
