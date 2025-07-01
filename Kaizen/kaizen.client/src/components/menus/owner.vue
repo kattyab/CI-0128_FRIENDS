@@ -51,7 +51,7 @@
           <router-link class="sub-button" :to="`/reports/companyhistoric/${company_pk}`">
             <span class="text">Reporte de Planillas Historico</span>
           </router-link>
-          <router-link class="sub-button" :to="`/reports/companyemployees/${company_pk}`">
+          <router-link class="sub-button" :to="`/reports/employeeTotal`">
             <span class="text">Reporte de Planillas de Empleados</span>
           </router-link>
         </div>
@@ -66,7 +66,7 @@
           <router-link class="popup-button" :to="`/reports/companyhistoric/${company_pk}`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas Historico</span>
           </router-link>
-          <router-link class="popup-button" :to="`/reports/companyemployees/${company_pk}`" @click="CloseReportsPopup">
+          <router-link class="popup-button" :to="`/reports/employeeTotal`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas de Empleados</span>
           </router-link>
         </div>
