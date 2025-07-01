@@ -57,7 +57,7 @@ namespace Kaizen.Server.Application.Services.Reports
             return report;
         }
 
-        public async Task<IEnumerable<EmployeePayrollReport>> ExecuteEmpAsync(Guid employeeId)
+        public async Task<IEnumerable<EmployeePayrollReport>> ExecuteEmployeeAsync(Guid employeeId)
         {
             if (employeeId == Guid.Empty)
                 throw new ArgumentException("Employee ID cannot be empty", nameof(employeeId));

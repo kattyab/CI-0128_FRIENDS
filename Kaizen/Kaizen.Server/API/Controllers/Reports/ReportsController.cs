@@ -44,7 +44,7 @@ namespace Kaizen.Server.API.Controllers.Reports
         {
             try
             {
-                var reports = await _payrollReportsService.ExecuteEmpAsync(employeeId);
+                var reports = await _payrollReportsService.ExecuteEmployeeAsync(employeeId);
                 
                 var reportsWithObligatoryDeductions = reports
                     .Select(report => _payrollReportsService.CalculateObligatoryDeductions(report))
