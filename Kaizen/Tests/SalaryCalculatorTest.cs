@@ -1,7 +1,6 @@
-using NUnit.Framework;
 using Kaizen.Server.Application.Services.Payroll;
 using Kaizen.Server.Application.Dtos.Payroll;
-using System;
+using Kaizen.Server.API.Controllers;
 
 namespace Kaizen.Server.Tests.Payroll
 {
@@ -23,7 +22,15 @@ namespace Kaizen.Server.Tests.Payroll
             int daysWorked = 15;
             bool isBiweekly = true;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var peticion = new PayrollRequest(
+                "test@dummy.com",
+                Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                new DateTime(2025, 7, 1),
+                new DateTime(2025, 7, 30),
+                "biweekly"
+            );
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, peticion);
 
             Assert.AreEqual(bruteSalary, result.Gross);
             Assert.AreEqual(bruteSalary, result.Proportional);
@@ -37,7 +44,15 @@ namespace Kaizen.Server.Tests.Payroll
             bool isBiweekly = true;
             decimal expectedProportional = (bruteSalary / 15m) * daysWorked;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var peticion = new PayrollRequest(
+                "test@dummy.com",
+                Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                new DateTime(2025, 7, 1),
+                new DateTime(2025, 7, 30),
+                "biweekly"
+            );
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, peticion);
 
             Assert.AreEqual(expectedProportional, result.Proportional);
             Assert.AreEqual(expectedProportional, result.Gross);
@@ -50,7 +65,15 @@ namespace Kaizen.Server.Tests.Payroll
             int daysWorked = 30;
             bool isBiweekly = false;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var peticion = new PayrollRequest(
+                "test@dummy.com",
+                Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                new DateTime(2025, 7, 1),
+                new DateTime(2025, 7, 30),
+                "monthly"
+            );
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, peticion);
 
             Assert.AreEqual(bruteSalary, result.Gross);
             Assert.AreEqual(bruteSalary, result.Proportional);
@@ -64,7 +87,15 @@ namespace Kaizen.Server.Tests.Payroll
             bool isBiweekly = false;
             decimal expectedProportional = (bruteSalary / 30m) * daysWorked;
 
-            var result = _calculator.Calculate(bruteSalary, daysWorked, isBiweekly);
+            var peticion = new PayrollRequest(
+                "test@dummy.com",
+                Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                new DateTime(2025, 7, 1),
+                new DateTime(2025, 7, 30),
+                "monthly"
+            );
+
+            var result = _calculator.Calculate(bruteSalary, daysWorked, peticion);
 
             Assert.AreEqual(expectedProportional, result.Proportional);
             Assert.AreEqual(expectedProportional, result.Gross);
@@ -141,4 +172,3 @@ namespace Kaizen.Server.Tests.Payroll
         }
     }
 }
-
