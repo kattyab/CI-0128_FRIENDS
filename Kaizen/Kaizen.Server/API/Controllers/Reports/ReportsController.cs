@@ -38,5 +38,23 @@ namespace Kaizen.Server.API.Controllers.Reports
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("employee/{employeeId:guid}")]
+        public async Task<ActionResult<IEnumerable<EmployeePayrollReport>>> GetEmployeePayrollReportsByEmployee(Guid employeeId)
+        {
+            try
+            {
+                var reports = await _payrollReportsService.ExecuteEmpAsync(employeeId);
+                return Ok(reports);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
