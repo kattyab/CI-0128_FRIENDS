@@ -36,7 +36,7 @@
                 <span class="material-icons">visibility</span>
               </a>
               <!-- TODO use a post request in this page -->
-              <button class="btn btn-danger ms-1" :disabled="isCompanyDeleted"
+              <button class="btn btn-danger ms-1"
                       @click="$router.push(`/benefits/${item.id}`)">
                 <span class="material-icons">delete</span>
               </button>
@@ -53,20 +53,9 @@
   import { useRouter } from 'vue-router'
   import axios from "axios";
 
-  const isCompanyDeleted = ref(null)
   const router = useRouter()
 
   const data = ref([]);
-
-  const checkCompanyStatus = async () => {
-    try {
-      const response = await axios.get('/api/Auth/isCompanyDeleted')
-      isCompanyDeleted.value = response.data
-    } catch (err) {
-      console.error('Error:', err)
-      isCompanyDeleted.value = false;
-    }
-  }
 
   async function fetchData() {
     try {

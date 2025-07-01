@@ -46,7 +46,7 @@
 
           <hr class="my-4" />
           <button class="btn btn-primary w-100"
-                  :disabled="!valid || periodAlreadyExists || isCompanyDeleted">
+                  :disabled="!valid || periodAlreadyExists">
             Procesar nueva planilla
           </button>
         </form>
@@ -136,18 +136,6 @@
 
   const existingPeriods = ref(new Set());
   const periodAlreadyExists = ref(false);
-
-  const isCompanyDeleted = ref(null);
-
-  const checkCompanyStatus = async () => {
-    try {
-      const response = await axios.get('/api/Auth/isCompanyDeleted')
-      isCompanyDeleted.value = response.data
-    } catch (err) {
-      console.error('Error:', err)
-      isCompanyDeleted.value = false;
-    }
-  };
 
   onMounted(async () => {
     checkCompanyStatus();

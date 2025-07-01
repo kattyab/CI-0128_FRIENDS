@@ -26,7 +26,7 @@
               <a :href="`/employees/${employee.empID}`" class="btn btn-primary">
                 <span class="material-icons">visibility</span>
               </a>
-              <button @click="deleteEmployee(employee.empID)" :disabled="isCompanyDeleted"
+              <button @click="deleteEmployee(employee.empID)"
                  class="btn btn-danger ms-1">
                 <span class="material-icons">delete</span>
               </button>
@@ -47,19 +47,6 @@
   const loading = ref(true);
   const error = ref(null);
   const emailComponent = ref('');
-
-  const isCompanyDeleted = ref(null);
-
-  const checkCompanyStatus = async () => {
-    try {
-      const response = await axios.get('/api/Auth/isCompanyDeleted')
-      isCompanyDeleted.value = response.data
-      console.log('Company Status', isCompanyDeleted.value)
-    } catch (err) {
-      console.error('Error:', err)
-      isCompanyDeleted.value = false;
-    }
-  };
 
   const deleteEmployee = async (empID) => {
     try {
