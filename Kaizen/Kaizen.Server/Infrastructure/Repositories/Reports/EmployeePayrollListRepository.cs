@@ -37,11 +37,16 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
+                decimal salarioBrutoDecimal = 0;
                 string salarioBruto = "0";
                 if (reader["BrutePaid"] != DBNull.Value)
                 {
-                    salarioBruto = ((decimal)reader["BrutePaid"]).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                    salarioBrutoDecimal = (decimal)reader["BrutePaid"];
+                    salarioBruto = salarioBrutoDecimal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
                 }
+                decimal cargasSocialesDecimal = salarioBrutoDecimal * 0.2667m;
+                string cargasSociales = cargasSocialesDecimal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
                 string periodoPago = string.Empty;
                 if (reader["Period"] != DBNull.Value)
                 {
@@ -50,7 +55,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                 string fechaPago = string.Empty;
                 if (reader["ExecutedOn"] != DBNull.Value)
                 {
-                    // Si quieres formatear la fecha, puedes hacerlo aquí
                     var fecha = (DateTime)reader["ExecutedOn"];
                     fechaPago = fecha.ToString("yyyy-MM-dd");
                 }
@@ -62,9 +66,9 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                     PeriodoPago = periodoPago,
                     FechaPago = fechaPago,
                     SalarioBruto = salarioBruto,
-                    CargasSociales = string.Empty,
+                    CargasSociales = cargasSociales,
                     DeduccionesVoluntarias = string.Empty,
-                    CostoEmpleador = string.Empty
+                    CostoEmpleador = (salarioBrutoDecimal + cargasSocialesDecimal).ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
                 });
             }
             return result;
