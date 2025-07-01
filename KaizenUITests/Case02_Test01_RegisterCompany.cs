@@ -73,6 +73,47 @@ namespace UIAutomationTest
             });
 
             StringAssert.Contains("Empresa y dueño registrados correctamente.", mensaje);
+
+            
+            _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
+
+            _driver.FindElement(By.Id("username")).SendKeys("maria@sprint3.cr");
+            _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
+            var loginBtn = _driver.FindElement(By.CssSelector("form button[type='submit']"));
+            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", loginBtn);
+            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", loginBtn);
+
+            wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.Url.Contains("/landing-page") || driver.FindElements(By.CssSelector("a.btn.btn-primary[href='/company/edit']")).Count > 0);
+
+            if (!_driver.Url.Contains("/landing-page"))
+                _driver.Navigate().GoToUrl("https://localhost:55281/landing-page");
+
+            var editarBtn = wait.Until(driver =>
+            {
+                try
+                {
+                    var el = driver.FindElement(By.CssSelector("a.btn.btn-primary[href='/company/edit']"));
+                    return (el.Displayed && el.Enabled) ? el : null;
+                }
+                catch (NoSuchElementException) { return null; }
+            });
+            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", editarBtn);
+            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", editarBtn);
+
+            var inputBeneficios = wait.Until(driver =>
+            {
+                try
+                {
+                    var el = driver.FindElement(By.Id("max_benefits"));
+                    return el.Displayed ? el : null;
+                }
+                catch (NoSuchElementException) { return null; }
+            });
+
+            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", inputBeneficios);
+            inputBeneficios.Clear();
+            inputBeneficios.SendKeys("2");
         }
 
         [TearDown]
