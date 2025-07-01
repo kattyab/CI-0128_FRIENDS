@@ -1,6 +1,6 @@
 -- Crear persona due�o
 INSERT INTO Persons (Id, Name, LastName, Sex, BirthDate)
-VALUES ('2-1111-1111', 'Sof�a', 'Navarro', 'Mujer', '1980-05-15');
+VALUES ('2-1111-1111', 'Sofía', 'Navarro', 'Mujer', '1980-05-15');
 
 -- Crear usuario del due�o
 INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)
@@ -37,11 +37,11 @@ VALUES (
 -- Crear 5 empleados y usuarios
 INSERT INTO Persons (Id, Name, LastName, Sex, BirthDate)
 VALUES 
-('2-2222-2222', 'Luis', 'G�mez', 'Hombre', '1990-04-10'),
-('2-3333-3333', 'Elena', 'Mart�nez', 'Mujer', '1992-09-25'),
-('2-4444-4444', 'Andr�s', 'Castro', 'Hombre', '1988-12-30'),
+('2-2222-2222', 'Luis', 'Gómez', 'Hombre', '1990-04-10'),
+('2-3333-3333', 'Elena', 'Martínez', 'Mujer', '1992-09-25'),
+('2-4444-4444', 'Andrés', 'Castro', 'Hombre', '1988-12-30'),
 ('2-5555-5555', 'Daniela', 'Vargas', 'Mujer', '1991-07-07'),
-('2-6666-6666', 'Pablo', 'S�nchez', 'Hombre', '1985-03-17');
+('2-6666-6666', 'Pablo', 'Sánchez', 'Hombre', '1985-03-17');
 
 -- Usuarios (empleados)
 INSERT INTO Users (Email, PasswordHash, Active, Role, PersonPK)

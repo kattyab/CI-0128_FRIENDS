@@ -47,10 +47,11 @@ ALTER COLUMN SupID uniqueidentifier NULL;
 
 -- 6. Renombrar isClosed
 EXEC sp_rename 'ApprovedHours.IsClosed', 'Status', 'COLUMN';
+go
 
 -- 7. Quitar la constraint
 ALTER TABLE ApprovedHours
-DROP CONSTRAINT DF__ApprovedH__IsClo__17F790F9;
+DROP CONSTRAINT DF__ApprovedH__IsClo__58D1301D;
 
 
 -- 8. Estados
