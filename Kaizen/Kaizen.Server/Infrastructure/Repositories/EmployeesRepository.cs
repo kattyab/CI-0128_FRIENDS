@@ -1,20 +1,21 @@
-﻿using System.Data;
+using System.Data;
 using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 
 namespace Kaizen.Server.Infrastructure.Repositories;
 
-public class EmployeesRepository(IConfiguration configuration)
+public class EmployeesRepository(IConfiguration configuration) : IEmployeesRepository
 {
     private readonly string _connectionString =
         configuration.GetConnectionString("KaizenDb")
         ?? throw new InvalidOperationException(
                "The connection string 'KaizenDb' is not defined in appsettings.json.");
 
-    public List<EmployeeDto> GetEmployees()
+    public List<EmployeeDto> GetEmployees(Guid companyPK)
     {
-        const string commandText = @"
+        const string companyCommandText = @"
             SELECT
                 EmpID,
                 PersonPK,
@@ -22,11 +23,18 @@ public class EmployeesRepository(IConfiguration configuration)
                 JobPosition,
                 ContractType
             FROM
-                Employees";
+                Employees
+            WHERE
+                WorksFor = @CompanyPK";
+
+        SqlParameter[] companyParameters =
+        [
+            new SqlParameter("@CompanyPK", companyPK),
+        ];
 
         List<EmployeeDto> employees = [];
 
-        using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString, commandText, CommandType.Text);
+        using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString, companyCommandText, CommandType.Text, companyParameters);
 
         while (reader.Read())
         {
@@ -44,7 +52,7 @@ public class EmployeesRepository(IConfiguration configuration)
 
         foreach (var employee in employees)
         {
-            const string personQuery = @"
+            const string personCommandText = @"
             SELECT
             TOP 1
                 Id,
@@ -55,12 +63,12 @@ public class EmployeesRepository(IConfiguration configuration)
             WHERE
                 PersonPK = @PersonPK";
 
-            SqlParameter[] parameters =
+            SqlParameter[] personParameters =
             [
                 new SqlParameter("@PersonPK", employee.PersonPK)
             ];
 
-            using SqlDataReader personReader = SqlHelper.ExecuteReader(this._connectionString, personQuery, CommandType.Text, parameters);
+            using SqlDataReader personReader = SqlHelper.ExecuteReader(this._connectionString, personCommandText, CommandType.Text, personParameters);
 
             if (personReader.Read())
             {
