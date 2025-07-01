@@ -1,9 +1,8 @@
 services:
-  - type: web
+  - type: static
     name: kaizen-client
-    env: node
     buildCommand: yarn build
-    startCommand: yarn start
+    staticPublishPath: dist
     rootDir: Kaizen/kaizen.client
     routes:
       - type: rewrite
