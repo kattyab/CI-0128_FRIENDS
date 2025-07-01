@@ -128,6 +128,8 @@ builder.Services.AddAuthentication("MyCookieAuth")
         options.LoginPath = "/login";
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
 
 builder.Services.AddAuthorization();
