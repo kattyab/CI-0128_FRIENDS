@@ -250,8 +250,6 @@
 
     const data = res.data;
 
-    const data = await res.json();
-
     const newRow = {
       id: Date.now(),
       manager: currentUser.value,
