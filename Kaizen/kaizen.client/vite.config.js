@@ -1,19 +1,18 @@
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
-import plugin from '@vitejs/plugin-vue';
+import vue from '@vitejs/plugin-vue';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [plugin()],
+  plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  base: '/',
   preview: {
-    port: parseInt(process.env.PORT || '10000'),
+    port: parseInt(process.env.PORT || '4173'),
     host: true,
-    https: false,
-    allowedHosts: ['kaizen-pi.onrender.com'],
   },
 });
