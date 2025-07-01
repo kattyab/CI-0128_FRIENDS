@@ -3,7 +3,7 @@
     <h1 class="text-center my-4">Lista de Beneficios</h1>
     <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
       <div></div>
-      <a class="btn btn-lg btn-primary self-align-end" href="/benefits/create">
+      <a class="btn btn-lg btn-primary self-align-end" href="/#/benefits/create">
           Crear beneficio
       </a>
     </div>
