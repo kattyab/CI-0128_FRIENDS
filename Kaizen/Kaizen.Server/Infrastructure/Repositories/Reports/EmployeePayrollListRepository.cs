@@ -21,7 +21,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             var query = @"
-                SELECT CONCAT(p.Name, ' ', p.LastName) AS EmployeeName
+                SELECT CONCAT(p.Name, ' ', p.LastName) AS EmployeeName, p.ID AS Cedula
                 FROM Payrolls pr
                 INNER JOIN Employees e ON pr.PaidTo = e.EmpID
                 INNER JOIN Persons p ON e.PersonPK = p.PersonPK
@@ -33,7 +33,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                 result.Add(new EmployeePayrollListDto
                 {
                     EmployeeName = reader["EmployeeName"].ToString() ?? string.Empty,
-                    Cedula = string.Empty,
+                    Cedula = reader["Cedula"].ToString() ?? string.Empty,
                     TipoEmpleado = string.Empty,
                     PeriodoPago = string.Empty,
                     FechaPago = string.Empty,
