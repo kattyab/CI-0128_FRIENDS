@@ -1,5 +1,6 @@
 using Kaizen.Server.Application.Dtos.Reports;
 using Kaizen.Server.Application.Interfaces.Reports;
+using System.Threading.Tasks;
 
 namespace Kaizen.Server.Application.Services.Reports
 {
@@ -61,46 +62,37 @@ namespace Kaizen.Server.Application.Services.Reports
             if (employeeId == Guid.Empty)
                 throw new ArgumentException("Employee ID cannot be empty", nameof(employeeId));
 
-            var reports = await _reportsRepository.GetEmployeePayrollReportsByEmployeeAsync(employeeId);
-            var reportsWithCalculations = new List<EmployeePayrollReport>();
-
-            foreach (var report in reports)
-            {
-                var calculatedReport = report;
-
-                if (!IsServiciosProfesionales(report))
-                {
-                    calculatedReport = CalculateObligatoryDeductions(report);
-                }
-
-                var optionalDeductions = await _reportsRepository.GetOptionalDeductionsByPayrollAsync(report.PayrollID);
-                calculatedReport.OptionalDeductions = optionalDeductions.ToList();
-                calculatedReport.TotalOptionalDeductions = optionalDeductions.Sum(od => od.Amount);
-
-                reportsWithCalculations.Add(calculatedReport);
-            }
-
-            return reportsWithCalculations;
+            return await _reportsRepository.GetEmployeePayrollReportsByEmployeeAsync(employeeId);
         }
 
-        private static bool IsServiciosProfesionales(EmployeePayrollReport report)
+        public async Task<EmployeePayrollReport> CalculateOptionalDeductionsAsync(EmployeePayrollReport report)
         {
-            Console.Write(report.ContractType);
-            return report.ContractType == "Servicios Profesionales";
+            var optionalDeductions = await _reportsRepository.GetOptionalDeductionsByPayrollAsync(report.PayrollID);
+            report.OptionalDeductions = optionalDeductions.ToList();
+            report.TotalOptionalDeductions = optionalDeductions.Sum(od => od.Amount);
+
+            return report;
         }
 
         public EmployeePayrollReport CalculateObligatoryDeductions(EmployeePayrollReport report)
         {
             ArgumentNullException.ThrowIfNull(report);
 
-            report.SEM = report.BruteSalary * RateEmployeeSEM;
-            report.IVM = report.BruteSalary * RateEmployeeIVM;
-            report.EmployeeAportacionBancoPopular = report.BruteSalary * RateEmployeeBancoPopular;
+            if (!IsServiciosProfesionales(report))
+            {
+                report.SEM = report.BruteSalary * RateEmployeeSEM;
+                report.IVM = report.BruteSalary * RateEmployeeIVM;
+                report.EmployeeAportacionBancoPopular = report.BruteSalary * RateEmployeeBancoPopular;
 
-            report.TotalObligatoryDeductions = report.SEM + report.IVM +
-                                             report.EmployeeAportacionBancoPopular + report.IncomeTax;
+                report.TotalObligatoryDeductions = report.SEM + report.IVM +
+                                                 report.EmployeeAportacionBancoPopular + report.IncomeTax;
+            }
 
             return report;
+        }
+        private static bool IsServiciosProfesionales(EmployeePayrollReport report)
+        {
+            return report.ContractType == "Servicios Profesionales";
         }
     }
 }

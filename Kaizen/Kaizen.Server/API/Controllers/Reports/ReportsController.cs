@@ -45,7 +45,17 @@ namespace Kaizen.Server.API.Controllers.Reports
             try
             {
                 var reports = await _payrollReportsService.ExecuteEmpAsync(employeeId);
-                return Ok(reports);
+                
+                var reportsWithObligatoryDeductions = reports
+                    .Select(report => _payrollReportsService.CalculateObligatoryDeductions(report))
+                    .ToList();
+
+                var reportsWithAllDeductions = (await Task.WhenAll(
+                    reportsWithObligatoryDeductions.Select(report =>
+                        _payrollReportsService.CalculateOptionalDeductionsAsync(report))
+                )).ToList();
+
+                return Ok(reportsWithAllDeductions);
             }
             catch (ArgumentException ex)
             {

@@ -8,5 +8,6 @@ namespace Kaizen.Server.Application.Interfaces.Reports
         OwnerPayrollReport CalculateLaborCharges(OwnerPayrollReport report);
         Task<IEnumerable<EmployeePayrollReport>> ExecuteEmpAsync(Guid employeeId);
         EmployeePayrollReport CalculateObligatoryDeductions(EmployeePayrollReport report);
+        Task<EmployeePayrollReport> CalculateOptionalDeductionsAsync(EmployeePayrollReport report);
     }
 }
