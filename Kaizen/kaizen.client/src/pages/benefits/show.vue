@@ -116,30 +116,21 @@
             </div>
 
             <div class="d-flex justify-content-center pt-3 pb-3">
-              <router-link
+              <button
+                type="button"
                 class="btn btn-secondary btn-lg btn-block me-2"
-                to="/benefits"
-                custom
-                v-slot="{ navigate, href }"
+                @click="goBack"
               >
-                <button type="button" :href="href" @click="navigate" class="btn btn-secondary btn-lg btn-block me-2">Atras</button>
-              </router-link>
-              <router-link
+                Atras
+              </button>
+              <button
+                type="button"
                 class="btn btn-primary btn-lg btn-block"
-                :to="`/benefits/${formData.id}/edit`"
-                custom
-                v-slot="{ navigate, href }"
+                @click="goEdit"
+                :disabled="formData.isSubscribed"
               >
-                <button
-                  type="button"
-                  :href="href"
-                  @click="navigate"
-                  class="btn btn-primary btn-lg btn-block"
-                  :disabled="formData.isSubscribed"
-                >
-                  Editar
-                </button>
-              </router-link>
+                Editar
+              </button>
             </div>
             <div class="row">
               <div class="col-4"></div>
@@ -159,7 +150,7 @@
 
 <script>
 import { ref, reactive, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 
 export default {
@@ -183,6 +174,7 @@ export default {
     });
 
     const route = useRoute();
+    const router = useRouter();
 
     const showFormError = ref(false);
     const formErrorMessage = ref("");
@@ -222,10 +214,22 @@ export default {
       showFormError.value = true;
     };
 
+    const goBack = () => {
+      router.push("/benefits");
+    };
+
+    const goEdit = () => {
+      if (!formData.isSubscribed) {
+        router.push(`/benefits/${formData.id}/edit`);
+      }
+    };
+
     return {
       formData,
       showFormError,
       formErrorMessage,
+      goBack,
+      goEdit,
     };
   },
 };
