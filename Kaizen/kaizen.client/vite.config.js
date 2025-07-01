@@ -81,5 +81,6 @@ export default defineConfig({
     port,
     host: true,
     https: false,
+    allowedHosts: ['kaizen-pi.onrender.com'],
   }
 });
