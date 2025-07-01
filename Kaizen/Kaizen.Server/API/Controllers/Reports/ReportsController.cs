@@ -1,7 +1,6 @@
 using Kaizen.Server.Application.Dtos.Reports;
 using Kaizen.Server.Application.Interfaces.Reports;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 
 namespace Kaizen.Server.API.Controllers.Reports
 {
