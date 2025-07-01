@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: kaizen-client
+    env: node
+    buildCommand: yarn build
+    startCommand: yarn start
+    rootDir: Kaizen/kaizen.client
