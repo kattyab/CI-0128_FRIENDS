@@ -1,4 +1,4 @@
-<!-- src/components/dashboards/EmployeeCountChart.vue -->
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Bar } from 'vue-chartjs'
@@ -10,15 +10,13 @@ import {
   LinearScale,
   Title,
   Legend,
-  Tooltip           // ← 1)  IMPORTAR tooltip
+  Tooltip
 } from 'chart.js'
 
-/* 2)  REGISTRAR todos los plugins que usas */
 Chart.register(BarElement, CategoryScale, LinearScale, Title, Legend, Tooltip)
 
 const chartData = ref({ labels: [], datasets: [] })
 
-/* -------- OPCIONES -------- */
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: true,
@@ -42,22 +40,19 @@ const chartOptions = {
         font: { size: 13, family: 'Inter, Roboto, sans-serif' }
       }
     },
-    /* ---- TOOLTIP: valor exacto + total ---- */
     tooltip: {
       enabled: true,
       mode: 'index',
       intersect: false,
       callbacks: {
-        /* texto por barra */
         label(ctx) {
           return `${ctx.dataset.label}: ${ctx.parsed.y} empleados`
         },
-        /* pie con el total del mes */
         footer(ctx) {
           if (!ctx?.length) return ''
           const i = ctx[0].dataIndex
           const total = ctx[0].chart.data.datasets
-                           .reduce((s, ds) => s + (ds.data[i] ?? 0), 0)
+            .reduce((s, ds) => s + (ds.data[i] ?? 0), 0)
           return `Total empleados: ${total}`
         }
       }
@@ -74,11 +69,9 @@ const chartOptions = {
   elements: { bar: { borderRadius: 4, borderSkipped: false } }
 }
 
-/* --- helper: nombre de mes en español --- */
 const monthName = (m, y) =>
   new Date(y, m - 1, 1).toLocaleString('es-ES', { month: 'long' })
 
-/* --- fetch al montar --- */
 onMounted(async () => {
   let companyPk = localStorage.getItem('companyPk')
   if (!companyPk) {
@@ -86,9 +79,11 @@ onMounted(async () => {
       const r = await fetch('/api/login/payroll-info', { credentials: 'include' })
       if (r.ok) {
         companyPk = (await r.json()).companyId
-        companyPk && localStorage.setItem('companyPk', companyPk)
+        if (companyPk) localStorage.setItem('companyPk', companyPk)
       }
-    } catch { /* ignora */ }
+    } catch {
+      // Ignored
+    }
   }
   if (!companyPk) return console.error('companyPk no encontrado')
 
@@ -97,7 +92,6 @@ onMounted(async () => {
     { params: { companyPk } }
   )
 
-  /* prepara etiquetas y datasets */
   const months = [...new Set(data.map(d => `${d.year}-${d.month}`))]
   const labels = months.map(m => {
     const [y, mo] = m.split('-'); return monthName(+mo, +y)

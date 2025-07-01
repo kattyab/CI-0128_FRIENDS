@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Kaizen.Server.Application.Dtos.OwnerDashboard;
 
 namespace Kaizen.Server.Infrastructure.Repositories
 {
@@ -17,7 +17,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 ?? throw new InvalidOperationException("La cadena de conexion 'KaizenDb' no está definida en appsettings.json");
         }
 
-        public async Task<List<ContractCountResult>> GetContractCountsLast3MonthsAsync(Guid companyPk)
+        public async Task<List<ContractCountResultDto>> GetContractCountsLast3MonthsAsync(Guid companyPk)
         {
             var now = DateTime.UtcNow;
             var months = new[]
@@ -27,7 +27,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 new { Year = now.Year, Month = now.Month }
             };
 
-            var results = new List<ContractCountResult>();
+            var results = new List<ContractCountResultDto>();
             const string sql = @"
                 SELECT
                     ContractType,
@@ -59,7 +59,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                         {
                             while (await reader.ReadAsync())
                             {
-                                results.Add(new ContractCountResult
+                                results.Add(new ContractCountResultDto
                                 {
                                     ContractType = reader.GetString(reader.GetOrdinal("ContractType")),
                                     Year = reader.GetInt32(reader.GetOrdinal("Year")),
@@ -105,29 +105,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 }
             }
             return results;
-        }
-
-        public class ContractCountResult
-        {
-            public string ContractType { get; set; } = string.Empty;
-            public int Year { get; set; }
-            public int Month { get; set; }
-            public int Count { get; set; }
-        }
-
-        public class LastPayrollDto
-        {
-            public string Period { get; set; } = string.Empty;
-            public DateTime ExecutedOn { get; set; }
-            public decimal TotalMoneyPaid { get; set; }
-        }
-
-        public class PayrollCostBreakdownDto
-        {
-            public decimal Beneficios { get; set; }
-            public decimal Obligatorias { get; set; }
-            public decimal Cargas { get; set; }
-            public decimal Salarios { get; set; }
         }
 
         public async Task<PayrollCostBreakdownDto?> GetPayrollCostBreakdownAsync(Guid companyPk)

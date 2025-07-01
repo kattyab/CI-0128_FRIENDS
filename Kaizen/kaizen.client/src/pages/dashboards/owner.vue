@@ -53,7 +53,7 @@ onMounted(async () => {
         if (companyPk) localStorage.setItem('companyPk', companyPk)
       }
     } catch {
-      console.error('No se pudo obtener companyPk del backend')
+      // Ignored
     }
   }
   if (!companyPk) return
@@ -121,7 +121,7 @@ onMounted(async () => {
   justify-content: center;
   margin-top: 2rem;
   width: 100%;
-  margin-bottom: 3rem; /* Espacio extra antes del footer */
+  margin-bottom: 3rem; 
 }
 .dashboard-btn {
   background: #003c63;
