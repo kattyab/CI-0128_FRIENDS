@@ -116,17 +116,30 @@
             </div>
 
             <div class="d-flex justify-content-center pt-3 pb-3">
-              <a type="button" class="btn btn-secondary btn-lg btn-block me-2" href="/benefits">
-                Atras
-              </a>
-              <a
-                type="button"
-                class="btn btn-primary btn-lg btn-block"
-                :href="`/benefits/${formData.id}/edit`"
-                :disabled="formData.isSubscribed"
+              <router-link
+                class="btn btn-secondary btn-lg btn-block me-2"
+                to="/benefits"
+                custom
+                v-slot="{ navigate, href }"
               >
-                Editar
-              </a>
+                <button type="button" :href="href" @click="navigate" class="btn btn-secondary btn-lg btn-block me-2">Atras</button>
+              </router-link>
+              <router-link
+                class="btn btn-primary btn-lg btn-block"
+                :to="`/benefits/${formData.id}/edit`"
+                custom
+                v-slot="{ navigate, href }"
+              >
+                <button
+                  type="button"
+                  :href="href"
+                  @click="navigate"
+                  class="btn btn-primary btn-lg btn-block"
+                  :disabled="formData.isSubscribed"
+                >
+                  Editar
+                </button>
+              </router-link>
             </div>
             <div class="row">
               <div class="col-4"></div>
