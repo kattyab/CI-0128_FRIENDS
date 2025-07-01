@@ -33,7 +33,7 @@ const router = createRouter({
         { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true } },
         { path: 'payroll', name: 'Payroll', component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: '/reports/company/:id', name: 'Detailed Owner Payroll', component: () => import('./pages/reports/DetailedOwnerPayroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
-        
+        { path: '/reports/historicrange', name: 'Payroll Historic Range', component: () => import('./pages/reports/HistoricRange.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
       ]
     },
     {
