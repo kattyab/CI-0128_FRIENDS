@@ -97,6 +97,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
+import axios from "axios";
 
 const modalElement = ref(null);
 const modalObject = ref(null);
@@ -104,35 +105,27 @@ const modalObject = ref(null);
 const searchData = ref({
   start: "",
   end: "",
+  name: "",
 });
 
-// Mock data for the table, as in the screenshot
-const payrollData = ref([
-  {
-    employeeName: "Karla Jiménez",
-    cedula: "112252021",
-    tipoEmpleado: "Tiempo completo",
-    periodoPago: "01/12/2025\n31/12/2025",
-    fechaPago: "31/12/2025",
-    salarioBruto: 100000,
-    cargasSociales: 100000,
-    deduccionesVoluntarias: 100000,
-    costoEmpleador: 100000,
-  },
-  {
-    employeeName: "Pedro Rojas",
-    cedula: "117352251",
-    tipoEmpleado: "Tiempo completo",
-    periodoPago: "01/12/2025\n15/12/2025",
-    fechaPago: "15/12/2025",
-    salarioBruto: 100000,
-    cargasSociales: 100000,
-    deduccionesVoluntarias: 100000,
-    costoEmpleador: 100000,
-  },
-]);
+const payrollData = ref([]);
+const payrollDataFiltered = ref([]);
+
+async function fetchPayrollData() {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/reports/employee-total`, { withCredentials: true });
+    payrollData.value = response.data;
+    payrollDataFiltered.value = response.data;
+  } catch (e) {
+    payrollData.value = [];
+    payrollDataFiltered.value = [];
+    alert("Error al obtener los datos de planilla");
+  }
+}
+
 
 function formatNumber(num) {
+  if (!num) return "";
   return Number(num).toLocaleString("es-CR", { maximumFractionDigits: 0 });
 }
 
@@ -151,10 +144,12 @@ function exportDownload() {
   closeExportModal();
 }
 function search() {
+  // Aquí podrías agregar lógica de búsqueda por fechas si lo deseas
   alert("Búsqueda simulada (mock)");
 }
 
 onMounted(() => {
   modalObject.value = new Modal(modalElement.value);
+  fetchPayrollData();
 });
 </script>
