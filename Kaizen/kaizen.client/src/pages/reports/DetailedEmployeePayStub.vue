@@ -110,7 +110,7 @@
         <table v-if="!collapsedSections.netPay" class="payroll-table">
           <tbody>
             <tr class="payroll-row total-row">
-              <td class="payroll-cell">Salario neto a pagar</td>
+              <td class="payroll-cell">Salario neto</td>
               <td class="payroll-cell amount total-amount bold">
                 <span class="currency">₡</span>{{ formatAmount(currentPayrollData.netPay) }}
               </td>
