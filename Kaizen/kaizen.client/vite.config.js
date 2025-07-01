@@ -11,6 +11,10 @@ const isLocal = process.env.NODE_ENV !== 'production';
 let httpsOptions = undefined;
 let target = 'https://localhost:7153';
 
+const devPort = 55281;
+const prodPort = parseInt(env.PORT || '10000');
+const port = isLocal ? devPort : prodPort;
+
 if (isLocal) {
   const baseFolder =
     env.APPDATA !== undefined && env.APPDATA !== ''
@@ -70,12 +74,12 @@ export default defineConfig({
         secure: false,
       },
     },
-    port: parseInt(env.DEV_SERVER_PORT || '55281'),
+    port,
     https: httpsOptions,
   },
   preview: {
-    port: parseInt(env.PORT || '4173'),
+    port,
+    host: true,
     https: false,
-    allowedHosts: ['kaizen-pi.onrender.com'],
   }
 });
