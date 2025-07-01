@@ -76,5 +76,6 @@ export default defineConfig({
   preview: {
     port: parseInt(env.PORT || '4173'),
     https: false,
+    allowedHosts: ['kaizen-pi.onrender.com'],
   }
 });
