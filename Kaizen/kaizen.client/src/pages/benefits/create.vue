@@ -98,7 +98,7 @@
             </div>
 
             <div class="d-flex justify-content-center pt-3 pb-3">
-              <button type="button" class="btn btn-secondary btn-lg btn-block me-2" @click="resetForm">Atrás</button>
+              <button type="button" class="btn btn-secondary btn-lg btn-block me-2" @click="resetForm">Cancelar</button>
               <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isSubmitting">
                 Guardar
               </button>
@@ -310,7 +310,6 @@
         Object.keys(validationErrors).forEach(key => {
           delete validationErrors[key];
         });
-        router.back()
       };
 
       return {
