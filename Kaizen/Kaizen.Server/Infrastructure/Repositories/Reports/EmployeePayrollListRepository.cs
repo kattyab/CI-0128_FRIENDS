@@ -21,23 +21,47 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             var query = @"
-                SELECT CONCAT(p.Name, ' ', p.LastName) AS EmployeeName, p.ID AS Cedula
+                SELECT 
+                    CONCAT(p.Name, ' ', p.LastName) AS EmployeeName, 
+                    p.ID AS Cedula, 
+                    e.ContractType, 
+                    pr.BrutePaid,
+                    gp.Period, 
+                    gp.ExecutedOn
                 FROM Payrolls pr
                 INNER JOIN Employees e ON pr.PaidTo = e.EmpID
                 INNER JOIN Persons p ON e.PersonPK = p.PersonPK
+                INNER JOIN GeneralPayrolls gp ON pr.GeneralPayrollPk = gp.GeneralPayrollsID
             ";
             using var command = new SqlCommand(query, connection);
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
+                string salarioBruto = "0";
+                if (reader["BrutePaid"] != DBNull.Value)
+                {
+                    salarioBruto = ((decimal)reader["BrutePaid"]).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                }
+                string periodoPago = string.Empty;
+                if (reader["Period"] != DBNull.Value)
+                {
+                    periodoPago = reader["Period"].ToString() ?? string.Empty;
+                }
+                string fechaPago = string.Empty;
+                if (reader["ExecutedOn"] != DBNull.Value)
+                {
+                    // Si quieres formatear la fecha, puedes hacerlo aquí
+                    var fecha = (DateTime)reader["ExecutedOn"];
+                    fechaPago = fecha.ToString("yyyy-MM-dd");
+                }
                 result.Add(new EmployeePayrollListDto
                 {
                     EmployeeName = reader["EmployeeName"].ToString() ?? string.Empty,
                     Cedula = reader["Cedula"].ToString() ?? string.Empty,
-                    TipoEmpleado = string.Empty,
-                    PeriodoPago = string.Empty,
-                    FechaPago = string.Empty,
-                    SalarioBruto = string.Empty,
+                    TipoEmpleado = reader["ContractType"].ToString() ?? string.Empty,
+                    PeriodoPago = periodoPago,
+                    FechaPago = fechaPago,
+                    SalarioBruto = salarioBruto,
                     CargasSociales = string.Empty,
                     DeduccionesVoluntarias = string.Empty,
                     CostoEmpleador = string.Empty
