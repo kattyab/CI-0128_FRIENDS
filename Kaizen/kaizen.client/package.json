@@ -12,14 +12,19 @@
         "start": "vite preview --port $PORT --host",
         "install-and-build": "yarn install && yarn build"
     },
-    "dependencies": {
-        "@popperjs/core": "^2.11.8",
-        "axios": "^1.8.4",
-        "bootstrap": "^5.3.5",
-        "vue": "^3.5.13",
-        "vue-router": "^4.5.0",
-        "yarn": "^1.22.22"
-    },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "axios": "^1.8.4",
+    "bootstrap": "^5.3.5",
+    "vue": "^3.5.13",
+    "vue-flatpickr-component": "^12.0.0",
+    "vue-router": "^4.5.0",
+    "yarn": "^1.22.22",
+    "flatpickr": "^4.6.13",
+    "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.10.3",
+    "jspdf": "^3.0.1"
+  },
     "devDependencies": {
         "@eslint/js": "^9.22.0",
         "@vitejs/plugin-vue": "^5.2.3",
