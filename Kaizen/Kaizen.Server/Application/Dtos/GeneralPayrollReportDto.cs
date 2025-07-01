@@ -13,5 +13,6 @@ namespace Kaizen.Server.Application.Dtos
         public string Period { get; set; } = string.Empty;
         public string InCharge { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
+        public decimal? TotalBrutePaid { get; set; }
     }
 }

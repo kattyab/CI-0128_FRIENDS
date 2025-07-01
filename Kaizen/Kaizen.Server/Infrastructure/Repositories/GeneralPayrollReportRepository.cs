@@ -19,20 +19,26 @@ public class GeneralPayrollReportRepository : IGeneralPayrollReportRepository
     public List<GeneralPayrollReportDto> GetAllReports()
     {
         const string query = @"
-            SELECT 
-                gp.GeneralPayrollsID,
-                gp.PaidBy,
-                gp.TotalDeductionsBenefits,
-                gp.TotalObligatoryDeductions,
-                gp.TotalLaborCharges,
-                gp.TotalMoneyPaid,
-                gp.ExecutedOn,
-                gp.PayrollMode,
-                gp.Period,
-                gp.InCharge,
-                c.CompanyName
-            FROM GeneralPayrolls gp
-            LEFT JOIN Companies c ON gp.PaidBy = c.CompanyPK";
+        SELECT 
+            gp.GeneralPayrollsID,
+            gp.PaidBy,
+            gp.TotalDeductionsBenefits,
+            gp.TotalObligatoryDeductions,
+            gp.TotalLaborCharges,
+            gp.TotalMoneyPaid,
+            gp.ExecutedOn,
+            gp.PayrollMode,
+            gp.Period,
+            gp.InCharge,
+            c.CompanyName,
+            (
+                SELECT SUM(p.BrutePaid)
+                FROM Payrolls p
+                WHERE p.GeneralPayrollPK = gp.GeneralPayrollsID
+            ) AS TotalBrutePaid
+        FROM GeneralPayrolls gp
+        LEFT JOIN Companies c ON gp.PaidBy = c.CompanyPK";
+
 
         var results = new List<GeneralPayrollReportDto>();
 
@@ -52,6 +58,8 @@ public class GeneralPayrollReportRepository : IGeneralPayrollReportRepository
                 Period = reader.GetString(reader.GetOrdinal("Period")),
                 InCharge = reader.GetString(reader.GetOrdinal("InCharge")),
                 CompanyName = reader.IsDBNull(reader.GetOrdinal("CompanyName")) ? string.Empty : reader.GetString(reader.GetOrdinal("CompanyName")),
+                TotalBrutePaid = reader.IsDBNull(reader.GetOrdinal("TotalBrutePaid")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("TotalBrutePaid")),
+
             });
         }
 
