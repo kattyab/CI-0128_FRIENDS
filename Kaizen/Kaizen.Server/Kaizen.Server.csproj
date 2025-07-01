@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Include="Application\Commands\.gitkeep" />
+    <Compile Include="Dockerfile" />
   </ItemGroup>
 
   <ItemGroup>
