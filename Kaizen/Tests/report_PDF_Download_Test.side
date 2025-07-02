@@ -1,0 +1,132 @@
+{
+  "id": "0b49e564-8ea1-4007-b0f8-0383ae78be11",
+  "version": "2.0",
+  "name": "KaizenPI",
+  "url": "https://ci-0128-friends.onrender.com/",
+  "tests": [{
+    "id": "7945519d-cc6a-4d64-852c-3e812aabbb36",
+    "name": "report_PDF_Download_Test",
+    "commands": [{
+      "id": "3a5e6101-6057-4e2e-8a66-7e010df03d4c",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3afcb2a4-4c17-4d80-8df4-240fa65f8352",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1304x1080",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1b25ceb2-f103-4a1e-98f0-564d74e27126",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Iniciar sesión",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "049ce5f9-be92-47a9-ad3f-34b32f810ac1",
+      "comment": "",
+      "command": "click",
+      "target": "id=username",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "472e8018-186f-4165-a48a-7393591c6115",
+      "comment": "",
+      "command": "type",
+      "target": "id=username",
+      "targets": [],
+      "value": "carlos.ramirez@example.com"
+    }, {
+      "id": "dfb9eb7a-85ed-4024-a2f2-6491c61138b2",
+      "comment": "",
+      "command": "click",
+      "target": "id=password",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8f65e962-fd0d-40e0-aa27-afdbb10b77cd",
+      "comment": "",
+      "command": "type",
+      "target": "id=password",
+      "targets": [],
+      "value": "Password"
+    }, {
+      "id": "5a4b08e2-3bca-4bf7-b9a2-eaa93e5fb500",
+      "comment": "",
+      "command": "click",
+      "target": "css=.login-btn",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "56181a80-5d49-4e1b-8d66-e5d5d02d5d19",
+      "comment": "",
+      "command": "click",
+      "target": "css=.reports-toggle > .material-icons:nth-child(1)",
+      "targets": [
+        ["css=.reports-toggle > .material-icons:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/aside/div[2]/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/button/span", "xpath:position"],
+        ["xpath=//span[contains(.,'assessment')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "b9d31774-06ab-4960-a157-33889b882177",
+      "comment": "",
+      "command": "click",
+      "target": "css=.popup-button:nth-child(1) > .text",
+      "targets": [
+        ["css=.popup-button:nth-child(1) > .text", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/aside/div[2]/div/div[2]/a/span", "xpath:idRelative"],
+        ["xpath=//div/div[2]/a/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "d66e0e0d-e945-435d-823f-def5e037774e",
+      "comment": "",
+      "command": "click",
+      "target": "css=.export-btn",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "90794297-3059-4ace-9d8e-a02f6079df1d",
+      "comment": "",
+      "command": "click",
+      "target": "css=.download-btn",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "6084e386-a8b8-41a5-9d1a-306508c7b314",
+      "comment": "",
+      "command": "click",
+      "target": "css=.modal-cancel-btn",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "775eb3e6-830f-49ca-aa42-c07a2118f13c",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.status-text",
+      "targets": [
+        ["css=.status-text", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/main/div/div[2]/div[4]/div/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div[2]", "xpath:position"]
+      ],
+      "value": "PDF descargado correctamente"
+    }]
+  }],
+  "suites": [{
+    "id": "191a9fa3-a796-4f9f-90cd-9b9189b3cb02",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["7945519d-cc6a-4d64-852c-3e812aabbb36"]
+  }],
+  "urls": ["https://localhost:55281/", "https://ci-0128-friends.onrender.com/"],
+  "plugins": []
+}
