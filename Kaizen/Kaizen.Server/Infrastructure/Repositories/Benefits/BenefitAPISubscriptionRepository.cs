@@ -24,7 +24,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 
             try
             {
-                const string getEmployeeIdQuery = @"
+                const string getEmployeeAndValidateQuery = @"
                     SELECT e.EmpId FROM Employees e
                     INNER JOIN Users u ON e.PersonPK = u.PersonPK
                     WHERE u.Email = @Email AND

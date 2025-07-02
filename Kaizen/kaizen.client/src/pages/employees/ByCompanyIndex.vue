@@ -28,7 +28,7 @@
               </a>
               <a @click="openDeleteModal(employee)" class="btn btn-danger ms-1">
                 <span class="material-icons">delete</span>
-              </button>
+              </a>
             </td>
           </tr>
         </tbody>
