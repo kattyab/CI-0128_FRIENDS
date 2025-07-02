@@ -66,7 +66,7 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
                 ELSE 0
             END AS Value
         FROM Benefits b
-        WHERE b.OfferedBy = @CompanyPK
+        WHERE b.OfferedBy = @CompanyPK AND b.Active = 1 AND b.IsOut = 0
 
         UNION ALL
 

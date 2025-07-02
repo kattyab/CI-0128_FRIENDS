@@ -125,6 +125,8 @@ builder.Services.AddScoped<IDeleteEmployerRepository, DeleteEmployerRepository>(
 
 
 
+builder.Services.AddScoped<IBenefitsService, BenefitsService>();
+
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 

@@ -2,6 +2,7 @@ using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Auth;
 using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Application.Interfaces.Services;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace Kaizen.Server.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BenefitsController(IAuthService authService, IBenefitsRepository benefitsRepository) : ControllerBase
+    public class BenefitsController(IAuthService authService, IBenefitsRepository benefitsRepository,
+        IBenefitsService benefitsService) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
         private readonly IBenefitsRepository _benefitsRepository = benefitsRepository;
+        private readonly IBenefitsService _benefitsService = benefitsService;
 
         [HttpGet("")]
         public IActionResult Index()
@@ -104,6 +107,57 @@ namespace Kaizen.Server.API.Controllers
                 this._benefitsRepository.UpdateBenefit(benefit, companyPK);
 
                 return this.Ok();
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpDelete("{guid}")]
+        public IActionResult Delete(Guid guid)
+        {
+            if (this._authService.IsAuthenticated() == false)
+            {
+                return this.Unauthorized();
+            }
+
+            try
+            {
+                if (!this.ModelState.IsValid)
+                {
+                    return this.BadRequest(this.ModelState);
+                }
+
+                this._benefitsService.DeleteBenefit(guid);
+
+                return this.NoContent();
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpDelete("api/{id}")]
+        public IActionResult Delete(int id)
+        {
+            if (this._authService.IsAuthenticated() == false)
+            {
+                return this.Unauthorized();
+            }
+
+            try
+            {
+                if (!this.ModelState.IsValid)
+                {
+                    return this.BadRequest(this.ModelState);
+                }
+
+                Guid companyPK = this._authService.GetAuthUserCompanyPK();
+                this._benefitsService.DeleteBenefit(id, companyPK);
+
+                return this.NoContent();
             }
             catch (Exception)
             {
