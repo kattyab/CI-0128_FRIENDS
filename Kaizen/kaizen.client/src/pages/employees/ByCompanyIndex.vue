@@ -33,6 +33,9 @@
           </tr>
         </tbody>
       </table>
+      <div>
+        <p v-if="error" class="text-danger">{{ error }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -49,7 +52,7 @@
 
   const deleteEmployee = async (empID) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/CompanyEmployees/${empID}`, { withCredentials: true });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/employees/${empID}`, { withCredentials: true });
       employees.value = employees.value.filter(e => e.empID !== empID);
     } catch (err) {
       console.error('Error deleting employee:', err);
