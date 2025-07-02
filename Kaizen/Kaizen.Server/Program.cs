@@ -17,14 +17,15 @@ using Kaizen.Server.Application.Services.Payroll;
 using Kaizen.Server.Infrastructure.Repositories;
 using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Services.Payroll;
 using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Repositories.Employees;
 using Kaizen.Server.Infrastructure.Services;
 using Kaizen.Server.Infrastructure.Services.ApiDeductions;
 using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Infrastructure.Services.Reports;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
-using Kaizen.Server.Infrastructure.Services.Payroll;
 using Microsoft.Data.SqlClient;
 using System.Reflection;
 
@@ -100,6 +101,7 @@ builder.Services.AddScoped<IEmployeeDashboardRepository, EmployeeDashboardReposi
 
 
 builder.Services.AddPayrollServices();
+builder.Services.AddReportsServices();
 
 builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 

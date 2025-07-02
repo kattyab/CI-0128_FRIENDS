@@ -237,7 +237,7 @@
           max-height: 0;
           overflow: hidden;
           transition: max-height 0.3s ease;
-          background-color: rgba(0, 60, 99, 0.05);
+          background-color: rgb(244, 246, 248);
 
           &.expanded {
             max-height: 200px;
