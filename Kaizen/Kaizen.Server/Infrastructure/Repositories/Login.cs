@@ -32,14 +32,15 @@ namespace Kaizen.Server.Infrastructure.Repositories
         public object? ObtainUserData(string email)
         {
             const string sql = @"
-                SELECT  Email,
-                        PasswordHash,
-                        Active,
-                        Role,
-                        PersonPK,
-                        UserPK
-                FROM    Users
-                WHERE   Email = @Email;";
+            SELECT  Email,
+                    PasswordHash,
+                    Active,
+                    Role,
+                    PersonPK,
+                    UserPK
+            FROM    Users
+            WHERE   Email = @Email
+            AND     Active = 1;";
 
             var parameters = new[]
             {

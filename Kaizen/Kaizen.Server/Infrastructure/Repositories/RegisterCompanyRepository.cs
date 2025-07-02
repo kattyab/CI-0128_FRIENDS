@@ -37,8 +37,12 @@ namespace Kaizen.Server.Infrastructure.Repositories
                         INSERT INTO Users (UserPK, Email, PasswordHash, Active, Role, PersonPK)
                         VALUES (@UserPK, @Email, @PasswordHash, @Active, @Role, @PersonPK);
 
-                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
-                        VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
+                        INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns, PayrollType)
+                        VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns, @PayrollType);
+
+                        UPDATE Users
+                        SET CompanyPK = @CompanyPK
+                        WHERE UserPK = @UserPK
                         ";
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn, transaction);
@@ -77,6 +81,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     cmd.Parameters.AddWithValue("@Canton", company.Canton);
                     cmd.Parameters.AddWithValue("@District", company.District);
                     cmd.Parameters.AddWithValue("@OtherSigns", company.OtherSigns);
+                    cmd.Parameters.AddWithValue("@PayrollType", company.PayrollType);
 
                     await cmd.ExecuteNonQueryAsync();
 

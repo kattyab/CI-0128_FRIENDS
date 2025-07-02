@@ -46,6 +46,18 @@
         <div class="invalid-feedback">{{ errorNombreEmpresa }}</div>
       </div>
 
+      <!-- Payroll type -->
+      <div class="mb-3 col-10">
+        <label for="cicloDePago" class="form-label label-kaizen mb-1">Ciclo de pago</label>
+        <select v-model="cicloDePago" class="form-control campo shadow-sm form-select" :class="{ 'is-invalid': attemptedSubmit && errorCicloDePago }">
+          <option value="" disabled>Seleccione un ciclo de pago</option>
+          <option value="W">Semanal</option>
+          <option value="B">Quincenal</option>
+          <option value="M">Mensual</option>
+        </select>
+        <div class="invalid-feedback">{{ errorCicloDePago }}</div>
+      </div>
+
       <!-- Address: Province -->
       <div class="mb-3 col-10">
         <label for="province" class="form-label label-kaizen mb-1">Provincia</label>
@@ -244,6 +256,7 @@ export default {
       cedulaJuridica: '',
       nombreEmpresa: '',
       emailEmpresa: '',
+      cicloDePago: '',
       province: '',
       canton: '',
       district: '',
@@ -270,6 +283,7 @@ export default {
       errorCedula: '',
       errorNombreEmpresa: '',
       errorEmailEmpresa: '',
+      errorCicloDePago: '',
       errorProvince: '',
       errorCanton: '',
       errorDistrict: '',
@@ -301,6 +315,10 @@ export default {
       if (!this.brandName.trim()) { this.errorBrandName = 'Requerido (máx 100 caracteres).'; hasError = true; }
       if (!/^[0-9]-[0-9]{3}-[0-9]{6}$/.test(this.cedulaJuridica)) { this.errorCedula = 'Formato: 3-102-242458'; hasError = true; }
       if (!this.nombreEmpresa.trim()) { this.errorNombreEmpresa = 'Requerido.'; hasError = true; }
+      if (!this.cicloDePago) { this.errorCicloDePago = 'Seleccione un ciclo de pago.'; hasError = true; }
+      else if (!['W', 'B', 'M'].includes(this.cicloDePago)) {
+        this.errorCicloDePago = 'Seleccione un ciclo de pago válido.'; hasError = true;
+      }
       if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/.test(this.province)) { this.errorProvince = 'Sólo letras, 1–50 caracteres.'; hasError = true; }
       if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/.test(this.canton)) { this.errorCanton = 'Sólo letras, 1–50 caracteres.'; hasError = true; }
       if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/.test(this.district)) { this.errorDistrict = 'Sólo letras, 1–50 caracteres.'; hasError = true; }
@@ -344,6 +362,7 @@ export default {
           canton: this.canton,
           district: this.district,
           otherSigns: this.additionalSigns,
+          payrollType: this.cicloDePago,
 
           owner: {
             id: this.ownerId,

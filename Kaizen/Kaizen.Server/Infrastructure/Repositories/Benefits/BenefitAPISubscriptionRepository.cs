@@ -26,7 +26,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                 const string getEmployeeIdQuery = @"
                     SELECT e.EmpId FROM Employees e
                     INNER JOIN Users u ON e.PersonPK = u.PersonPK
-                    WHERE u.Email = @Email";
+                    WHERE u.Email = @Email AND
+                          e.IsDeleted = 0";
 
                 Guid employeeId;
                 using (var getEmployeeCommand = new SqlCommand(getEmployeeIdQuery, connection, transaction))
