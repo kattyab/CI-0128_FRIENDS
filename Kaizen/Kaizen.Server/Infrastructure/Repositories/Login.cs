@@ -66,14 +66,21 @@ namespace Kaizen.Server.Infrastructure.Repositories
         public AuthUserDto GetAuthUser(string email)
         {
             const string sql = @"
-                SELECT  Email,
-                        PasswordHash,
-                        Active,
-                        Role,
-                        PersonPK,
-                        UserPK
-                FROM    Users
-                WHERE   Email = @Email;";
+                SELECT
+                    p.Name,
+                    p.LastName,
+                    u.Email,
+                    u.PasswordHash,
+                    u.Active,
+                    u.Role,
+                    u.PersonPK,
+                    u.UserPK
+                FROM
+                    Users u
+                INNER JOIN
+                    Persons p ON u.PersonPK = p.PersonPK
+                WHERE
+                    u.Email = @Email;";
 
             var parameters = new[]
             {
@@ -91,6 +98,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
             return new AuthUserDto()
             {
+                Name = (string)row["Name"],
+                LastName = (string)row["LastName"],
                 Email = (string)row["Email"],
                 Active = Convert.ToBoolean(row["Active"]),
                 Role = (string)row["Role"],

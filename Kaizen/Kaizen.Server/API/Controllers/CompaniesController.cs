@@ -1,6 +1,7 @@
 ﻿using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Dtos.Companies;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,10 @@ namespace Kaizen.Server.API.Controllers;
 [Route("api/[controller]")]
 public class CompaniesController(
     IAuthService authService,
-    CompaniesRepository companiesRepository) : ControllerBase
+    ICompaniesRepository companiesRepository) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
-    private readonly CompaniesRepository _companiesRepository = companiesRepository;
+    private readonly ICompaniesRepository _companiesRepository = companiesRepository;
 
     [HttpGet("")]
     public IActionResult Index()
