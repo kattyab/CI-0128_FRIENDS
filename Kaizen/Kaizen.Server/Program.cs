@@ -110,6 +110,9 @@ builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddScoped<IGeneralPayrollReportRepository, GeneralPayrollReportRepository>();
 
+builder.Services.AddScoped<IDeleteEmployerRepository, DeleteEmployerRepository>();
+
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
