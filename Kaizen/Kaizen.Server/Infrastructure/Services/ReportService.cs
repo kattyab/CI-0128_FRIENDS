@@ -84,7 +84,19 @@ public class ReportService : IReportService
     }
     public async Task SendCompaniesHistoricEmail(string csvContent)
     {
+        if (string.IsNullOrWhiteSpace(csvContent))
+            throw new ArgumentException("CSV content cannot be null or empty", nameof(csvContent));
+
         AuthUserDto user = this._authService.GetAuthUser();
+
+        if (user == null)
+            throw new InvalidOperationException("Authenticated user cannot be null");
+
+        if (string.IsNullOrWhiteSpace(user.Name) || string.IsNullOrWhiteSpace(user.LastName))
+            throw new ArgumentException("User name and last name must not be empty");
+
+        if (string.IsNullOrWhiteSpace(user.Email) || !user.Email.Contains("@"))
+            throw new ArgumentException("Invalid email", nameof(user.Email));
 
         string csvFileName = "reporte_companias_historico.csv";
 
@@ -106,6 +118,7 @@ public class ReportService : IReportService
 
         await this._emailService.SendEmail(email);
     }
+
 
 
     public async Task SendHistoricRangeEmail(Guid companyPK, HistoricRangeSearch historicRangeSearch)
