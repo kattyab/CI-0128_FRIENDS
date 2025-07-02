@@ -10,14 +10,14 @@
           </div>
           <div class="d-flex flex-column">
             <label for="startDate" class="fw-bold">Desde</label>
-            <input id="startDate" type="date" class="form-control" v-model="searchData.start" />
+            <input id="startDate" type="date" class="form-control" v-model="searchData.start" @input="onDateChange" />
           </div>
           <div class="d-flex flex-column">
             <label for="endDate" class="fw-bold">Hasta</label>
-            <input id="endDate" type="date" class="form-control" v-model="searchData.end" />
+            <input id="endDate" type="date" class="form-control" v-model="searchData.end" @input="onDateChange" />
           </div>
           <div class="d-flex align-items-end">
-            <button class="btn btn-primary" @click="search"><i class="bi bi-search"></i></button>
+            <button class="btn btn-primary" @click="search" style="display: none;"><i class="bi bi-search"></i></button>
           </div>
         </div>
       </div>
@@ -97,10 +97,27 @@
 </template>
 
 <script setup>
+import { ref, onMounted, watch } from "vue";
+import { Modal } from "bootstrap";
+import axios from "axios";
+
 function formatNumber(num) {
   if (num === null || num === undefined) return '';
   return Number(num).toLocaleString('es-CR', { maximumFractionDigits: 0 });
 }
+
+const modalElement = ref(null);
+const modalObject = ref(null);
+
+const searchData = ref({
+  start: "",
+  end: "",
+  name: "",
+});
+
+const payrollData = ref([]);
+const payrollDataFiltered = ref([]);
+
 function filterByName() {
   applyFilters();
 }
@@ -123,29 +140,25 @@ function applyFilters() {
   const name = searchData.value.name.trim().toLowerCase();
   const start = searchData.value.start;
   const end = searchData.value.end;
-  if (!name || !start || !end) {
-    payrollDataFiltered.value = [];
+
+  if (!name && !start && !end) {
+    payrollDataFiltered.value = filtered;
     return;
   }
-  filtered = filtered.filter((item) => (item.employeeName || '').toLowerCase().includes(name));
-  filtered = filterByDateRange(filtered);
+
+  if (name) {
+    filtered = filtered.filter((item) => (item.employeeName || '').toLowerCase().includes(name));
+  }
+
+  if (start || end) {
+    filtered = filterByDateRange(filtered);
+  }
   payrollDataFiltered.value = filtered;
 }
-import { ref, onMounted } from "vue";
-import { Modal } from "bootstrap";
-import axios from "axios";
 
-const modalElement = ref(null);
-const modalObject = ref(null);
-
-const searchData = ref({
-  start: "",
-  end: "",
-  name: "",
-});
-
-const payrollData = ref([]);
-const payrollDataFiltered = ref([]);
+watch(() => searchData.value.name, () => applyFilters());
+watch(() => searchData.value.start, () => applyFilters());
+watch(() => searchData.value.end, () => applyFilters());
 
 async function fetchPayrollData() {
   try {
@@ -229,10 +242,6 @@ function exportDownload() {
   document.body.removeChild(link);
   closeExportModal();
 }
-function search() {
-  applyFilters();
-}
-
 
 onMounted(() => {
   modalObject.value = new Modal(modalElement.value);
