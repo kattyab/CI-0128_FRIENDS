@@ -3,7 +3,11 @@
     <h1 class="text-center my-4">Reporte Histórico Pago Planilla</h1>
     <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
       <div>
-        <div class="mb-3 d-flex gap-4">
+        <div class="mb-3 d-flex gap-4 align-items-end">
+          <div class="d-flex flex-column">
+            <label for="searchName" class="fw-bold">Buscar por nombre</label>
+            <input id="searchName" type="text" class="form-control" v-model="searchData.name" placeholder="Nombre del empleado" @input="filterByName" />
+          </div>
           <div class="d-flex flex-column">
             <label for="startDate" class="fw-bold">Desde</label>
             <input id="startDate" type="date" class="form-control" v-model="searchData.start" />
@@ -16,11 +20,9 @@
             <button class="btn btn-primary" @click="search"><i class="bi bi-search"></i></button>
           </div>
         </div>
-        <div class="mb-2"><span class="fw-bold">Empresa:</span> Kaizen</div>
-        <div class="mb-2"><span class="fw-bold">Empleado:</span> Juan Perez</div>
       </div>
       <div>
-        <button class="btn btn-lg btn-primary self-align-end" :disabled="payrollData.length == 0" @click="openExportModal">
+        <button class="btn btn-lg btn-primary self-align-end" :disabled="payrollDataFiltered.length == 0" @click="openExportModal">
           <i class="bi bi-upload"></i> Exportar
         </button>
       </div>
@@ -41,7 +43,7 @@
           </tr>
         </thead>
         <tbody class="table-group-divider">
-          <tr v-for="(item, index) in payrollData" :key="index">
+          <tr v-for="(item, index) in payrollDataFiltered" :key="index">
             <td>{{ item.employeeName }}</td>
             <td>{{ item.cedula }}</td>
             <td>{{ item.tipoEmpleado }}</td>
@@ -54,10 +56,10 @@
           </tr>
           <tr>
             <td colspan="5" class="fw-bold text-end">Total</td>
-            <td class="fw-bold">₡{{ formatNumber(payrollData.reduce((a, c) => a + c.salarioBruto, 0)) }}</td>
-            <td class="fw-bold">₡{{ formatNumber(payrollData.reduce((a, c) => a + c.cargasSociales, 0)) }}</td>
-            <td class="fw-bold">₡{{ formatNumber(payrollData.reduce((a, c) => a + c.deduccionesVoluntarias, 0)) }}</td>
-            <td class="fw-bold">₡{{ formatNumber(payrollData.reduce((a, c) => a + c.costoEmpleador, 0)) }}</td>
+            <td class="fw-bold">₡{{ formatNumber(payrollDataFiltered.reduce((a, c) => a + c.salarioBruto, 0)) }}</td>
+            <td class="fw-bold">₡{{ formatNumber(payrollDataFiltered.reduce((a, c) => a + c.cargasSociales, 0)) }}</td>
+            <td class="fw-bold">₡{{ formatNumber(payrollDataFiltered.reduce((a, c) => a + c.deduccionesVoluntarias, 0)) }}</td>
+            <td class="fw-bold">₡{{ formatNumber(payrollDataFiltered.reduce((a, c) => a + c.costoEmpleador, 0)) }}</td>
           </tr>
         </tbody>
       </table>
@@ -95,6 +97,32 @@
 </template>
 
 <script setup>
+function filterByName() {
+  applyFilters();
+}
+
+function filterByDateRange(list) {
+  const start = searchData.value.start;
+  const end = searchData.value.end;
+  if (!start && !end) return list;
+  return list.filter((item) => {
+    if (!item.fechaPago) return false;
+    const fechaPago = item.fechaPago.length === 10 ? item.fechaPago : String(item.fechaPago).slice(0, 10);
+    if (start && fechaPago < start) return false;
+    if (end && fechaPago > end) return false;
+    return true;
+  });
+}
+
+function applyFilters() {
+  let filtered = [...payrollData.value];
+  const name = searchData.value.name.trim().toLowerCase();
+  if (name) {
+    filtered = filtered.filter((item) => (item.employeeName || '').toLowerCase().includes(name));
+  }
+  filtered = filterByDateRange(filtered);
+  payrollDataFiltered.value = filtered;
+}
 import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
 import axios from "axios";
@@ -115,7 +143,7 @@ async function fetchPayrollData() {
   try {
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/reports/employee-total`, { withCredentials: true });
     payrollData.value = response.data;
-    payrollDataFiltered.value = response.data;
+    applyFilters();
   } catch (e) {
     payrollData.value = [];
     payrollDataFiltered.value = [];
@@ -125,7 +153,7 @@ async function fetchPayrollData() {
 
 
 function formatNumber(num) {
-  if (!num) return "";
+  if (num === null || num === undefined) return "";
   return Number(num).toLocaleString("es-CR", { maximumFractionDigits: 0 });
 }
 
@@ -144,8 +172,7 @@ function exportDownload() {
   closeExportModal();
 }
 function search() {
-  // Aquí podrías agregar lógica de búsqueda por fechas si lo deseas
-  alert("Búsqueda simulada (mock)");
+  applyFilters();
 }
 
 onMounted(() => {

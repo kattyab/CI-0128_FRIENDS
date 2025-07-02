@@ -27,25 +27,32 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                     e.ContractType, 
                     pr.BrutePaid,
                     gp.Period, 
-                    gp.ExecutedOn
+                    gp.ExecutedOn,
+                    pr.PayrollID,
+                    ISNULL(SUM(od.Amount), 0) AS DeduccionesVoluntarias
                 FROM Payrolls pr
                 INNER JOIN Employees e ON pr.PaidTo = e.EmpID
                 INNER JOIN Persons p ON e.PersonPK = p.PersonPK
                 INNER JOIN GeneralPayrolls gp ON pr.GeneralPayrollPk = gp.GeneralPayrollsID
+                LEFT JOIN OptionalDeductions od ON pr.PayrollID = od.PayrollId
+                GROUP BY pr.PayrollID, p.Name, p.LastName, p.ID, e.ContractType, pr.BrutePaid, gp.Period, gp.ExecutedOn
             ";
             using var command = new SqlCommand(query, connection);
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                decimal salarioBrutoDecimal = 0;
-                string salarioBruto = "0";
-                if (reader["BrutePaid"] != DBNull.Value)
+                decimal salarioBruto = 0;
+                if (reader["BrutePaid"] != DBNull.Value && reader["BrutePaid"] != null)
                 {
-                    salarioBrutoDecimal = (decimal)reader["BrutePaid"];
-                    salarioBruto = salarioBrutoDecimal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                    salarioBruto = reader["BrutePaid"] is decimal d ? d : 0;
                 }
-                decimal cargasSocialesDecimal = salarioBrutoDecimal * 0.2667m;
-                string cargasSociales = cargasSocialesDecimal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                decimal cargasSociales = salarioBruto * 0.2667m;
+
+                decimal deduccionesVoluntarias = 0;
+                if (reader["DeduccionesVoluntarias"] != DBNull.Value && reader["DeduccionesVoluntarias"] != null)
+                {
+                    deduccionesVoluntarias = reader["DeduccionesVoluntarias"] is decimal d ? d : 0;
+                }
 
                 string periodoPago = string.Empty;
                 if (reader["Period"] != DBNull.Value)
@@ -67,8 +74,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Reports
                     FechaPago = fechaPago,
                     SalarioBruto = salarioBruto,
                     CargasSociales = cargasSociales,
-                    DeduccionesVoluntarias = string.Empty,
-                    CostoEmpleador = (salarioBrutoDecimal + cargasSocialesDecimal).ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+                    DeduccionesVoluntarias = deduccionesVoluntarias,
+                    CostoEmpleador = salarioBruto + cargasSociales
                 });
             }
             return result;

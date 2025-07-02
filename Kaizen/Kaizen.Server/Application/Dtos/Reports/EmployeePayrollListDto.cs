@@ -7,9 +7,9 @@ namespace Kaizen.Server.Application.Dtos.Reports
         public string TipoEmpleado { get; set; } = string.Empty;
         public string PeriodoPago { get; set; } = string.Empty;
         public string FechaPago { get; set; } = string.Empty;
-        public string SalarioBruto { get; set; } = string.Empty;
-        public string CargasSociales { get; set; } = string.Empty;
-        public string DeduccionesVoluntarias { get; set; } = string.Empty;
-        public string CostoEmpleador { get; set; } = string.Empty;
+        public decimal SalarioBruto { get; set; }
+        public decimal CargasSociales { get; set; }
+        public decimal DeduccionesVoluntarias { get; set; }
+        public decimal CostoEmpleador { get; set; }
     }
 }
