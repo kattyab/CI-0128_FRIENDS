@@ -165,16 +165,43 @@ function openExportModal() {
 function closeExportModal() {
   modalObject.value.hide();
 }
-async function exportEmail() {
+function exportEmail() {
   try {
-    await axios.post(`${import.meta.env.VITE_API_URL}/api/reports/employee-total/email`, {
-      filters: searchData.value
-    }, { withCredentials: true });
-    alert("Correo enviado.");
-  } catch {
-    alert("Error al enviar correo.");
+    axios
+      .post(`${import.meta.env.VITE_API_URL}/api/reports/companieshistoric/email`, {
+        Csv: generateCsvForEmail()
+      }, { withCredentials: true })
+      .then(() => {
+        alert("Correo enviado.");
+      })
+      .catch((error) => {
+        console.error("Error al enviar correo:", error);
+        alert("Error al enviar correo.");
+      });
+  } catch (e) {
+    console.error(e);
+    alert("Ocurrió un error al enviar el correo.");
   }
   closeExportModal();
+}
+
+function generateCsvForEmail() {
+  const headers = [
+    'Nombre empleado', 'Cédula', 'Tipo de empleado', 'Periodo de pago', 'Fecha de pago', 'Salario bruto', 'Cargas sociales empleador', 'Deducciones voluntarias', 'Costo empleador'
+  ];
+  const rows = payrollDataFiltered.value.map(item => [
+    item.employeeName,
+    item.cedula,
+    item.tipoEmpleado,
+    item.periodoPago,
+    item.fechaPago,
+    item.salarioBruto,
+    item.cargasSociales,
+    item.deduccionesVoluntarias,
+    item.costoEmpleador
+  ]);
+  const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+  return "\uFEFF" + csvContent;
 }
 
 function exportDownload() {
