@@ -14,6 +14,7 @@
     public string Canton { get; set; }
     public string District { get; set; }
     public string OtherSigns { get; set; }
+    public string PayrollType { get; set; }
 
     public OwnerDto owner { get; set; }
     public UserDto user { get; set; }
