@@ -64,7 +64,6 @@
         </tbody>
       </table>
     </div>
-    <!-- Export modal remains unchanged -->
     <div id="exportModal" class="modal fade" tabindex="-1" ref="modalElement">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
