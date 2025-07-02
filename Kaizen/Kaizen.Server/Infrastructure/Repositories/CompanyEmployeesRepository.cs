@@ -16,26 +16,27 @@ public class CompanyEmployeesRepository
 
         using var connection = new SqlConnection(_connectionString);
         using var command = new SqlCommand(@"
-    SELECT 
-    e.EmpID, 
-    p.Name, 
-    p.LastName, 
-    p.Id, 
-    e.JobPosition, 
-    e.ContractType 
-FROM 
+    SELECT
+    e.EmpID,
+    p.Name,
+    p.LastName,
+    p.Id,
+    e.JobPosition,
+    e.ContractType
+FROM
     Employees e
-INNER JOIN 
+INNER JOIN
     Companies c ON e.WorksFor = c.CompanyPK
-INNER JOIN 
+INNER JOIN
     Persons p ON e.PersonPK = p.PersonPK
-INNER JOIN 
+INNER JOIN
     Users u ON u.Email = @Email
-LEFT JOIN 
+LEFT JOIN
     Persons owner ON c.OwnerPK = owner.PersonPK AND u.PersonPK = owner.PersonPK AND u.Role = 'Dueño'
-LEFT JOIN 
+LEFT JOIN
     Admins a ON a.CompanyPK = c.CompanyPK AND a.AdminPK = u.PersonPK AND u.Role = 'Administrador'
-WHERE 
+WHERE
+    e.IsDeleted = 0 AND
     (
         (u.Role = 'Dueño' AND c.OwnerPK = u.PersonPK) OR
         (u.Role = 'Administrador' AND a.AdminPK IS NOT NULL)

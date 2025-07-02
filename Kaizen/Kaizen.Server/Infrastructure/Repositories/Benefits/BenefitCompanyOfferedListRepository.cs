@@ -18,7 +18,7 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
         await connection.OpenAsync();
 
         var employeeQuery = @"
-            SELECT 
+            SELECT
                 e.ContractType,
                 DATEDIFF(MONTH, e.StartDate, GETDATE()) AS MonthsInCompany,
                 c.CompanyPK
@@ -26,7 +26,8 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
             INNER JOIN Persons p ON u.PersonPK = p.PersonPK
             INNER JOIN Employees e ON e.PersonPK = p.PersonPK
             INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
-            WHERE u.Email = @Email";
+            WHERE u.Email = @Email AND
+                  e.IsDeleted = 0";
 
         string contractType = string.Empty;
         int monthsInCompany = 0;
@@ -45,11 +46,11 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
         }
 
         var benefitQuery = @"
-        SELECT 
+        SELECT
             b.Id AS BenefitId,
             NULL AS APIId,
             b.Name,
-            CASE 
+            CASE
                 WHEN b.IsFixed = 1 THEN 'Fixed'
                 WHEN b.IsPercentage = 1 THEN 'Percentage'
                 ELSE 'Other'
@@ -59,7 +60,7 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
             b.IsFullTime,
             b.IsByHours,
             b.IsByService,
-            CASE 
+            CASE
                 WHEN b.IsFixed = 1 THEN b.FixedValue
                 WHEN b.IsPercentage = 1 THEN b.PercentageValue
                 ELSE 0
@@ -69,7 +70,7 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
 
         UNION ALL
 
-        SELECT 
+        SELECT
             NULL AS BenefitId,
             adc.Id AS APIId,
             adc.Name,
@@ -142,8 +143,8 @@ public class BenefitCompanyOfferedListRepository : IBenefitCompanyOfferedListRep
         var result = contractType switch
         {
             "Medio Tiempo" => isPartTime,
-            "Tiempo Completo" => isFullTime, 
-            "Por Horas" => isByHours,   
+            "Tiempo Completo" => isFullTime,
+            "Por Horas" => isByHours,
             "Servicios Profesionales" => isByService,
             _ => false
         };

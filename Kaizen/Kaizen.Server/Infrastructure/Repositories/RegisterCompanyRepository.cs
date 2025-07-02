@@ -42,8 +42,11 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
                         INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
                         VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
-                    ";
 
+                        UPDATE Users
+                        SET CompanyPK = @CompanyPK
+                        WHERE UserPK = @UserPK
+                        ";
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn, transaction);
                     // Owner (Persona)
@@ -81,6 +84,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     cmd.Parameters.AddWithValue("@Canton", company.Canton);
                     cmd.Parameters.AddWithValue("@District", company.District);
                     cmd.Parameters.AddWithValue("@OtherSigns", company.OtherSigns);
+                    cmd.Parameters.AddWithValue("@PayrollType", company.PayrollType);
 
                     await cmd.ExecuteNonQueryAsync();
 
