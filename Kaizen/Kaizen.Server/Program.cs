@@ -1,4 +1,4 @@
-using Kaizen.Server.Application.Configuraton;
+using Kaizen.Server.Application.Configuration;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.Benefits;
@@ -59,10 +59,10 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<Login>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<RegisterEmployeeRepository>();
-builder.Services.AddScoped<CompaniesRepository>();
+builder.Services.AddScoped<ICompaniesRepository, CompaniesRepository>();
 builder.Services.AddScoped<RegisterCompanyRepository>();
 builder.Services.AddScoped<NotificationsRepository>();
-builder.Services.AddScoped<EmployeesRepository>();
+builder.Services.AddScoped<IEmployeesRepository, EmployeesRepository>();
 builder.Services.AddScoped<CommonHomepageRepository>();
 builder.Services.AddScoped<CompaniesListRepository>();
 builder.Services.AddScoped<BenefitCreationRepository>();
@@ -103,6 +103,7 @@ builder.Services.AddReportsServices();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
