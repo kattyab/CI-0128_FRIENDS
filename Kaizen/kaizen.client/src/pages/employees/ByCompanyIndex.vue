@@ -23,7 +23,7 @@
             <td>{{ employee.jobPosition }}</td>
             <td>{{ employee.contractType }}</td>
             <td>
-              <a :href="`/employees/${employee.empID}`" class="btn btn-primary">
+              <a :href="`/#/employees/${employee.empID}`" class="btn btn-primary">
                 <span class="material-icons">visibility</span>
               </a>
               <a @click="deleteEmployee(employee.empID)" class="btn btn-danger ms-1">

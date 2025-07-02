@@ -17,7 +17,7 @@
           <td>{{ company.brandName }}</td>
           <td>
             {{ company.type }}
-            <a :href="`/companies/${company.companyPK}`" class="stretched-link"></a>
+            <a :href="`/#/companies/${company.companyPK}`" class="stretched-link"></a>
           </td>
         </tr>
       </tbody>

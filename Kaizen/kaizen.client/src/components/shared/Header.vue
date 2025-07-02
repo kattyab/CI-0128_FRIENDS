@@ -4,7 +4,7 @@
       <div class="container-fluid d-flex align-items-center">
         <button class="btn hamburger-btn d-md-none me-2" @click="$emit('toggle-sidebar')">☰</button>
 
-        <a href="landing-page">
+        <a href="/#/landing-page">
           <img src="@/assets/images/azul.png" alt="Kaizen Logo" class="app-logo" />
         </a>
 

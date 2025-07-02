@@ -95,7 +95,7 @@
         </div>
       </div>
       <div class="d-flex justify-content-center pt-3 pb-3">
-        <a type="submit" class="btn btn-primary btn-lg btn-block" :href="`/companies/${route.params.id}/edit`">
+        <a type="submit" class="btn btn-primary btn-lg btn-block" :href="`/#/companies/${route.params.id}/edit`">
           Editar
         </a>
       </div>

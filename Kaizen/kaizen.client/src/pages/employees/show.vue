@@ -22,7 +22,7 @@
         <div class="col-md-6">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold">Datos Contractuales</h5>
-            <a :href="`/employees/${route.params.id}/edit`" class="btn btn-secondary btn-md">
+            <a :href="`/#/employees/${route.params.id}/edit`" class="btn btn-secondary btn-md">
               Editar
             </a>
           </div>

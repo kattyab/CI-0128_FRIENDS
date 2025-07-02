@@ -34,7 +34,7 @@
               <td>{{ item.isFixed ? "Fijo" : (item.isPercentage ? "Porcentaje" : "API") }}</td>
               <td>{{ item.isFixed ? '₡' + item.fixedValue : (item.isPercentage ? item.percentageValue + '%' : 'Calculado con API') }}</td>
               <td>
-                <a :href="item.isAPI ? `/benefits/${item.apiID}` : `/benefits/${item.id}`" class="btn btn-primary">
+                <a :href="item.isAPI ? `/#/benefits/${item.apiID}` : `/#/benefits/${item.id}`" class="btn btn-primary">
                   <span class="material-icons">visibility</span>
                 </a>
                 <button @click="openDeleteModal(item)"

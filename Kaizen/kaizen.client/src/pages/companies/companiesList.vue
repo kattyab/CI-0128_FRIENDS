@@ -19,10 +19,10 @@
             <td>{{ company.companyID }}</td>
             <td>{{ company.employeesCount }}</td>
             <td>
-              <a :href="`/companieslist/${company.companyPK}`" class="btn btn-primary">
+              <a :href="`/#/companieslist/${company.companyPK}`" class="btn btn-primary">
                 <span class="material-icons">visibility</span>
               </a>
-              <a :href="`/companieslist/${company.companyPK}/edit`" class="btn btn-danger ms-1">
+              <a :href="`/#/companieslist/${company.companyPK}/edit`" class="btn btn-danger ms-1">
                 <span class="material-icons">delete</span>
               </a>
             </td>
