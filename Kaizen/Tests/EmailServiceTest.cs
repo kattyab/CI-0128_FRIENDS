@@ -1,6 +1,6 @@
 using Castle.Core.Logging;
 using Kaizen.Server.API.Controllers;
-using Kaizen.Server.Application.Configuraton;
+using Kaizen.Server.Application.Configuration;
 using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Emails;
 using Kaizen.Server.Application.Interfaces.Services;

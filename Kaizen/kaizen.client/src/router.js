@@ -11,6 +11,7 @@ const router = createRouter({
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
+        { path: 'dashboard-owner', name: 'dashboard-owner', component: () => import('./pages/dashboards/owner.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] }},
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/errors/403.vue'), meta: { public: true } },
         { path: 'company/edit', name: 'Company Edit', component: () => import('./pages/company/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'], requiresCompanyActive: true } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
@@ -33,6 +34,10 @@ const router = createRouter({
         { path: 'dashboardemployee', name: 'Dashboard Employee', component: () => import('./pages/employees/DashboardEmployee.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado', 'Supervisor']} },
         { path: '/reports/company/:id', name: 'Detailed Owner Payroll', component: () => import('./pages/reports/DetailedOwnerPayroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
         { path: '/reports/historicrange', name: 'Payroll Historic Range', component: () => import('./pages/reports/HistoricRange.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
+        { path: '/reports/employeeTotal', name: 'Payroll Employee Total', component: () => import('./pages/reports/EmployeeTotal.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
+        { path: '/reports/companieshistoric', name: 'Companies Historic Payroll', component: () => import('./pages/reports/CompaniesHistoric.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin', 'Dueño'] } },
+        { path: 'employerlist', name: 'EmployerList', component: () => import('./pages/companies/EmployerList.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
+        { path: '/reports/employee/:id', name: 'Detailed Employee Paystub', component: () => import('./pages/reports/DetailedEmployeePayStub.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado', 'Supervisor'] } },
         { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true, requiresCompanyActive: true } },
         { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] },
         },
@@ -93,7 +98,7 @@ router.beforeEach(async (to, from, next) => {
 
 
     next();
-  } catch (err) {
+  } catch {
     next('/auth/login');
   }
 });

@@ -62,7 +62,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
         private DataTable FetchEmployeeDataTable(string email)
         {
-            string query = @"SELECT 
+            string query = @"SELECT
           p.Id AS id,
           p.Name AS first_name,
           p.LastName AS last_name,
@@ -79,7 +79,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
         INNER JOIN Users u ON u.PersonPK = p.PersonPK
         LEFT JOIN Employees e ON e.PersonPK = p.PersonPK
         LEFT JOIN PersonPhoneNumbers ph ON ph.PersonPK = p.PersonPK
-        WHERE u.Email = @Email;";
+        WHERE u.Email = @Email AND e.IsDeleted = 0;";
 
             SqlParameter[] parameters = { new("@Email", email) };
             return CreateConsultTable(query, parameters);

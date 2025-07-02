@@ -5,8 +5,7 @@ namespace Kaizen.Server.Infrastructure.Helpers;
 
 public static class SqlHelper
 {
-    // Set the connection, command, and then execute the command with non query.
-    public static int ExecuteNonQuery(string connectionString, string commandText,
+    public static int ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string connectionString, string commandText,
         CommandType commandType, params SqlParameter[] parameters)
     {
         using SqlConnection conn = new(connectionString);
@@ -18,7 +17,6 @@ public static class SqlHelper
         return cmd.ExecuteNonQuery();
     }
 
-    // Set the connection, command, and then execute the command and only return one value.
     public static object ExecuteScalar(string connectionString, string commandText,
         CommandType commandType, params SqlParameter[] parameters)
     {
@@ -31,7 +29,6 @@ public static class SqlHelper
         return cmd.ExecuteScalar();
     }
 
-    // Set the connection, command, and then execute the command with query and return the reader.
     public static SqlDataReader ExecuteReader(string connectionString, string commandText,
         CommandType commandType, params SqlParameter[] parameters)
     {
@@ -45,6 +42,16 @@ public static class SqlHelper
         SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
         return reader;
+    }
+
+    internal static int ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string query, CommandType text, SqlParameter[] parameters)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal static int ExecuteNonQuery(string connectionString, string query, CommandType text, SqlParameter[] parameters)
+    {
+        throw new NotImplementedException();
     }
 }
 

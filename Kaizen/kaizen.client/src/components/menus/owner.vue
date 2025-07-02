@@ -9,7 +9,7 @@
     <h5>Menu</h5>
 
     <div class="menu d-flex flex-column" v-if="company_pk && !is_company_deleted">
-      <router-link class="button" to="/landing-page">
+      <router-link class="button" to="/dashboard-owner">
         <span class="material-icons">apartment</span>
         <span class="text">Inicio</span>
       </router-link>
@@ -48,10 +48,10 @@
           <router-link class="sub-button" :to="`/reports/historicrange/`">
             <span class="text">Reporte de Planillas por Rango</span>
           </router-link>
-          <router-link class="sub-button" :to="`/reports/companyhistoric/${company_pk}`">
+          <router-link class="sub-button" :to="`/reports/companieshistoric`">
             <span class="text">Reporte de Planillas Historico</span>
           </router-link>
-          <router-link class="sub-button" :to="`/reports/companyemployees/${company_pk}`">
+          <router-link class="sub-button" :to="`/reports/employeeTotal`">
             <span class="text">Reporte de Planillas de Empleados</span>
           </router-link>
         </div>
@@ -63,10 +63,11 @@
           <router-link class="popup-button" :to="`/reports/historicrange/`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas por Rango</span>
           </router-link>
-          <router-link class="popup-button" :to="`/reports/companyhistoric/${company_pk}`" @click="CloseReportsPopup">
+
+          <router-link class="popup-button" :to="`/reports/companieshistoric`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas Historico</span>
           </router-link>
-          <router-link class="popup-button" :to="`/reports/companyemployees/${company_pk}`" @click="CloseReportsPopup">
+          <router-link class="popup-button" :to="`/reports/employeeTotal`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas de Empleados</span>
           </router-link>
           <button class="btn btn-primary" @click="deleteCompany">Borrar empresa</button>

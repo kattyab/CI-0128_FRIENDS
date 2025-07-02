@@ -1,5 +1,6 @@
 using Kaizen.Server.Application.Dtos.Reports;
 using Kaizen.Server.Application.Interfaces.Reports;
+using System.Threading.Tasks;
 
 namespace Kaizen.Server.Application.Services.Reports
 {
@@ -17,6 +18,10 @@ namespace Kaizen.Server.Application.Services.Reports
         private const decimal RateFCL = 0.0300m;
         private const decimal RateFondoPensionesComplementarias = 0.0050m;
         private const decimal RateINS = 0.0100m;
+
+        private const decimal RateEmployeeSEM = 0.0550m;
+        private const decimal RateEmployeeIVM = 0.0417m;
+        private const decimal RateEmployeeBancoPopular = 0.0100m;
 
         public PayrollReportsService(IReportsRepository reportsRepository)
         {
@@ -54,6 +59,44 @@ namespace Kaizen.Server.Application.Services.Reports
             report.FCL = totalSalarios * RateFCL;
             report.FondoPensionesComplementarias = totalSalarios * RateFondoPensionesComplementarias;
             report.INS = totalSalarios * RateINS;
+        }
+
+        public async Task<IEnumerable<EmployeePayrollReport>> ExecuteEmployeeAsync(Guid employeeId)
+        {
+            if (employeeId == Guid.Empty)
+                throw new ArgumentException("Employee ID cannot be empty", nameof(employeeId));
+
+            return await _reportsRepository.GetEmployeePayrollReportsByEmployeeAsync(employeeId);
+        }
+
+        public async Task<EmployeePayrollReport> CalculateOptionalDeductionsAsync(EmployeePayrollReport report)
+        {
+            var optionalDeductions = await _reportsRepository.GetOptionalDeductionsByPayrollAsync(report.PayrollID);
+            report.OptionalDeductions = optionalDeductions.ToList();
+            report.TotalOptionalDeductions = optionalDeductions.Sum(od => od.Amount);
+
+            return report;
+        }
+
+        public EmployeePayrollReport CalculateObligatoryDeductions(EmployeePayrollReport report)
+        {
+            ArgumentNullException.ThrowIfNull(report);
+
+            if (!IsServiciosProfesionales(report))
+            {
+                report.SEM = report.BruteSalary * RateEmployeeSEM;
+                report.IVM = report.BruteSalary * RateEmployeeIVM;
+                report.EmployeeAportacionBancoPopular = report.BruteSalary * RateEmployeeBancoPopular;
+
+                report.TotalObligatoryDeductions = report.SEM + report.IVM +
+                                                 report.EmployeeAportacionBancoPopular + report.IncomeTax;
+            }
+
+            return report;
+        }
+        private static bool IsServiciosProfesionales(EmployeePayrollReport report)
+        {
+            return report.ContractType == "Servicios Profesionales";
         }
     }
 }

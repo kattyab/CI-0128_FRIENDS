@@ -30,12 +30,12 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
 
             var benefits = new List<Benefit>();
             const string sql = @"
-                SELECT 
-                    ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
-                    IsPercentage, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
-                FROM dbo.Benefits
-                WHERE OfferedBy = @CompanyID AND IsAPI = 0;
-            ";
+        SELECT 
+            ID, Name, MinWorkDurationMonths, IsFixed, FixedValue,
+            IsPercentage, PercentageValue, IsFullTime, IsPartTime, IsByHours, IsByService
+        FROM dbo.Benefits
+        WHERE OfferedBy = @CompanyID;
+    ";
 
             using var command = context != null
                 ? new SqlCommand(sql, connectionToUse, context.Transaction)

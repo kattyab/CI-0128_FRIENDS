@@ -24,14 +24,11 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 
             try
             {
-                const string getEmployeeAndValidateQuery = @"
-            SELECT 
-                e.EmpId,
-                c.IsDeleted
-            FROM Employees e
-            INNER JOIN Users u ON e.PersonPK = u.PersonPK
-            INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
-            WHERE u.Email = @Email";
+                const string getEmployeeIdQuery = @"
+                    SELECT e.EmpId FROM Employees e
+                    INNER JOIN Users u ON e.PersonPK = u.PersonPK
+                    WHERE u.Email = @Email AND
+                          e.IsDeleted = 0";
 
                 Guid employeeId;
                 using (var getEmployeeCommand = new SqlCommand(getEmployeeAndValidateQuery, connection, transaction))
