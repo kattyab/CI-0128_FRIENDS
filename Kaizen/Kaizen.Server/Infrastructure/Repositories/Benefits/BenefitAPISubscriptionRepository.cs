@@ -1,6 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Kaizen.Server.Application.Commands.Benefits;
 using Kaizen.Server.Application.Interfaces.Benefits;
-using Kaizen.Server.Application.Commands.Benefits;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 {
@@ -23,22 +24,28 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 
             try
             {
-                const string getEmployeeIdQuery = @"
+                const string getEmployeeAndValidateQuery = @"
                     SELECT e.EmpId FROM Employees e
                     INNER JOIN Users u ON e.PersonPK = u.PersonPK
                     WHERE u.Email = @Email AND
                           e.IsDeleted = 0";
 
                 Guid employeeId;
-                using (var getEmployeeCommand = new SqlCommand(getEmployeeIdQuery, connection, transaction))
+                using (var getEmployeeCommand = new SqlCommand(getEmployeeAndValidateQuery, connection, transaction))
                 {
                     getEmployeeCommand.Parameters.AddWithValue("@Email", command.Email);
-                    var result = await getEmployeeCommand.ExecuteScalarAsync();
+                    using var reader = await getEmployeeCommand.ExecuteReaderAsync();
 
-                    if (result == null)
+                    if (!await reader.ReadAsync())
                         throw new InvalidOperationException("Employee not found with the provided email.");
 
-                    employeeId = (Guid)result;
+                    var isDeleted = reader.GetBoolean("IsDeleted");
+                    if (isDeleted)
+                    {
+                        return;
+                    }
+
+                    employeeId = reader.GetGuid("EmpId");
                 }
 
                 if (!string.IsNullOrEmpty(command.AssocName))

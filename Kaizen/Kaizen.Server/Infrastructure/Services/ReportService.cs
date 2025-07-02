@@ -13,6 +13,7 @@ using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Infrastructure.Repositories;
 using Kaizen.Server.Infrastructure.Repositories.Payroll;
 using System.Text;
+using Kaizen.Server.Application.Interfaces.Companies;
 
 namespace Kaizen.Server.Infrastructure.Services;
 

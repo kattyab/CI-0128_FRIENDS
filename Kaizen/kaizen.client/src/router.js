@@ -13,34 +13,34 @@ const router = createRouter({
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
         { path: 'dashboard-owner', name: 'dashboard-owner', component: () => import('./pages/dashboards/owner.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] }},
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/errors/403.vue'), meta: { public: true } },
-        { path: 'company/edit', name: 'Company Edit', component: () => import('./pages/company/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
+        { path: 'company/edit', name: 'Company Edit', component: () => import('./pages/company/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'], requiresCompanyActive: true } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companies/:id', name: 'Show Company', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
-        { path: 'companies/:id/edit', name: 'Edit Company', component: () => import('./pages/companies/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
+        { path: 'companies/:id/edit', name: 'Edit Company', component: () => import('./pages/companies/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'], requiresCompanyActive: true } },
         { path: 'companieslist', name: 'CompaniesList', component: () => import('./pages/companies/companiesList.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
         { path: 'companieslist/:id', name: 'Companies Show', component: () => import('./pages/companies/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Superadmin'] } },
         { path: 'companyemployees', name: 'Companies Employees', component: () => import('./pages/employees/ByCompanyIndex.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
         { path: 'employees', name: 'Employees Index', component: () => import('./pages/employees/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
-        { path: 'employees/register', name: 'Register Employee', component: () => import('./pages/employees/register.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'employees/register', name: 'Register Employee', component: () => import('./pages/employees/register.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'], requiresCompanyActive: true } },
         { path: 'employees/:id', name: 'Employee Details', component: () => import('./pages/employees/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
-        { path: 'employees/:id/edit', name: 'Employee Edit', component: () => import('./pages/employees/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'] } },
+        { path: 'employees/:id/edit', name: 'Employee Edit', component: () => import('./pages/employees/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', 'Superadmin'], requiresCompanyActive: true } },
         { path: 'review-hours', name: 'ReviewHours', component: () => import('./pages/review-hours.vue'), meta: { requiresAuth: true, requiredRoles: ['Supervisor'] } },
         { path: 'benefits', name: 'Benefits List', component: () => import('./pages/benefits/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
-        { path: 'benefits/create', name: 'Create Benefit', component: () => import('./pages/benefits/create.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'benefits/create', name: 'Create Benefit', component: () => import('./pages/benefits/create.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'], requiresCompanyActive: true } },
         { path: 'benefits/:id', name: 'Show Benefit', component: () => import('./pages/benefits/show.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
-        { path: 'benefits/:id/edit', name: 'Edit Benefit', component: () => import('./pages/benefits/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
+        { path: 'benefits/:id/edit', name: 'Edit Benefit', component: () => import('./pages/benefits/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'], requiresCompanyActive: true } },
         { path: 'benefits/subscribe', name: 'Benefit Subscription', component: () => import('./pages/benefits/subscribe.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Supervisor', 'Empleado'] } },
         { path: 'company', name: 'Company', component: () => import('./pages/companies/company.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño'] } },
-        { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true } },
         { path: 'dashboardemployee', name: 'Dashboard Employee', component: () => import('./pages/employees/DashboardEmployee.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado', 'Supervisor']} },
-        { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] }, },
         { path: '/reports/company/:id', name: 'Detailed Owner Payroll', component: () => import('./pages/reports/DetailedOwnerPayroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
         { path: '/reports/historicrange', name: 'Payroll Historic Range', component: () => import('./pages/reports/HistoricRange.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
         { path: '/reports/employeeTotal', name: 'Payroll Employee Total', component: () => import('./pages/reports/EmployeeTotal.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
         { path: '/reports/companieshistoric', name: 'Companies Historic Payroll', component: () => import('./pages/reports/CompaniesHistoric.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin', 'Dueño'] } },
         { path: 'employerlist', name: 'EmployerList', component: () => import('./pages/companies/EmployerList.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
-        { path: '/reports/employee/:id', name: 'Detailed Employee Paystub', component: () => import('./pages/reports/DetailedEmployeePayStub.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado', 'Supervisor'] } }
-
+        { path: '/reports/employee/:id', name: 'Detailed Employee Paystub', component: () => import('./pages/reports/DetailedEmployeePayStub.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado', 'Supervisor'] } },
+        { path: 'registerhours', name: 'Register Hours', component: () => import('./pages/employees/registerHours.vue'), meta: { requiresAuth: true, requiredRoles: ['Empleado'], requiresRegistersHours: true, requiresCompanyActive: true } },
+        { path: 'payroll',name: 'Payroll',component: () => import('./pages/payroll/payroll.vue'), meta: { requiresAuth: true, requiredRoles: ['Administrador', 'Dueño', ] },
+        },
       ]
     },
     {
@@ -66,6 +66,7 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.meta.requiresAuth;
   const requiredRoles = to.meta.requiredRoles;
   const requiresRegistersHours = to.meta.requiresRegistersHours;
+  const requiresCompanyActive = to.meta.requiresCompanyActive;
 
   if (isPublic || !requiresAuth) return next();
 
@@ -85,6 +86,15 @@ router.beforeEach(async (to, from, next) => {
         return next('/unauthorized');
       }
     }
+
+    if (requiresCompanyActive) {
+      const isCompanyDeleted = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/is-company-deleted`, { withCredentials: true });
+      if (isCompanyDeleted.value) {
+        return next('/unauthorized');
+      }
+    }
+
+
 
     next();
   } catch {

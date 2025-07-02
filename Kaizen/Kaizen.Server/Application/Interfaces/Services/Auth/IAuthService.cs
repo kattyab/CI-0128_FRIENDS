@@ -8,4 +8,5 @@ public interface IAuthService
     public AuthUserDto GetAuthUser();
     public Guid GetAuthUserCompanyPK();
     public Guid GetAuthUserEmployeePK();
+    public bool GetIsCompanyDeleted();
 }

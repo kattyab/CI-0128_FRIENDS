@@ -173,6 +173,30 @@ namespace Kaizen.Server.Infrastructure.Repositories
             return (Guid)empIdObj;
         }
 
+        public bool GetIsCompanyDeleted(Guid companyPK)
+        {
+            const string commandText = @"
+        SELECT IsDeleted
+        FROM Companies c
+        WHERE c.CompanyPK = @CompanyPK;";
+
+            SqlParameter[] parameters = [
+                new SqlParameter("@CompanyPK", companyPK)
+            ];
+
+            object result = SqlHelper.ExecuteScalar(this._connectionString,
+                commandText,
+                CommandType.Text,
+                parameters);
+
+            if (result == null || result == DBNull.Value)
+            {
+                throw new Exception("Company not found.");
+            }
+
+            return (bool)result;
+        }
+
         private static readonly HashSet<string> AuthorizedRoles = new()
         {
             "Empleado",

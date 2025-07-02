@@ -2,6 +2,7 @@
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Dtos.Companies;
 using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Application.Interfaces.Companies;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,17 @@ namespace Kaizen.Server.API.Controllers;
 [Route("api/[controller]")]
 public class CompaniesController(
     IAuthService authService,
-    ICompaniesRepository companiesRepository) : ControllerBase
+    ICompaniesRepository companiesRepository,
+    ICompaniesService companiesService) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
     private readonly ICompaniesRepository _companiesRepository = companiesRepository;
+    private readonly ICompaniesService _companiesService = companiesService;
 
     [HttpGet("")]
     public IActionResult Index()
     {
         List<CompanyDto> companies = this._companiesRepository.GetCompanies();
-
         return this.Ok(companies);
     }
 
@@ -29,12 +31,10 @@ public class CompaniesController(
     public IActionResult Show(Guid companyPK)
     {
         CompanyDto? company = this._companiesRepository.GetCompany(companyPK);
-
         if (company == null)
         {
             return this.NotFound();
         }
-
         return this.Ok(company);
     }
 
@@ -49,9 +49,7 @@ public class CompaniesController(
                 {
                     return this.BadRequest(this.ModelState);
                 }
-
                 this._companiesRepository.UpdateCompany(companyPK, companyEditDto);
-
                 return this.Ok();
             }
             catch (Exception)
@@ -63,7 +61,6 @@ public class CompaniesController(
         {
             // Ignore, return not found if any error occurs
         }
-
         return this.NotFound();
     }
 
@@ -78,10 +75,8 @@ public class CompaniesController(
                 {
                     return this.BadRequest(this.ModelState);
                 }
-
                 Guid companyPK = this._authService.GetAuthUserCompanyPK();
                 this._companiesRepository.UpdateCompany(companyPK, companyEditDto);
-
                 return this.Ok();
             }
             catch (Exception)
@@ -93,7 +88,33 @@ public class CompaniesController(
         {
             // Ignore, return not found if any error occurs
         }
+        return this.NotFound();
+    }
 
+    [HttpDelete("delete")]
+    public IActionResult DeleteCompany()
+    {
+        try
+        {
+            try
+            {
+                if (!this.ModelState.IsValid)
+                {
+                    return this.BadRequest(this.ModelState);
+                }
+                Guid companyPK = this._authService.GetAuthUserCompanyPK();
+                this._companiesService.DeleteCompanyAsync(companyPK);
+                return this.Ok();
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+        catch (Exception)
+        {
+            // Ignore
+        }
         return this.NotFound();
     }
 }

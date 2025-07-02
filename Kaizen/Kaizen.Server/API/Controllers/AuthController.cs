@@ -25,6 +25,23 @@ public class AuthController(IAuthService authService, UserInfoRepository userInf
         return Ok(userInfo);
     }
 
+    [HttpGet("is-company-deleted")]
+    public IActionResult GetIsCompanyDeleted()
+    {
+        if (!authService.IsAuthenticated())
+            return Unauthorized(new { message = "Usuario no autenticado." });
+        try
+        {
+            var isCompanyDeleted = authService.GetIsCompanyDeleted();
+
+            return Ok(isCompanyDeleted);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener la compañía", error = ex.Message });
+        }
+    }
+
     [HttpGet("")]
     public IActionResult GetCurrentUser()
     {

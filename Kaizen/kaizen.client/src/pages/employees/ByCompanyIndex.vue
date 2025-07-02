@@ -133,5 +133,9 @@ onMounted(async () => {
 .btn-primary {
   background-color: #003c63;
   border-color: #003c63;
-}
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+  }
 </style>

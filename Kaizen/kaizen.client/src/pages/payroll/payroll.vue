@@ -94,6 +94,7 @@
 
 <script setup>
   import { ref, computed, onMounted, watch } from "vue";
+  import axios from "axios";
 
   const currentUser = ref("");
   const companyId = ref("");
@@ -137,26 +138,32 @@
   const periodAlreadyExists = ref(false);
 
   onMounted(async () => {
-    const auth = await fetch("/api/login/authenticate", { credentials: "include" });
-    if (auth.ok) {
-      currentUser.value = (await auth.json()).email ?? "usuario@local";
+    const auth = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/login/authenticate`,
+      { withCredentials: true }
+    );
+    if (auth.status === 200) {
+      currentUser.value = auth.data.email ?? "usuario@local";
     }
 
-    const pay = await fetch("/api/login/payroll-info", { credentials: "include" });
-    if (pay.ok) {
-      const { companyId: id, letter } = await pay.json();
+    const pay = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/login/payroll-info`,
+      { withCredentials: true }
+    );
+    if (pay.status === 200) {
+      const { companyId: id, letter } = pay.data;
       companyId.value = id;
       type.value = { W: "weekly", B: "biweekly", M: "monthly" }[letter] ?? "";
       locked.value = true;
     }
 
     if (companyId.value) {
-      const histRes = await fetch(
-        `/api/payroll/history?companyId=${companyId.value}`,
-        { credentials: "include" }
+      const histRes = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/payroll/history?companyId=${companyId.value}`,
+        { withCredentials: true }
       );
-      if (histRes.ok) {
-        history.value = await histRes.json();
+      if (histRes.status === 200) {
+        history.value = histRes.data;
         history.value.forEach((r) => existingPeriods.value.add(r.period));
       }
     }
@@ -224,26 +231,24 @@
       endISO = `${y}-${m}-${lastOfMonth(+y, +m - 1).toString().padStart(2, "0")}`;
     }
 
-    const res = await fetch("/api/payroll/process", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/payroll/process`,
+      {
         email: currentUser.value,
         companyId: companyId.value,
         start: `${startISO}T00:00:00`,
         end: `${endISO}T23:59:59`,
         type: type.value,
-      }),
-    });
+      },
+      { withCredentials: true }
+    );
 
-    if (!res.ok) {
-      const text = await res.text();
-      alert(text);
+    if (res.status !== 200) {
+      alert(res.data);
       return;
     }
 
-    const data = await res.json();
+    const data = res.data;
 
     const newRow = {
       id: Date.now(),

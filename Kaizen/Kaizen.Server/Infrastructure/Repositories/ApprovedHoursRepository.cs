@@ -21,6 +21,14 @@ public class ApprovedHoursRepository : IApprovedHoursRepository
     public void InsertApprovedHour(ApprovedHoursDto dto)
     {
         const string commandText = @"
+            IF EXISTS (
+            SELECT 1 
+            FROM Employees e
+            INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
+            WHERE e.PersonPK = @EmpID 
+            AND c.IsDeleted = 0
+        )
+        BEGIN
             INSERT INTO ApprovedHours (
                 ApprovalID,
                 EmpID,
@@ -40,7 +48,8 @@ public class ApprovedHoursRepository : IApprovedHoursRepository
                 NULL,
                 @IsSentForApproval,
                 NULL
-            );";
+            );
+        END";
 
         SqlParameter[] parameters = [
             new("@EmpID", SqlDbType.UniqueIdentifier) { Value = dto.EmpID },

@@ -18,34 +18,43 @@ namespace Kaizen.Server.Infrastructure.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand(@"
-SELECT DISTINCT
-    c.CompanyPK,
-    c.CompanyID,
-    CONCAT(po.Name, ' ', po.LastName) AS OwnerName,
-    c.CompanyName,
-    c.BrandName,
-    c.Type,
-    c.FoundationDate,
-    c.MaxBenefits,
-    c.WebPage,
-    c.Description,
-    c.PO,
-    c.Province,
-    c.Canton,
-    c.Distrito,
-    c.OtherSigns,
-    c.Logo
-FROM Companies c
-INNER JOIN Persons po ON c.OwnerPK = po.PersonPK
-
-INNER JOIN Users u ON u.Email = @Email
-INNER JOIN Persons pu ON u.PersonPK = pu.PersonPK
-
-LEFT JOIN Companies co ON c.CompanyPK = co.CompanyPK AND c.OwnerPK = pu.PersonPK
-
-LEFT JOIN Admins a ON a.AdminPK = pu.PersonPK AND a.CompanyPK = c.CompanyPK
-
-WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL;
+IF EXISTS (
+    SELECT 1 
+    FROM Companies c
+    INNER JOIN Users u ON u.Email = @Email
+    INNER JOIN Persons pu ON u.PersonPK = pu.PersonPK
+    LEFT JOIN Companies co ON c.CompanyPK = co.CompanyPK AND c.OwnerPK = pu.PersonPK
+    LEFT JOIN Admins a ON a.AdminPK = pu.PersonPK AND a.CompanyPK = c.CompanyPK
+    WHERE (co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL)
+    AND c.IsDeleted = 0
+)
+BEGIN
+    SELECT DISTINCT
+        c.CompanyPK,
+        c.CompanyID,
+        CONCAT(po.Name, ' ', po.LastName) AS OwnerName,
+        c.CompanyName,
+        c.BrandName,
+        c.Type,
+        c.FoundationDate,
+        c.MaxBenefits,
+        c.WebPage,
+        c.Description,
+        c.PO,
+        c.Province,
+        c.Canton,
+        c.Distrito,
+        c.OtherSigns,
+        c.Logo
+    FROM Companies c
+    INNER JOIN Persons po ON c.OwnerPK = po.PersonPK
+    INNER JOIN Users u ON u.Email = @Email
+    INNER JOIN Persons pu ON u.PersonPK = pu.PersonPK
+    LEFT JOIN Companies co ON c.CompanyPK = co.CompanyPK AND c.OwnerPK = pu.PersonPK
+    LEFT JOIN Admins a ON a.AdminPK = pu.PersonPK AND a.CompanyPK = c.CompanyPK
+    WHERE (co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL)
+    AND c.IsDeleted = 0
+END;
 ", connection);
 
 
