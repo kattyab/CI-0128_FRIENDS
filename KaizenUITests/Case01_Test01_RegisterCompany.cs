@@ -22,10 +22,18 @@ namespace UIAutomationTest
         {
             _driver.Navigate().GoToUrl("https://localhost:55281/auth/register-company");
 
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.FindElement(By.Id("brandName")));
+
             // Completar datos de empresa
             _driver.FindElement(By.Id("brandName")).SendKeys("Empresa PI");
             _driver.FindElement(By.Id("cedulaJuridica")).SendKeys("3-102-242458");
             _driver.FindElement(By.Id("nombreEmpresa")).SendKeys("Empresa PI S.A.");
+
+            var cicloPagoSelect = wait.Until(driver => driver.FindElements(By.CssSelector("select.form-select"))[0]);
+            var selectElement = new SelectElement(cicloPagoSelect);
+            selectElement.SelectByValue("M");
+
             _driver.FindElement(By.Id("province")).SendKeys("San José");
             _driver.FindElement(By.Id("canton")).SendKeys("Montes de Oca");
             _driver.FindElement(By.Id("district")).SendKeys("San Pedro");
@@ -38,7 +46,7 @@ namespace UIAutomationTest
             _driver.FindElement(By.Id("ownerLastName")).SendKeys("Pérez Sánchez");
 
             // Esperar y seleccionar sexo
-            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
             var labelSexo = wait.Until(driver =>
             {
                 try
@@ -75,6 +83,9 @@ namespace UIAutomationTest
             StringAssert.Contains("Empresa y dueño registrados correctamente.", mensaje);
 
             _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
+
+            wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.FindElement(By.Id("username")));
 
             _driver.FindElement(By.Id("username")).SendKeys("carlos@empresapi.cr");
             _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
