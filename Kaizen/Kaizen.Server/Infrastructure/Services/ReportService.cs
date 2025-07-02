@@ -51,7 +51,7 @@ public class ReportService : IReportService
             throw new ArgumentException($"Company with ID {companyId} not found.");
         }
 
-        List<EmployeeDto> employees = this._employeesRepository.GetEmployees(companyId);
+        List<EmployeeDto> employees = this._employeesRepository.GetEmployees(companyId, true);
 
         historicRangeInitialData.CompanyName = company.CompanyName;
         historicRangeInitialData.Employees = [.. employees
