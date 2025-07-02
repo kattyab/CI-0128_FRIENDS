@@ -9,7 +9,7 @@
     <h5>Menu</h5>
 
     <div class="menu">
-      <router-link class="button" to="/landing-page">
+      <router-link class="button" to="/dashboardemployee">
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
       </router-link>
@@ -22,11 +22,6 @@
       <router-link class="button" to="/benefits/subscribe">
         <span class="material-icons">workspace_premium</span>
         <span class="text">Suscribir Beneficios</span>
-      </router-link>
-
-      <router-link class="button" to="/dashboardemployee">
-        <span class="material-icons">dashboard</span>
-        <span class="text">Dashboard</span>
       </router-link>
 
       <div class="reports-section" ref="reports_section">

@@ -76,39 +76,43 @@ public class EmployeeDashboardRepository : IEmployeeDashboardRepository
 
         SqlParameter[] parameters = [new("@UserPK", SqlDbType.UniqueIdentifier) { Value = userPK }];
 
-        using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, commandText, CommandType.Text, parameters);
-        while (reader.Read())
+        try
         {
-            if (dashboard.UserPK == Guid.Empty)
+            using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, commandText, CommandType.Text, parameters);
+            while (reader.Read())
             {
-                dashboard.UserPK = reader.GetGuid(reader.GetOrdinal("UserPK"));
-                dashboard.PersonPK = reader.GetGuid(reader.GetOrdinal("PersonPK"));
-                dashboard.Name = reader.GetString(reader.GetOrdinal("Name"));
-                dashboard.LastName = reader.GetString(reader.GetOrdinal("LastName"));
-                dashboard.JobPosition = reader.GetString(reader.GetOrdinal("JobPosition"));
-                dashboard.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
-                dashboard.BruteSalary = reader.GetDecimal(reader.GetOrdinal("BruteSalary"));
-                dashboard.ContractType = reader.GetString(reader.GetOrdinal("ContractType"));
-                dashboard.EmpID = reader.GetGuid(reader.GetOrdinal("EmpID"));
-            }
-
-            if (!reader.IsDBNull(reader.GetOrdinal("PayrollID")))
-            {
-                dashboard.RecentPayrolls.Add(new PayrollInfoDto
+                if (dashboard.UserPK == Guid.Empty)
                 {
-                    PayrollID = reader.GetGuid(reader.GetOrdinal("PayrollID")),
-                    GeneralPayrollPK = reader.GetGuid(reader.GetOrdinal("GeneralPayrollPK")),
-                    ExecutedOn = reader.GetDateTime(reader.GetOrdinal("ExecutedOn")),
-                    IncomeTax = reader.GetDecimal(reader.GetOrdinal("IncomeTax")),
-                    CCSS = reader.GetDecimal(reader.GetOrdinal("CCSS")),
-                    BrutePaid = reader.GetDecimal(reader.GetOrdinal("BrutePaid")),
-                    NetPaid = reader.GetDecimal(reader.GetOrdinal("NetPaid")),
-                });
-            }
-        }
+                    dashboard.UserPK = !reader.IsDBNull(reader.GetOrdinal("UserPK")) ? reader.GetGuid(reader.GetOrdinal("UserPK")) : Guid.Empty;
+                    dashboard.PersonPK = !reader.IsDBNull(reader.GetOrdinal("PersonPK")) ? reader.GetGuid(reader.GetOrdinal("PersonPK")) : Guid.Empty;
+                    dashboard.Name = !reader.IsDBNull(reader.GetOrdinal("Name")) ? reader.GetString(reader.GetOrdinal("Name")) : string.Empty;
+                    dashboard.LastName = !reader.IsDBNull(reader.GetOrdinal("LastName")) ? reader.GetString(reader.GetOrdinal("LastName")) : string.Empty;
+                    dashboard.JobPosition = !reader.IsDBNull(reader.GetOrdinal("JobPosition")) ? reader.GetString(reader.GetOrdinal("JobPosition")) : string.Empty;
+                    dashboard.StartDate = !reader.IsDBNull(reader.GetOrdinal("StartDate")) ? reader.GetDateTime(reader.GetOrdinal("StartDate")) : DateTime.MinValue;
+                    dashboard.BruteSalary = !reader.IsDBNull(reader.GetOrdinal("BruteSalary")) ? reader.GetDecimal(reader.GetOrdinal("BruteSalary")) : 0m;
+                    dashboard.ContractType = !reader.IsDBNull(reader.GetOrdinal("ContractType")) ? reader.GetString(reader.GetOrdinal("ContractType")) : string.Empty;
+                    dashboard.EmpID = !reader.IsDBNull(reader.GetOrdinal("EmpID")) ? reader.GetGuid(reader.GetOrdinal("EmpID")) : Guid.Empty;
+                }
 
-        // Segundo query: deducciones opcionales
-        const string optionalQuery = @"
+                if (!reader.IsDBNull(reader.GetOrdinal("PayrollID")))
+                {
+                    var payroll = new PayrollInfoDto
+                    {
+                        PayrollID = reader.GetGuid(reader.GetOrdinal("PayrollID")),
+                        GeneralPayrollPK = !reader.IsDBNull(reader.GetOrdinal("GeneralPayrollPK")) ? reader.GetGuid(reader.GetOrdinal("GeneralPayrollPK")) : Guid.Empty,
+                        ExecutedOn = !reader.IsDBNull(reader.GetOrdinal("ExecutedOn")) ? reader.GetDateTime(reader.GetOrdinal("ExecutedOn")) : DateTime.MinValue,
+                        IncomeTax = !reader.IsDBNull(reader.GetOrdinal("IncomeTax")) ? reader.GetDecimal(reader.GetOrdinal("IncomeTax")) : 0m,
+                        CCSS = !reader.IsDBNull(reader.GetOrdinal("CCSS")) ? reader.GetDecimal(reader.GetOrdinal("CCSS")) : 0m,
+                        BrutePaid = !reader.IsDBNull(reader.GetOrdinal("BrutePaid")) ? reader.GetDecimal(reader.GetOrdinal("BrutePaid")) : 0m,
+                        NetPaid = !reader.IsDBNull(reader.GetOrdinal("NetPaid")) ? reader.GetDecimal(reader.GetOrdinal("NetPaid")) : 0m
+                    };
+
+                    dashboard.RecentPayrolls.Add(payroll);
+                }
+            }
+
+
+            const string optionalQuery = @"
             WITH UserInfo AS (
                 SELECT e.EmpID
                 FROM Users u
@@ -128,18 +132,29 @@ public class EmployeeDashboardRepository : IEmployeeDashboardRepository
             FROM OptionalDeductions od
             WHERE od.PayrollID = (SELECT PayrollID FROM RecentPayroll);";
 
-        SqlParameter[] parameters2 = [new("@UserPK", SqlDbType.UniqueIdentifier) { Value = userPK }];
-        using SqlDataReader reader2 = SqlHelper.ExecuteReader(_connectionString, optionalQuery, CommandType.Text, parameters2);
-        while (reader2.Read())
-        {
-            dashboard.OptionalDeductions.Add(new OptionalDeductionDto
+            SqlParameter[] parameters2 = [new("@UserPK", SqlDbType.UniqueIdentifier) { Value = userPK }];
+            using SqlDataReader reader2 = SqlHelper.ExecuteReader(_connectionString, optionalQuery, CommandType.Text, parameters2);
+            while (reader2.Read())
             {
-                OptionalDeductionName = reader2.GetString(reader2.GetOrdinal("Name")),
-                OptionalDeductionAmount = reader2.GetDecimal(reader2.GetOrdinal("Amount")),
-                OptionalDeductionPayrollId = reader2.GetGuid(reader2.GetOrdinal("PayrollID"))
-            });
+                if (!reader2.IsDBNull(reader2.GetOrdinal("Name")) && !reader2.IsDBNull(reader2.GetOrdinal("Amount")))
+                {
+                    dashboard.OptionalDeductions.Add(new OptionalDeductionDto
+                    {
+                        OptionalDeductionName = reader2.GetString(reader2.GetOrdinal("Name")),
+                        OptionalDeductionAmount = reader2.GetDecimal(reader2.GetOrdinal("Amount")),
+                        OptionalDeductionPayrollId = !reader2.IsDBNull(reader2.GetOrdinal("PayrollID")) ? reader2.GetGuid(reader2.GetOrdinal("PayrollID")) : Guid.Empty
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw new ApplicationException("Error al obtener el dashboard del empleado.", ex);
         }
 
         return dashboard;
     }
+
 }
+
