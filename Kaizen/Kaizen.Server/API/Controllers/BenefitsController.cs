@@ -2,6 +2,7 @@ using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Auth;
 using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Application.Interfaces.Services;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
 using Kaizen.Server.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace Kaizen.Server.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BenefitsController(IAuthService authService, IBenefitsRepository benefitsRepository) : ControllerBase
+    public class BenefitsController(IAuthService authService, IBenefitsRepository benefitsRepository,
+        IBenefitsService benefitsService) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
         private readonly IBenefitsRepository _benefitsRepository = benefitsRepository;
+        private readonly IBenefitsService _benefitsService = benefitsService;
 
         [HttpGet("")]
         public IActionResult Index()
@@ -101,7 +104,7 @@ namespace Kaizen.Server.API.Controllers
                     return this.BadRequest(this.ModelState);
                 }
 
-                this._benefitsRepository.DeleteBenefit(guid);
+                this._benefitsService.DeleteBenefit(guid);
 
                 return this.NoContent();
             }
@@ -127,7 +130,7 @@ namespace Kaizen.Server.API.Controllers
                 }
 
                 Guid companyPK = this._authService.GetAuthUserCompanyPK();
-                this._benefitsRepository.DeleteBenefit(id, companyPK);
+                this._benefitsService.DeleteBenefit(id, companyPK);
 
                 return this.NoContent();
             }

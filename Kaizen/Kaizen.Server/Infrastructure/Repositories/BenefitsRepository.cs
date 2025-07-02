@@ -210,38 +210,112 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 updateBenefitParameters);
         }
 
-        public void DeleteBenefit(Guid guid)
+        public void DeleteBenefit(Guid guid, SqlConnection connection, SqlTransaction transaction)
         {
             const string deleteBenefitCommandText = @"
-                DELETE Benefits
-                WHERE ID = @ID;";
+        DELETE Benefits
+        WHERE ID = @ID;";
 
-            SqlParameter[] deleteBenefitParameters = [
-                new SqlParameter("@ID", guid),
-            ];
-
-            SqlHelper.ExecuteNonQuery(this._connectionString,
-                deleteBenefitCommandText,
-                CommandType.Text,
-                deleteBenefitParameters);
+            using var command = new SqlCommand(deleteBenefitCommandText, connection, transaction);
+            command.Parameters.Add(new SqlParameter("@ID", guid));
+            command.ExecuteNonQuery();
         }
-        public void DeleteBenefit(int id, Guid CompanyPK)
+
+        public void DeleteBenefit(int id, Guid companyPK, SqlConnection connection, SqlTransaction transaction)
         {
             const string deleteBenefitCommandText = @"
-                DELETE OffersAPIs
-                WHERE ApiConfigId = @ID
-                AND CompanyPK = @CompanyPK;";
+        INSERT INTO Notifications (Description, NotificationDate, UserPK)
+        SELECT
+            CONCAT('La deducción de API ', ISNULL(adc.Name, 'seleccionada'), ' ya no está disponible para su empresa.'),
+            GETDATE(),
+            u.UserPK
+        FROM OffersAPIs oa
+        INNER JOIN ApiDeductionConfigs adc ON oa.ApiConfigId = adc.ID
+        INNER JOIN ChosenAPIs ca ON ca.ApiID = oa.ApiConfigId
+        INNER JOIN Employees e ON ca.EmployeePK = e.EmpId AND e.WorksFor = oa.CompanyPK
+        INNER JOIN Persons p ON e.PersonPK = p.PersonPK
+        INNER JOIN Users u ON p.PersonPK = u.PersonPK
+        WHERE oa.CompanyPK = @CompanyPK AND oa.ApiConfigId = @ID;
+        
+        -- Delete from ChosenAPIs for employees of Company
+        DELETE ca
+        FROM ChosenAPIs ca
+        INNER JOIN OffersAPIs oa ON ca.ApiID = oa.ApiConfigId
+        INNER JOIN Employees e ON ca.EmployeePK = e.EmpId AND e.WorksFor = oa.CompanyPK
+        WHERE oa.CompanyPK = @CompanyPK AND oa.ApiConfigId = @ID;";
 
-            SqlParameter[] deleteBenefitParameters = [
-                new SqlParameter("@ID", id),
-                new SqlParameter("@CompanyPK", CompanyPK),
-            ];
-
-            SqlHelper.ExecuteNonQuery(this._connectionString,
-                deleteBenefitCommandText,
-                CommandType.Text,
-                deleteBenefitParameters);
+            using var command = new SqlCommand(deleteBenefitCommandText, connection, transaction);
+            command.Parameters.Add(new SqlParameter("@ID", id));
+            command.Parameters.Add(new SqlParameter("@CompanyPK", companyPK));
+            command.ExecuteNonQuery();
         }
+
+        public void SoftDeleteAndNotifyBenefit(Guid benefitId, SqlConnection connection, SqlTransaction transaction)
+        {
+            const string softDeleteCommandText = @"
+        UPDATE Benefits
+        SET IsOut = 1
+        WHERE ID = @BenefitID;
+
+        DECLARE @BenefitName NVARCHAR(100);
+        SELECT @BenefitName = Name FROM Benefits WHERE ID = @BenefitID; 
+
+        INSERT INTO Notifications (Description, NotificationDate, UserPK)
+        SELECT
+            'El beneficio ' + @BenefitName + ' ha dejado de ofrecerse. Podrá seguir disfrutándolo hasta el fin de este mes.',
+            GETDATE(),
+            u.UserPK
+        FROM ChosenBenefits cb
+        INNER JOIN Employees e ON cb.EmployeeID = e.EmpId
+        INNER JOIN Persons p ON e.PersonPK = p.PersonPK
+        INNER JOIN Users u ON p.PersonPK = u.PersonPK
+        WHERE cb.BenefitID = @BenefitID";
+
+            using var command = new SqlCommand(softDeleteCommandText, connection, transaction);
+            command.Parameters.Add(new SqlParameter("@BenefitID", benefitId));
+            command.ExecuteNonQuery();
+        }
+
+        public void FullDeleteAndNotifyBenefit(Guid benefitId, SqlConnection connection, SqlTransaction transaction)
+        {
+            const string fullDeleteCommandText = @"
+        DECLARE @BenefitName NVARCHAR(100);
+        SELECT @BenefitName = Name FROM Benefits WHERE ID = @BenefitID;
+
+        INSERT INTO Notifications (Description, NotificationDate, UserPK)
+        SELECT
+            'El beneficio ' + @BenefitName + ' ha dejado de ofrecerse.',
+            GETDATE(),
+            u.UserPK
+        FROM ChosenBenefits cb
+        INNER JOIN Employees e ON cb.EmployeeID = e.EmpId
+        INNER JOIN Persons p ON e.PersonPK = p.PersonPK
+        INNER JOIN Users u ON p.PersonPK = u.PersonPK
+        WHERE cb.BenefitID = @BenefitID
+
+        DELETE FROM ChosenBenefits WHERE BenefitID = @BenefitID
+        DELETE FROM Benefits WHERE ID = @BenefitID";
+
+            using var command = new SqlCommand(fullDeleteCommandText, connection, transaction);
+            command.Parameters.Add(new SqlParameter("@BenefitID", benefitId));
+            command.ExecuteNonQuery();
+        }
+
+        public bool GetIfBenefitIsSubscribed(Guid? benefitID, SqlConnection connection, SqlTransaction transaction)
+        {
+            const string checkSubscriptionCommandText = @"
+        SELECT CASE WHEN EXISTS (
+            SELECT 1 FROM ChosenBenefits WHERE BenefitID = @BenefitID
+        ) THEN 1 ELSE 0
+        END;";
+
+            using var command = new SqlCommand(checkSubscriptionCommandText, connection, transaction);
+            command.Parameters.Add(new SqlParameter("@BenefitID", benefitID));
+
+            var result = command.ExecuteScalar();
+            return result is int intResult && intResult == 1;
+        }
+
         private bool GetIfBenefitIsSubscribed(Guid? benefitID)
         {
             const string checkSubscriptionCommandText = @"
@@ -257,6 +331,21 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 CommandType.Text,
                 checkSubscriptionParameters);
             return isSubscribedResult is int && (int)isSubscribedResult == 1;
+        }
+
+        public bool GetIfBenefitIsOnPayroll(Guid? benefitID, SqlConnection connection, SqlTransaction transaction)
+        {
+            const string checkPayrollCommandText = @"
+        SELECT CASE WHEN EXISTS (
+            SELECT 1 FROM OptionalDeductions WHERE BenefitID = @BenefitID
+        ) THEN 1 ELSE 0
+        END;";
+
+            using var command = new SqlCommand(checkPayrollCommandText, connection, transaction);
+            command.Parameters.Add(new SqlParameter("@BenefitID", benefitID));
+
+            var result = command.ExecuteScalar();
+            return result is int intResult && intResult == 1;
         }
     }
 }
