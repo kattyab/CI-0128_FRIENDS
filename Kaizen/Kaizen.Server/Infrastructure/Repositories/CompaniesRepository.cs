@@ -381,15 +381,12 @@ public class CompaniesRepository : ICompaniesRepository
 
     public async Task<bool> IsTherePayrollAsync(Guid companyPK, TransactionContext context)
     {
-        using var connectionToUse = context.Connection;
-        await EnsureOpenAsync(connectionToUse);
-
         SqlParameter[] checkParameters = [
             new SqlParameter("@CompanyPK", companyPK),
             new SqlParameter("@IsTherePayroll", SqlDbType.Bit) { Direction = ParameterDirection.Output }
         ];
 
-        using SqlCommand checkCommand = new("sp_IsTherePayroll", connectionToUse, context.Transaction);
+        using SqlCommand checkCommand = new("sp_IsTherePayroll", context.Connection, context.Transaction);
         checkCommand.CommandType = CommandType.StoredProcedure;
         checkCommand.Parameters.AddRange(checkParameters);
 
@@ -400,14 +397,11 @@ public class CompaniesRepository : ICompaniesRepository
 
     public async Task SoftDeleteCompanyAsync(Guid companyPK, TransactionContext context)
     {
-        using var connectionToUse = context.Connection;
-        await EnsureOpenAsync(connectionToUse);
-
         SqlParameter[] deleteParameters = [
             new SqlParameter("@CompanyPK", companyPK)
         ];
 
-        using SqlCommand deleteCommand = new("sp_SoftDeleteCompany", connectionToUse, context.Transaction);
+        using SqlCommand deleteCommand = new("sp_SoftDeleteCompany", context.Connection, context.Transaction);
         deleteCommand.CommandType = CommandType.StoredProcedure;
         deleteCommand.Parameters.AddRange(deleteParameters);
 
@@ -416,14 +410,11 @@ public class CompaniesRepository : ICompaniesRepository
 
     public async Task FullDeleteCompanyAsync(Guid companyPK, TransactionContext context)
     {
-        using var connectionToUse = context.Connection;
-        await EnsureOpenAsync(connectionToUse);
-
         SqlParameter[] deleteParameters = [
             new SqlParameter("@CompanyPK", companyPK)
         ];
 
-        using SqlCommand deleteCommand = new("sp_FullDeleteCompany", connectionToUse, context.Transaction);
+        using SqlCommand deleteCommand = new("sp_FullDeleteCompany", context.Connection, context.Transaction);
         deleteCommand.CommandType = CommandType.StoredProcedure;
         deleteCommand.Parameters.AddRange(deleteParameters);
 

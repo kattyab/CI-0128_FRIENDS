@@ -18,6 +18,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand(@"
+IF (SELECT IsDeleted FROM Companies WHERE CompanyPK = @CompanyPK) = 0
+BEGIN
 SELECT DISTINCT
     c.CompanyPK,
     c.CompanyID,
@@ -45,7 +47,8 @@ LEFT JOIN Companies co ON c.CompanyPK = co.CompanyPK AND c.OwnerPK = pu.PersonPK
 
 LEFT JOIN Admins a ON a.AdminPK = pu.PersonPK AND a.CompanyPK = c.CompanyPK
 
-WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL;
+WHERE co.CompanyPK IS NOT NULL OR a.CompanyPK IS NOT NULL
+END;
 ", connection);
 
 

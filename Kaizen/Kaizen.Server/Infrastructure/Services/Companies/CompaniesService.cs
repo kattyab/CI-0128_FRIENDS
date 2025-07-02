@@ -29,7 +29,7 @@ namespace Kaizen.Server.Infrastructure.Services.Companies
             {
                 var isTherePayroll = await _companiesRepository.IsTherePayrollAsync(companyPK, transactionContext);
 
-                if (!isTherePayroll)
+                if (isTherePayroll)
                 {
                     await _companiesRepository.SoftDeleteCompanyAsync(companyPK, transactionContext);
                 }
