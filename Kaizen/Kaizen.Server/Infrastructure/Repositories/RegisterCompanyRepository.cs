@@ -37,9 +37,13 @@ namespace Kaizen.Server.Infrastructure.Repositories
                         INSERT INTO Users (UserPK, Email, PasswordHash, Active, Role, PersonPK)
                         VALUES (@UserPK, @Email, @PasswordHash, @Active, @Role, @PersonPK);
 
+                        INSERT INTO Owners (OwnerPK, IsDeleted)
+                        VALUES (@PersonPK, 0);
+
                         INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
                         VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
-                        ";
+                    ";
+
 
                     using SqlCommand cmd = new SqlCommand(insertSql, conn, transaction);
                     // Owner (Persona)

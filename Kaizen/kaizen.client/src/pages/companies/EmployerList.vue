@@ -5,21 +5,34 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th scope="col">Nombre de la empresa</th>
-            <th scope="col">Nombre del dueño</th>
-            <th scope="col">Segundo nombre del dueño</th>
-            <th scope="col">ID del dueño</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">ID</th>
+            <th scope="col">Email</th>
+            <th scope="col">En Planilla</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
-        <tbody class="table-group-divider">
-          <tr v-for="(company, index) in filteredCompanies" :key="index">
-            <td>{{ company.companyName || '---' }}</td>
-            <td>{{ company.name }}</td>
-            <td>{{ company.lastName }}</td>
-            <td>{{ company.id }}</td>
+
+
+        <tbody v-if="filteredEmployers.length === 0">
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              No hay empleadores para mostrar.
+            </td>
+          </tr>
+        </tbody>
+
+
+        <tbody class="table-group-divider" v-else>
+          <tr v-for="(employer, index) in filteredEmployers" :key="index">
+            <td>{{ employer.name }}</td>
+            <td>{{ employer.lastName }}</td>
+            <td>{{ employer.id }}</td>
+            <td>{{ employer.email || '---' }}</td>
+            <td>{{ employer.inCharge ? 'Sí' : 'No' }}</td>
             <td>
-              <button class="btn btn-danger" @click="confirmDelete(company)">
+              <button class="btn btn-danger" @click="confirmDelete(employer)">
                 <span class="material-icons">delete</span>
               </button>
             </td>
@@ -28,7 +41,7 @@
       </table>
     </div>
 
-    <!-- Modal de confirmación -->
+
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" ref="modal">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -37,7 +50,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
           <div class="modal-body">
-            ¿Estás seguro de que deseas eliminar al empleador <strong>{{ selectedCompany?.name }} {{ selectedCompany?.lastName }}</strong>?
+            ¿Estás seguro de que deseas eliminar al empleador
+            <strong>{{ selectedEmployer?.name }} {{ selectedEmployer?.lastName }}</strong>?
             <br />
             Esta acción no se puede deshacer.
           </div>
@@ -51,6 +65,7 @@
   </div>
 </template>
 
+
 <script>
   import axios from 'axios';
   import { Modal } from 'bootstrap';
@@ -61,20 +76,20 @@
       return {
         search: '',
         ascendingOrder: true,
-        companies: [],
-        selectedCompany: null,
+        employers: [],
+        selectedEmployer: null,
         modalInstance: null,
       };
     },
     computed: {
-      filteredCompanies() {
-        return this.companies
-          .filter(company =>
-            (company.companyName || '').toLowerCase().includes(this.search.toLowerCase())
+      filteredEmployers() {
+        return this.employers
+          .filter(emp =>
+            (emp.name || '').toLowerCase().includes(this.search.toLowerCase())
           )
           .sort((a, b) => {
-            const nameA = (a.companyName || '').toLowerCase();
-            const nameB = (b.companyName || '').toLowerCase();
+            const nameA = (a.name || '').toLowerCase();
+            const nameB = (b.name || '').toLowerCase();
             return this.ascendingOrder
               ? nameA.localeCompare(nameB)
               : nameB.localeCompare(nameA);
@@ -85,50 +100,47 @@
       orderByName() {
         this.ascendingOrder = !this.ascendingOrder;
       },
-      confirmDelete(company) {
-        this.selectedCompany = company;
+      confirmDelete(employer) {
+        this.selectedEmployer = employer;
         this.modalInstance.show();
       },
       async handleDelete() {
-        const company = this.selectedCompany;
-        const ownerPK = company.ownerPK;
+        const employer = this.selectedEmployer;
+        const ownerPK = employer.ownerPK;
         const apiBase = `${import.meta.env.VITE_API_URL}/api/DeleteEmployer`;
 
         try {
-          if (!company.companyPK) {
+          if (!employer.inCharge) {
             // Hard delete
             await axios.delete(`${apiBase}/${ownerPK}`, { withCredentials: true });
             alert('Empleador eliminado permanentemente.');
-          } else if (company.companyIsDeleted === true && company.paidBy) {
+          } else {
             // Soft delete
             await axios.put(`${apiBase}/${ownerPK}`, null, { withCredentials: true });
             alert('Empleador eliminado lógicamente.');
-          } else {
-            alert('No se puede eliminar este empleador. Asegúrate de que la compañía esté eliminada y tenga planillas.');
-            return;
           }
 
           this.modalInstance.hide();
-          this.selectedCompany = null;
-          this.loadCompanies();
+          this.selectedEmployer = null;
+          this.loadEmployers();
         } catch (error) {
           console.error('Error al eliminar empleador:', error);
           alert('Error al intentar eliminar el empleador.');
         }
       },
-      async loadCompanies() {
+      async loadEmployers() {
         try {
           const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/DeleteEmployer`, {
             withCredentials: true
           });
-          this.companies = response.data;
+          this.employers = response.data;
         } catch (error) {
           console.error('Error cargando empleadores:', error);
         }
       }
     },
     mounted() {
-      this.loadCompanies();
+      this.loadEmployers();
 
       const modalElement = this.$refs.modal;
       this.modalInstance = new Modal(modalElement, { backdrop: 'static' });
