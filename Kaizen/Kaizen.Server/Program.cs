@@ -1,3 +1,5 @@
+using Kaizen.Server.Application.Interfaces.Services.OwnerDashboard;
+using Kaizen.Server.Application.Services.OwnerDashboard;
 using Kaizen.Server.Application.Configuraton;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
@@ -134,6 +136,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<GeneralPayrollRepository>();
 builder.Services.AddScoped<OwnerDashboardRepository>();
+
+// Register OwnerDashboardService
+builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
 
 var app = builder.Build();
 
