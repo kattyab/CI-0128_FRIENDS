@@ -89,13 +89,21 @@
       async login() {
         this.error = '';
         this.success = '';
+
         try {
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/login/login`, {
+          await axios.post(`${import.meta.env.VITE_API_URL}/api/login/login`, {
             email: this.username,
             password: this.password
           });
 
-          this.$router.push('/landing-page');
+          const authRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/Login/authenticate`, { withCredentials: true });
+          const role = authRes.data.role?.trim();
+
+          if (role === 'Supervisor' || role === 'Empleado') {
+            this.$router.push('/dashboardemployee');
+          } else {
+            this.$router.push('/landing-page');
+          }
         }
         catch (err) {
           if (!err.response) {
@@ -107,6 +115,7 @@
           }
         }
       }
+
     }
   };
 </script>

@@ -43,6 +43,11 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                 if (!string.IsNullOrEmpty(command.AssocName))
                 {
                     const string insertAssocNameQuery = @"
+                    IF EXISTS (SELECT 1 FROM EmployeeApiParameters WHERE ParameterKey = 'assocName' AND EmployeeId = @EmployeeId AND ApiConfigId = @ApiConfigId)
+                        UPDATE EmployeeApiParameters 
+                        SET ParameterValue = @ParameterValue
+                        WHERE ParameterKey = 'assocName' AND EmployeeId = @EmployeeId AND ApiConfigId = @ApiConfigId
+                    ELSE
                         INSERT INTO EmployeeApiParameters (EmployeeId, ApiConfigId, ParameterKey, ParameterValue)
                         VALUES (@EmployeeId, @ApiConfigId, 'assocName', @ParameterValue)";
 
@@ -57,8 +62,13 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                 if (!string.IsNullOrEmpty(command.Dependents))
                 {
                     const string insertDependentsQuery = @"
+                    IF EXISTS (SELECT 1 FROM EmployeeApiParameters WHERE ParameterKey = 'dependents' AND EmployeeId = @EmployeeId AND ApiConfigId = @ApiConfigId)
+                        UPDATE EmployeeApiParameters 
+                        SET ParameterValue = @ParameterValue
+                        WHERE ParameterKey = 'dependents' AND EmployeeId = @EmployeeId AND ApiConfigId = @ApiConfigId
+                    ELSE
                         INSERT INTO EmployeeApiParameters (EmployeeId, ApiConfigId, ParameterKey, ParameterValue)
-                        VALUES (@EmployeeId, @ApiConfigId, 'dependents', @ParameterValue)";
+                        VALUES (@EmployeeId, @ApiConfigId, 'assocName', @ParameterValue)";
 
                     using var dependentsCommand = new SqlCommand(insertDependentsQuery, connection, transaction);
                     dependentsCommand.Parameters.AddWithValue("@EmployeeId", employeeId);

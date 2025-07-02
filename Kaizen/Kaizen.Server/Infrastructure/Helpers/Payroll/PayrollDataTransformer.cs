@@ -39,7 +39,9 @@ namespace Kaizen.Server.Infrastructure.Helpers.Payroll
             var totalObligatoryDeductions = summaries.Sum(summary =>
                 summary.CCSSDeduction + summary.IncomeTax);
 
-            var totalLaborCharges = summaries.Sum(s => s.GrossSalary) * laborChargeRate;
+            var totalLaborCharges = summaries
+                .Where(s => s.ContractType != "Servicios Profesionales")
+                .Sum(s => s.GrossSalary) * laborChargeRate;
             var totalMoneyPaid = totalLaborCharges + summaries.Sum(s => s.GrossSalary);
 
             var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time");

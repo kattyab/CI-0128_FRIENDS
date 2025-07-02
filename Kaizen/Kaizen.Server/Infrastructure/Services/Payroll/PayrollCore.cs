@@ -41,7 +41,10 @@ namespace Kaizen.Server.Infrastructure.Services.Payroll
             result.Gross = payrollResults.Sum(p => p.GrossSalary);
             result.Net = payrollResults.Sum(p => p.NetSalary);
             result.Deductions = CalculateTotalDeductions(payrollResults);
-            result.SocialCharges = result.Gross * LaborChargeRate;
+            var grossForLaborCharges = payrollResults
+                .Where(p => p.ContractType != "Servicios Profesionales")
+                .Sum(p => p.GrossSalary);
+            result.SocialCharges = grossForLaborCharges * LaborChargeRate;
             result.Manager = request.Email;
             result.Period = $"{request.Start:yyyy-MM} → {request.End:yyyy-MM}";
             result.Type = request.Type;
