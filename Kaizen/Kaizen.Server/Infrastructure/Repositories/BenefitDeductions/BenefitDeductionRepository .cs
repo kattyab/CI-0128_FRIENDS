@@ -36,8 +36,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
         FROM dbo.Benefits
         WHERE OfferedBy = @CompanyID;
     ";
-            using var command = new SqlCommand(sql, _connection);
-            command.Parameters.AddWithValue("@CompanyID", companyID);
 
             using var command = context != null
                 ? new SqlCommand(sql, connectionToUse, context.Transaction)
