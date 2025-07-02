@@ -1,6 +1,7 @@
 using Kaizen.Server.API.Controllers;
 using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Infrastructure.Contexts;
 
 namespace Kaizen.Server.Application.Services.Payroll
 {
@@ -8,6 +9,7 @@ namespace Kaizen.Server.Application.Services.Payroll
     {
         private const int DefaultMonthlyDays = 30;
         private const int DefaultBiweeklyDays = 15;
+        private const string BiweeklyTypeDescription = "Biweekly";
         private readonly IDaysWorkedCalculator _daysWorkedCalculator;
         private readonly ISalaryCalculator _salaryCalculator;
         private readonly IDeductionAggregator _deductionAggregator;
@@ -22,10 +24,10 @@ namespace Kaizen.Server.Application.Services.Payroll
             _deductionAggregator = deductionAggregator;
         }
 
-        public async Task<PayrollSummary> CalculatePayrollAsync(EmployeePayroll employee, PayrollRequest request)
+        public async Task<PayrollSummary> CalculatePayrollAsync(EmployeePayroll employee, PayrollRequest request, PayrollTransactionContext context = null)
         {
             var daysWorked = _daysWorkedCalculator.Calculate(employee, request.Start, request.End);
-            var isBiweekly = employee.PayrollTypeDescription.Equals("Biweekly", StringComparison.OrdinalIgnoreCase);
+            var isBiweekly = employee.PayrollTypeDescription.Equals(BiweeklyTypeDescription, StringComparison.OrdinalIgnoreCase);
             var totalDays = isBiweekly ? DefaultBiweeklyDays : DefaultMonthlyDays;
             var isFullPeriod = daysWorked == totalDays;
 
@@ -33,9 +35,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             var salaryForDeductions = _salaryCalculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             var (api, benefit, ccss, income, total) = await _deductionAggregator.GetAllDeductionsAsync(
-                request.CompanyId, employee, proportional, isFullPeriod, salaryForDeductions);
-
-            Console.WriteLine(employee.ContractType);
+                request.CompanyId, employee, proportional, isFullPeriod, salaryForDeductions, context);
 
             return new PayrollSummary
             {

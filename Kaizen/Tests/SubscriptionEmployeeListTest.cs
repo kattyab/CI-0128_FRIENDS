@@ -1,4 +1,4 @@
-﻿using Kaizen.Server.Application.Dtos.Benefits;
+using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Queries.Benefits;
 using Kaizen.Server.API.Controllers;
 using MediatR;
@@ -77,9 +77,9 @@ namespace Kaizen.Server.Tests.API.Controllers
             var returnedBenefits = okResult.Value as List<BenefitEmployeeListDto>;
             Assert.IsNotNull(returnedBenefits);
             Assert.AreEqual(3, returnedBenefits.Count);
-            Assert.AreEqual("Health Insurance", returnedBenefits[0].Name);
-            Assert.AreEqual("API Deduction", returnedBenefits[1].Name);
-            Assert.AreEqual("Fixed Bonus", returnedBenefits[2].Name);
+            Assert.AreEqual("BenefitOne", returnedBenefits[0].Name);
+            Assert.AreEqual("MediSmart", returnedBenefits[1].Name);
+            Assert.AreEqual("Gym", returnedBenefits[2].Name);
 
             _mockMediator.Verify(m => m.Send(It.Is<BenefitEmployeeListQuery>(q => q.Email == email), It.IsAny<CancellationToken>()), Times.Once);
         }

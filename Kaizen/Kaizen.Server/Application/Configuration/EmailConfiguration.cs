@@ -1,4 +1,4 @@
-namespace Kaizen.Server.Application.Configuraton;
+namespace Kaizen.Server.Application.Configuration;
 
 public class EmailConfiguration
 {

@@ -13,7 +13,6 @@
         </button>
       </div>
 
-      <!--TODO: CLEAN OR ELIMINATE COMPLETELY THIS ERROR SHOWCASE-->
       <div class="mx-5 mb-3" v-if="errorMessage">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <strong>Error:</strong> {{ errorMessage }}
@@ -66,7 +65,6 @@
               </td>
               <td>{{ benefit.minimumMonths }}</td>
               <td>
-                <!--TODO: CLEAN unsubscribeBenefit(index) FUNCTIONALITY AS IT IS NOT SPRINT NEEDED-->
                 <button class="btn btn-outline-danger btn-sm"
                         @click="unsubscribeBenefit(index)"
                         :disabled="benefit.state === 'Expired' || isLoadingBenefits">
@@ -96,7 +94,6 @@
                 <p class="mt-2 text-muted">Cargando beneficios disponibles...</p>
               </div>
 
-              <!--TODO: CONTROL OR ELIMINATE COMPLETELY ERROR STATE-->
               <div v-else-if="availableBenefitsError" class="alert alert-danger">
                 <strong>Error:</strong> {{ availableBenefitsError }}
                 <button class="btn btn-outline-primary btn-sm ms-2" @click="loadAvailableBenefits">
@@ -202,7 +199,7 @@
                   </div>
                 </div>
 
-                <!-- Additional Input Section for API Benefits - MOVED HERE -->
+                <!-- Additional Input Section for API Benefits-->
                 <div v-if="requiresAdditionalInput" class="mb-4">
                   <div class="card">
                     <div class="card-header">
@@ -242,8 +239,6 @@
                       </div>
                     </div>
                   </div>
-
-                  <!--TODO: CHECK FOR ERRORS OR ELIMINATE COMPLETELY-->
                   <div v-if="inputValidationError" class="alert alert-warning mt-3">
                     <strong>Atención:</strong> {{ inputValidationError }}
                   </div>
@@ -302,122 +297,119 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import axios from 'axios';
+  import { ref, computed, onMounted, watch } from 'vue';
+  import axios from 'axios';
 
-// Backend-connected active benefits
-const activeBenefits = ref([]);
-const isLoadingBenefits = ref(false);
-const errorMessage = ref('');
+  // Backend-connected active benefits
+  const activeBenefits = ref([]);
+  const isLoadingBenefits = ref(false);
+  const errorMessage = ref('');
 
-// Available benefits for subscription
-const availableBenefits = ref([]);
-const isLoadingAvailableBenefits = ref(false);
-const availableBenefitsError = ref('');
+  // Available benefits for subscription
+  const availableBenefits = ref([]);
+  const isLoadingAvailableBenefits = ref(false);
+  const availableBenefitsError = ref('');
 
-const userData = ref(null);
+  const userData = ref(null);
 
-// Modal states
-const showSubscribeModal = ref(false);
-const showConfirmationModal = ref(false);
-const showSuccessModal = ref(false);
-const showUnsubscribeModal = ref(false);
-const isProcessingSubscription = ref(false);
+  // Modal states
+  const showSubscribeModal = ref(false);
+  const showConfirmationModal = ref(false);
+  const showSuccessModal = ref(false);
+  const showUnsubscribeModal = ref(false);
+  const isProcessingSubscription = ref(false);
 
-// Selection states
-const selectedBenefitIndex = ref(null);
-const benefitToUnsubscribe = ref(null);
-const benefitIndexToUnsubscribe = ref(null);
-const subscribedBenefitName = ref('');
-const maxBenefits = ref(0);
+  // Selection states
+  const selectedBenefitIndex = ref(null);
+  const benefitToUnsubscribe = ref(null);
+  const benefitIndexToUnsubscribe = ref(null);
+  const subscribedBenefitName = ref('');
+  const maxBenefits = ref(0);
 
 
-// Benefit calculation states
-const calculatedBenefitValue = ref(null);
-const isCalculatingBenefit = ref(false);
-const calculationError = ref('');
+  // Benefit calculation states
+  const calculatedBenefitValue = ref(null);
+  const isCalculatingBenefit = ref(false);
+  const calculationError = ref('');
 
-// API Benefit specific input states
-const assocName = ref('');
-const dependents = ref('');
+  // API Benefit specific input states
+  const assocName = ref('');
+  const dependents = ref('');
   const inputValidationError = ref('');
 
-const hasReachedMaxBenefits = computed(() => {
-  return activeBenefits.value.length >= maxBenefits.value && maxBenefits.value > 0;
-});
+  const hasReachedMaxBenefits = computed(() => {
+    return activeBenefits.value.length >= maxBenefits.value && maxBenefits.value > 0;
+  });
 
-const selectedBenefit = computed(() => {
-  return selectedBenefitIndex.value !== null ? availableBenefits.value[selectedBenefitIndex.value] : null;
-});
+  const selectedBenefit = computed(() => {
+    return selectedBenefitIndex.value !== null ? availableBenefits.value[selectedBenefitIndex.value] : null;
+  });
 
-const hasBenefitSelected = computed(() => {
-  return selectedBenefitIndex.value !== null && selectedBenefit.value?.state === 'Disponible';
-});
+  const hasBenefitSelected = computed(() => {
+    return selectedBenefitIndex.value !== null && selectedBenefit.value?.state === 'Disponible';
+  });
 
-const requiresAdditionalInput = computed(() => {
-  if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return false;
-  const apiId = selectedBenefit.value.apiId;
-  return apiId === 2 || apiId === 3;
-});
+  const requiresAdditionalInput = computed(() => {
+    if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return false;
+    const apiId = selectedBenefit.value.apiId;
+    return apiId === 2 || apiId === 3;
+  });
 
-const isInputValid = computed(() => {
-  if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return true;
+  const isInputValid = computed(() => {
+    if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return true;
 
-  const apiId = selectedBenefit.value.apiId;
+    const apiId = selectedBenefit.value.apiId;
 
-  if (apiId === 2) {
-    return assocName.value.trim().length > 0;
-  } else if (apiId === 3) {
-    return dependents.value.trim().length > 0;
-  }
-
-  return true;
-});
-
-const loadActiveBenefits = async () => {
-  if (!userData.value.email) {
-    console.error('User email is required to load benefits');
-    return;
-  }
-
-  isLoadingBenefits.value = true;
-  errorMessage.value = '';
-
-  try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/BenefitEmployeeList/by-email/${encodeURIComponent(userData.value.email)}`,
-      { withCredentials: true }
-    );
-
-    console.log(userData.value.email)
-    console.log(response.data)
-
-    maxBenefits.value = response.data[0].maxBenefits;
-
-    activeBenefits.value = response.data
-      .filter(benefit => benefit.benefitId !== null || benefit.apiId !== null)
-      .map(benefit => ({
-        benefitId: benefit.benefitId,
-        apiId: benefit.apiId,
-        name: benefit.name,
-        type: benefit.type,
-        method: transformBenefitMethod(benefit.type, benefit.value),
-        minimumMonths: benefit.minMonths,
-        state: 'Active'
-      }));
-
-
-  } catch (error) {
-    console.error('Error cargando los beneficios suscritos:', error);
-    if (error.response?.data) {
-      errorMessage.value = 'Hubo un error inesperado.';
-    } else {
-      errorMessage.value = 'Error de red. Reintentar más tarde.';
+    if (apiId === 2) {
+      return assocName.value.trim().length > 0;
+    } else if (apiId === 3) {
+      return dependents.value.trim().length > 0;
     }
-  } finally {
-    isLoadingBenefits.value = false;
-  }
-};
+
+    return true;
+  });
+
+  const loadActiveBenefits = async () => {
+    if (!userData.value.email) {
+      console.error('User email is required to load benefits');
+      return;
+    }
+
+    isLoadingBenefits.value = true;
+    errorMessage.value = '';
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/BenefitEmployeeList/by-email/${encodeURIComponent(userData.value.email)}`,
+        { withCredentials: true }
+      );
+
+      maxBenefits.value = response.data[0].maxBenefits;
+
+      activeBenefits.value = response.data
+        .filter(benefit => benefit.benefitId !== null || benefit.apiId !== null)
+        .map(benefit => ({
+          benefitId: benefit.benefitId,
+          apiId: benefit.apiId,
+          name: benefit.name,
+          type: benefit.type,
+          method: transformBenefitMethod(benefit.type, benefit.value),
+          minimumMonths: benefit.minMonths,
+          state: 'Active'
+        }));
+
+
+    } catch (error) {
+      console.error('Error cargando los beneficios suscritos:', error);
+      if (error.response?.data) {
+        errorMessage.value = 'Hubo un error inesperado.';
+      } else {
+        errorMessage.value = 'Error de red. Reintentar más tarde.';
+      }
+    } finally {
+      isLoadingBenefits.value = false;
+    }
+  };
 
   const loadAvailableBenefits = async () => {
     if (!userData.value.email) {
@@ -434,8 +426,6 @@ const loadActiveBenefits = async () => {
         { withCredentials: true }
       );
 
-      //console.log('Available Benefits API Response:', response.data);
-
       // Transform the benefits first
       const transformedBenefits = response.data.map(benefit => ({
         benefitId: benefit.benefitId,
@@ -449,15 +439,15 @@ const loadActiveBenefits = async () => {
       }));
 
       await loadActiveBenefits()
-      //console.log(activeBenefits.value)
       // Filter out benefits that are already subscribed
       availableBenefits.value = transformedBenefits.filter(availableBenefit => {
         return !activeBenefits.value.some(activeBenefit => {
-          return activeBenefit.benefitId === availableBenefit.benefitId;
+          const availableId = availableBenefit.benefitId || availableBenefit.apiId;
+          const activeId = activeBenefit.benefitId || activeBenefit.apiId;
+
+          return availableId && activeId && availableId === activeId;
         });
       });
-
-      //console.log('Filtered Available Benefits:', availableBenefits.value);
 
     } catch (error) {
       console.error('Error cargando beneficios disponibles:', error);
@@ -471,185 +461,182 @@ const loadActiveBenefits = async () => {
     }
   };
 
-const transformBenefitMethod = (type, value) => {
-  const lowerType = type?.toLowerCase();
+  const transformBenefitMethod = (type, value) => {
+    const lowerType = type?.toLowerCase();
 
-  switch (lowerType) {
-    case 'fixed':
-      return {
-        type: 'fixed',
-        value: typeof value === 'number' ? value.toFixed(2) : '0.00'
-      };
-    case 'percentage':
-      return {
-        type: 'percentage',
-        value: typeof value === 'number' ? value.toFixed(2) : '0.00'
-      };
-    default:
-      return { type: 'specific', value: value || 'Unknown' };
-  }
-};
+    switch (lowerType) {
+      case 'fixed':
+        return {
+          type: 'fixed',
+          value: typeof value === 'number' ? value.toFixed(2) : '0.00'
+        };
+      case 'percentage':
+        return {
+          type: 'percentage',
+          value: typeof value === 'number' ? value.toFixed(2) : '0.00'
+        };
+      default:
+        return { type: 'specific', value: value || 'Calculado por API' };
+    }
+  };
 
   const refreshBenefits = async () => {
     await loadActiveBenefits();
     await loadAvailableBenefits();
   };
 
-const validateInput = () => {
-  inputValidationError.value = '';
-
-  if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return true;
-
-  const apiId = selectedBenefit.value.apiId;
-
-  if (apiId === 2 && assocName.value.trim().length === 0) {
-    inputValidationError.value = 'Por favor ingrese el nombre de la asociación solidarista';
-    return false;
-  }
-
-  if (apiId === 3 && dependents.value.trim().length === 0) {
-    inputValidationError.value = 'Por favor ingrese la cantidad de beneficiarios';
-    return false;
-  }
-
-  return true;
-};
-
-const handleSubscribeClick = () => {
-  if (hasReachedMaxBenefits.value) {
-    errorMessage.value = 'Has seleccionado el máximo de beneficios que ofrece la empresa';
-    return;
-  }
-  showSubscribeModal.value = true;
-};
-
-const resetInputs = () => {
-  assocName.value = '';
-  dependents.value = '';
-  inputValidationError.value = '';
-};
-
-watch(selectedBenefit, (newBenefit) => {
-  calculatedBenefitValue.value = null;
-  calculationError.value = '';
-  inputValidationError.value = '';
-});
-
-watch(showSubscribeModal, (newVal) => {
-  if (newVal) loadAvailableBenefits();
-  if (!newVal) resetInputs();
-});
-
-watch([assocName, dependents], () => {
-  if (inputValidationError.value) {
+  const validateInput = () => {
     inputValidationError.value = '';
-  }
-});
 
-const proceedToConfirmation = () => {
-  if (hasBenefitSelected.value) {
+    if (!selectedBenefit.value || selectedBenefit.value.method.type !== 'specific') return true;
+
+    const apiId = selectedBenefit.value.apiId;
+
+    if (apiId === 2 && assocName.value.trim().length === 0) {
+      inputValidationError.value = 'Por favor ingrese el nombre de la asociación solidarista';
+      return false;
+    }
+
+    if (apiId === 3 && dependents.value.trim().length === 0) {
+      inputValidationError.value = 'Por favor ingrese la cantidad de beneficiarios';
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubscribeClick = () => {
+    if (hasReachedMaxBenefits.value) {
+      errorMessage.value = 'Has seleccionado el máximo de beneficios que ofrece la empresa';
+      return;
+    }
+    showSubscribeModal.value = true;
+  };
+
+  const resetInputs = () => {
+    assocName.value = '';
+    dependents.value = '';
+    inputValidationError.value = '';
+  };
+
+  watch(selectedBenefit, (newBenefit) => {
+    calculatedBenefitValue.value = null;
+    calculationError.value = '';
+    inputValidationError.value = '';
+  });
+
+  watch(showSubscribeModal, (newVal) => {
+    if (newVal) loadAvailableBenefits();
+    if (!newVal) resetInputs();
+  });
+
+  watch([assocName, dependents], () => {
+    if (inputValidationError.value) {
+      inputValidationError.value = '';
+    }
+  });
+
+  const proceedToConfirmation = () => {
+    if (hasBenefitSelected.value) {
+      showSubscribeModal.value = false;
+      showConfirmationModal.value = true;
+    }
+  };
+
+  const goBackToSelection = () => {
+    showConfirmationModal.value = false;
+    showSubscribeModal.value = true;
+  };
+
+  const closeConfirmationModal = () => {
+    showConfirmationModal.value = false;
+    closeSubscribeModal();
+  };
+
+  const confirmFinalSubscription = async () => {
+    if (!selectedBenefit.value) return;
+
+    if (!validateInput()) {
+      return;
+    }
+
+    isProcessingSubscription.value = true;
+
+    try {
+      if (selectedBenefit.value.method.type === 'specific') {
+        // API benefit subscription
+        const payload = {
+          email: userData.value.email,
+          id: selectedBenefit.value.apiId,
+          assocName: selectedBenefit.value.apiId === 2 ? assocName.value.trim() : null,
+          dependents: selectedBenefit.value.apiId === 3 ? dependents.value.trim() : null
+        };
+
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitAPISubscription/subscribe`, payload, {
+          withCredentials: true
+        });
+      } else {
+        // Regular benefit subscription
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitSubscription/subscribe`, {
+          email: userData.value.email,
+          benefitId: selectedBenefit.value.benefitId
+        }, { withCredentials: true });
+      }
+
+      subscribedBenefitName.value = selectedBenefit.value.name;
+      await refreshBenefits();
+
+      showConfirmationModal.value = false;
+      showSuccessModal.value = true;
+
+    } catch (error) {
+      console.error('Error al suscribirse al beneficio:', error);
+
+      let errorMsg = 'No se pudo suscribir al beneficio. Reintentar más tarde.';
+      if (error.response?.data) {
+        availableBenefitsError.value = 'No se pudo suscribir el beneficio.';
+      } else {
+        availableBenefitsError.value = 'Error de red. Reintentar más tarde.';
+      }
+
+      errorMessage.value = errorMsg;
+      showConfirmationModal.value = false;
+    } finally {
+      isProcessingSubscription.value = false;
+    }
+  };
+
+  const closeSuccessModal = () => {
+    showSuccessModal.value = false;
+    closeSubscribeModal();
+  };
+
+  const closeSubscribeModal = () => {
+    selectedBenefitIndex.value = null;
     showSubscribeModal.value = false;
-    showConfirmationModal.value = true;
-  }
-};
-
-const goBackToSelection = () => {
-  showConfirmationModal.value = false;
-  showSubscribeModal.value = true;
-};
-
-const closeConfirmationModal = () => {
-  showConfirmationModal.value = false;
-  closeSubscribeModal();
-};
-
-const confirmFinalSubscription = async () => {
-  if (!selectedBenefit.value) return;
-
-  if (!validateInput()) {
-    return;
-  }
-
-  isProcessingSubscription.value = true;
-
-  try {
-    if (selectedBenefit.value.method.type === 'specific') {
-      // API benefit subscription
-      const payload = {
-        email: userData.value.email,
-        id: selectedBenefit.value.apiId,
-        assocName: selectedBenefit.value.apiId === 2 ? assocName.value.trim() : null,
-        dependents: selectedBenefit.value.apiId === 3 ? dependents.value.trim() : null
-      };
-
-      console.log('API Subscription Payload:', payload);
-
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitAPISubscription/subscribe`, payload, {
-        withCredentials: true
-      });
-    } else {
-      // Regular benefit subscription
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/BenefitSubscription/subscribe`, {
-        email: userData.value.email,
-        benefitId: selectedBenefit.value.benefitId
-      }, { withCredentials: true });
-    }
-
-    subscribedBenefitName.value = selectedBenefit.value.name;
-    await refreshBenefits();
-
     showConfirmationModal.value = false;
-    showSuccessModal.value = true;
-
-  } catch (error) {
-    console.error('Error al suscribirse al beneficio:', error);
-
-    let errorMsg = 'No se pudo suscribir al beneficio. Reintentar más tarde.';
-    if (error.response?.data) {
-      availableBenefitsError.value = 'No se pudo suscribir el beneficio.';
-    } else {
-      availableBenefitsError.value = 'Error de red. Reintentar más tarde.';
-    }
-
-    errorMessage.value = errorMsg;
-    showConfirmationModal.value = false;
-  } finally {
+    showSuccessModal.value = false;
+    subscribedBenefitName.value = '';
     isProcessingSubscription.value = false;
-  }
-};
+    calculatedBenefitValue.value = null;
+    calculationError.value = '';
+    resetInputs();
+  };
 
-const closeSuccessModal = () => {
-  showSuccessModal.value = false;
-  closeSubscribeModal();
-};
+  // TODO: Implement unsubscription of benefits
+  const unsubscribeBenefit = (index) => {
+  };
 
-const closeSubscribeModal = () => {
-  selectedBenefitIndex.value = null;
-  showSubscribeModal.value = false;
-  showConfirmationModal.value = false;
-  showSuccessModal.value = false;
-  subscribedBenefitName.value = '';
-  isProcessingSubscription.value = false;
-  calculatedBenefitValue.value = null;
-  calculationError.value = '';
-  resetInputs();
-};
-
-// TODO: Implement unsubscription of benefits
-const unsubscribeBenefit = (index) => {
-};
-
-const closeUnsubscribeModal = () => {
-  showUnsubscribeModal.value = false;
-  benefitToUnsubscribe.value = null;
-  benefitIndexToUnsubscribe.value = null;
-};
+  const closeUnsubscribeModal = () => {
+    showUnsubscribeModal.value = false;
+    benefitToUnsubscribe.value = null;
+    benefitIndexToUnsubscribe.value = null;
+  };
 
   onMounted(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true })
       .then(response => {
         userData.value = response.data;
-        // Now that userData is populated, we can safely call these:
         loadActiveBenefits();
         loadAvailableBenefits();
       })

@@ -14,6 +14,11 @@ public class Email
     {
     }
 
+    public string GetSubject()
+    {
+        return this.ReplacePlaceholders(this.Subject);
+    }
+
     public string GetText()
     {
         return this.ReplacePlaceholders(this.Content);

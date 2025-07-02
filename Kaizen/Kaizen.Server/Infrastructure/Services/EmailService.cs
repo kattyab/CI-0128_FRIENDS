@@ -1,4 +1,4 @@
-using Kaizen.Server.Application.Configuraton;
+using Kaizen.Server.Application.Configuration;
 using Kaizen.Server.Application.Emails;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -43,17 +43,28 @@ public class EmailService : IEmailService
         MimeMessage emailMessage = new();
         emailMessage.From.Add(new MailboxAddress(this.emailConfiguration.Name, this.emailConfiguration.Address));
         emailMessage.To.AddRange(message.To);
-        emailMessage.Subject = message.Subject;
+        emailMessage.Subject = message.GetSubject();
+
+        Multipart multipart = new("mixed")
+        {
+            new TextPart("plain") { Text = message.GetText() }
+        };
 
         if (message.Attachments.Count > 0)
         {
             foreach (EmailAttachment attachment in message.Attachments)
             {
-                bodyBuilder.Attachments.Add(attachment.FileName, attachment.Content, attachment.ContentType);
+                multipart.Add(new MimePart
+                {
+                    Content = new MimeContent(new MemoryStream(attachment.Content)),
+                    ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                    ContentTransferEncoding = ContentEncoding.Base64,
+                    FileName = attachment.FileName,
+                });
             }
         }
 
-        emailMessage.Body = bodyBuilder.ToMessageBody();
+        emailMessage.Body = multipart;
 
         return emailMessage;
     }

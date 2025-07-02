@@ -42,7 +42,13 @@ namespace Kaizen.Server.Application.Services.Reports
                 throw new ArgumentNullException(nameof(report));
 
             decimal totalSalarios = report.PorHorasAmount + report.TiempoCompletoAmount;
+            CalculatePayrollDeductions(report, totalSalarios);
 
+            return report;
+        }
+
+        private static void CalculatePayrollDeductions(OwnerPayrollReport report, decimal totalSalarios)
+        {
             report.SEM = totalSalarios * RateSEM;
             report.IVM = totalSalarios * RateIVM;
             report.CuotaPatronalBancoPopular = totalSalarios * RateCuotaPatronalBancoPopular;
@@ -53,8 +59,6 @@ namespace Kaizen.Server.Application.Services.Reports
             report.FCL = totalSalarios * RateFCL;
             report.FondoPensionesComplementarias = totalSalarios * RateFondoPensionesComplementarias;
             report.INS = totalSalarios * RateINS;
-
-            return report;
         }
 
         public async Task<IEnumerable<EmployeePayrollReport>> ExecuteEmployeeAsync(Guid employeeId)
