@@ -3,19 +3,15 @@ CREATE PROCEDURE sp_SoftDeleteCompany
 AS
 BEGIN
 	SET NOCOUNT ON;
-
-	BEGIN TRY
-		BEGIN TRANSACTION
-
 		UPDATE Companies
 		SET IsDeleted = 1
 		WHERE CompanyPK = @CompanyPK
 
-		COMMIT TRANSACTION
-	END TRY
-	BEGIN CATCH
-		IF @@TRANCOUNT > 0
-				ROLLBACK TRANSACTION;
-			THROW;
-	END CATCH
+		UPDATE Employees
+		SET IsDeleted = 1
+		WHERE WorksFor = @CompanyPK
+
+		UPDATE Users
+		SET Active = 0
+		WHERE CompanyPK = @CompanyPK
 END
