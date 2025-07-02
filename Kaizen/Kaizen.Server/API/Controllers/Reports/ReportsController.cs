@@ -143,5 +143,33 @@ namespace Kaizen.Server.API.Controllers.Reports
             }
         }
 
+
+        [HttpGet("employee/{employeeId:guid}")]
+        public async Task<ActionResult<IEnumerable<EmployeePayrollReport>>> GetEmployeePayrollReportsByEmployee(Guid employeeId)
+        {
+            try
+            {
+                var reports = await _payrollReportsService.ExecuteEmployeeAsync(employeeId);
+                
+                var reportsWithObligatoryDeductions = reports
+                    .Select(report => _payrollReportsService.CalculateObligatoryDeductions(report))
+                    .ToList();
+
+                var reportsWithAllDeductions = (await Task.WhenAll(
+                    reportsWithObligatoryDeductions.Select(report =>
+                        _payrollReportsService.CalculateOptionalDeductionsAsync(report))
+                )).ToList();
+
+                return Ok(reportsWithAllDeductions);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
