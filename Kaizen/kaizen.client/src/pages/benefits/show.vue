@@ -106,8 +106,8 @@
               </a>
               <button type="button"
                       class="btn btn-primary btn-lg btn-block"
-                      @click="$router.push(`/benefits/${formData.id}/edit`)"
-                      :disabled="formData.isSubscribed">
+                      @click="$router.push(`/benefits/${formData.benefitType == 'api' ? formData.apiID : formData.id }/edit`)"
+                      :disabled="formData.isSubscribed || formData.benefitType == 'api'">
                 Editar
               </button>
             </div>

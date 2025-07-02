@@ -7,6 +7,7 @@ public interface IBenefitsRepository
 {
     List<BenefitDto> GetBenefits(Guid companyPK);
     BenefitDto? GetBenefit(Guid guid, Guid companyPK);
+    BenefitDto? GetBenefit(int guid, Guid companyPK);
     void UpdateBenefit(BenefitDto benefit, Guid companyPK);
     void DeleteBenefit(Guid guid, SqlConnection connection, SqlTransaction transaction);
     void DeleteBenefit(int id, Guid companyPK, SqlConnection connection, SqlTransaction transaction);

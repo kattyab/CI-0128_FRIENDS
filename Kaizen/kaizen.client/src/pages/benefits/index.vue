@@ -3,9 +3,9 @@
     <h1 class="text-center my-4">Lista de Beneficios</h1>
     <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
       <div></div>
-      <a class="btn btn-lg btn-primary self-align-end" href="/benefits/create">
+      <button class="btn btn-lg btn-primary self-align-end" @click="router.push('/benefits/create')">
         Crear beneficio
-      </a>
+      </button>
     </div>
     <div class="mx-4">
       <table class="table table-hover">
@@ -32,9 +32,9 @@
             <td>{{ item.isFixed ? "Fijo" : (item.isPercentage ? "Porcentaje" : "API") }}</td>
             <td>{{ item.isFixed ? '₡' + item.fixedValue : (item.isPercentage ? item.percentageValue + '%' : 'Calculado con API') }}</td>
             <td>
-              <a :href="item.isAPI ? `/benefits/${item.apiID}` : `/benefits/${item.id}`" class="btn btn-primary">
+              <button class="btn btn-primary" @click="router.push(`/benefits/${item.isAPI ? item.apiID : item.id}`)">
                 <span class="material-icons">visibility</span>
-              </a>
+              </button>
               <button @click="openDeleteModal(item)"
                       class="btn btn-danger ms-1"
                       type="button">
@@ -98,7 +98,10 @@
 
 <script setup>
   import { ref, onMounted } from "vue";
+  import { useRouter } from 'vue-router';
   import axios from "axios";
+
+  const router = useRouter();
 
   const data = ref([]);
   const itemToDelete = ref(null);

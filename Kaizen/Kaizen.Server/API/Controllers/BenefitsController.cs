@@ -63,6 +63,31 @@ namespace Kaizen.Server.API.Controllers
             }
         }
 
+        [HttpGet("apiBenefits/{id}")]
+        public IActionResult Show(int id)
+        {
+            if (this._authService.IsAuthenticated() == false)
+            {
+                return this.Unauthorized();
+            }
+
+            try
+            {
+                Guid companyPK = this._authService.GetAuthUserCompanyPK();
+                BenefitDto? benefit = this._benefitsRepository.GetBenefit(id, companyPK);
+                if (benefit == null)
+                {
+                    return this.NotFound();
+                }
+
+                return this.Ok(benefit);
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
         [HttpPost("{guid}")]
         public IActionResult Update(BenefitDto benefit)
         {
