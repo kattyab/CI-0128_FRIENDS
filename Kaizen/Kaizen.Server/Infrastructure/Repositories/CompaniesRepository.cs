@@ -1,12 +1,13 @@
 using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Companies;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories;
 
-public class CompaniesRepository(IConfiguration configuration)
+public class CompaniesRepository(IConfiguration configuration) : ICompaniesRepository
 {
     private readonly string _connectionString =
         configuration.GetConnectionString("KaizenDb")
@@ -232,7 +233,7 @@ public class CompaniesRepository(IConfiguration configuration)
         return company;
     }
 
-    internal void UpdateCompany(Guid companyPK, CompanyEditDto companyEditDto)
+    public void UpdateCompany(Guid companyPK, CompanyEditDto companyEditDto)
     {
         const string updateCompanyCommandText = @"
             UPDATE

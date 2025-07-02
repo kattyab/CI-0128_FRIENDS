@@ -48,7 +48,7 @@
           <router-link class="sub-button" :to="`/reports/company/${company_pk}`">
             <span class="text">Reporte de Pago de Planillas</span>
           </router-link>
-          <router-link class="sub-button" :to="`/reports/companyhistoricrange/${company_pk}`">
+          <router-link class="sub-button" :to="`/reports/historicrange`">
             <span class="text">Reporte de Planillas por Rango</span>
           </router-link>
           <router-link class="sub-button" :to="`/reports/companyhistoric/${company_pk}`">
@@ -66,7 +66,7 @@
           <router-link class="popup-button" :to="`/reports/company/${company_pk}`" @click="CloseReportsPopup">
             <span class="text">Reporte de Pago de Planillas</span>
           </router-link>
-          <router-link class="popup-button" :to="`/reports/companyhistoricrange/${company_pk}`" @click="CloseReportsPopup">
+          <router-link class="popup-button" :to="`/reports/historicrange/`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas por Rango</span>
           </router-link>
           <router-link class="popup-button" :to="`/reports/companyhistoric/${company_pk}`" @click="CloseReportsPopup">
@@ -262,7 +262,7 @@
           max-height: 0;
           overflow: hidden;
           transition: max-height 0.3s ease;
-          background-color: rgba(0, 60, 99, 0.05);
+          background-color: rgb(244, 246, 248);
 
           &.expanded {
             max-height: 200px;

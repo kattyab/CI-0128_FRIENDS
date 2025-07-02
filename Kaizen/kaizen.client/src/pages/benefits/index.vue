@@ -1,98 +1,62 @@
 <template>
-  <div>
-    <h1 class="text-center my-4">Lista de Beneficios</h1>
-    <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
-      <div></div>
-      <a class="btn btn-lg btn-primary self-align-end" href="/benefits/create">
-        Crear beneficio
-      </a>
-    </div>
-    <div class="mx-4">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Tiempo mínimo (meses)</th>
-            <th scope="col">Contratos</th>
-            <th scope="col">Tipo</th>
-            <th scope="col">Valor</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="table-group-divider">
-          <tr class="position-relative" v-for="(item, index) in data" :key="index">
-            <th scope="row">{{ item.name }}</th>
-            <td>{{ item.minWorkDurationMonths }}</td>
-            <td>
-              <div v-if="item.isFullTime">Tiempo completo</div>
-              <div v-if="item.isPartTime">Medio tiempo</div>
-              <div v-if="item.isByHours">Por horas</div>
-              <div v-if="item.isByService">Por servicio</div>
-            </td>
-            <td>{{ item.isFixed ? "Fijo" : "Porcentaje" }}</td>
-            <td>{{ item.isFixed ? '₡' + item.fixedValue : item.percentageValue + '%' }}</td>
-            <td>
-              <a :href="`/benefits/${item.id}`" class="btn btn-primary">
-                <span class="material-icons">visibility</span>
-              </a>
-              <button @click="openDeleteModal(item)"
-                      class="btn btn-danger ms-1"
-                      type="button">
-                <span class="material-icons">delete</span>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="showFormError" class="form-error-message alert alert-danger mt-3 mb-3 justify-content-center">
-      {{ formErrorMessage }}
-    </div>
-    <div v-if="showSuccessMessage" class="success-message alert alert-success mt-3 mb-3 justify-content-center">
-      {{ successMessage }}
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal"
-         class="modal fade show"
-         style="display: block;"
-         tabindex="-1"
-         aria-labelledby="deleteModalLabel">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
-            <button type="button"
-                    class="btn-close"
-                    @click="closeDeleteModal"
-                    aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            ¿Está seguro que desea eliminar el beneficio "{{ itemToDelete?.name }}"?
-            <br>
-            <small class="text-muted">Esta acción no se puede deshacer.</small>
-          </div>
-          <div class="modal-footer">
-            <button type="button"
-                    class="btn btn-secondary"
-                    @click="closeDeleteModal">
-              Cancelar
-            </button>
-            <button type="button"
-                    class="btn btn-danger"
-                    @click="confirmDelete">
-              Eliminar
-            </button>
-          </div>
-        </div>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <h1 class="text-center my-4" style="font-weight: bold">Lista de Beneficios</h1>
+      <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
+        <div></div>
+        <a class="btn btn-lg btn-primary self-align-end" style="font-weight: bold" href="/benefits/create">
+          Crear beneficio
+        </a>
       </div>
-    </div>
+      <div class="mx-4">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Tiempo mínimo (meses)</th>
+              <th scope="col">Contratos</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Valor</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            <tr class="position-relative" v-for="(item, index) in data" :key="index">
+              <th scope="row">{{ item.name }}</th>
+              <td>{{ item.minWorkDurationMonths }}</td>
+              <td>
+                <div v-if="item.isFullTime">Tiempo completo</div>
+                <div v-if="item.isPartTime">Medio tiempo</div>
+                <div v-if="item.isByHours">Por horas</div>
+                <div v-if="item.isByService">Por servicio</div>
+              </td>
+              <td>{{ item.isFixed ? "Fijo" : (item.isPercentage ? "Porcentaje" : "API") }}</td>
+              <td>{{ item.isFixed ? '₡' + item.fixedValue : (item.isPercentage ? item.percentageValue + '%' : 'Calculado con API') }}</td>
+              <td>
+                <a :href="item.isAPI ? `/benefits/${item.apiID}` : `/benefits/${item.id}`" class="btn btn-primary">
+                  <span class="material-icons">visibility</span>
+                </a>
+                <button @click="openDeleteModal(item)"
+                        class="btn btn-danger ms-1"
+                        type="button">
+                  <span class="material-icons">delete</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Modal backdrop -->
-    <div v-if="showDeleteModal"
-         class="modal-backdrop fade show"
-         @click="closeDeleteModal"></div>
+      <div v-if="showFormError" class="form-error-message alert alert-danger mt-3 mb-3 justify-content-center">
+        {{ formErrorMessage }}
+      </div>
+      <div v-if="showSuccessMessage" class="success-message alert alert-success mt-3 mb-3 justify-content-center">
+        {{ successMessage }}
+      </div>
+
+      <div class="col-1"></div>
+    </div>
   </div>
 </template>
 
@@ -148,41 +112,13 @@
     showSuccessMessage.value = true;
   };
 
-  async function deleteBenefit(id) {
-    try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/benefits/${id}`, {
-        withCredentials: true,
-      });
-      console.log("Benefit deleted successfully");
-      showSuccess("El beneficio fue eliminado exitosamente.");
-      // Refresh the data after successful deletion
-      await fetchData();
-    } catch (error) {
-      console.error("Error deleting benefit:", error);
-      showError("Hubo un error eliminando el beneficio. Inténtelo más tarde");
-      throw error;
-    }
-  }
-
-  async function confirmDelete() {
-    if (itemToDelete.value) {
-      try {
-        await deleteBenefit(itemToDelete.value.id);
-        closeDeleteModal();
-      } catch (error) {
-        console.error("Failed to delete benefit:", error);
-        // You might want to show an error message to the user here
-      }
-    }
-  }
-
   onMounted(fetchData);
 </script>
 
 <style>
-.alert {
-  margin-left: 20em;
-  margin-right: 20em;
-  text-align: center;
-}
+  .alert {
+    margin-left: 20em;
+    margin-right: 20em;
+    text-align: center;
+  }
 </style>
