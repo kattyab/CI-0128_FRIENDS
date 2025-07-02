@@ -1,15 +1,13 @@
 <template>
   <div class="contenedor-principal">
-    <h1 class="text-2xl font-bold mb-4 text-center">Dashboard Empleado</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">{{ employee.name }}</h1>
     <div v-if="salaries.length > 0">
-      <div class="mb-4">
-        <p class="h4">{{ employee.name }}</p>
+        <p class="h4"></p>
         <div class="row px-3">
-          <div class="col text-start">{{ employee.contractType }}</div>
+          <div class="col text-start"> Tipo de Contrato: {{ employee.contractType }}</div>
           <div class="col text-center">Fecha inicio: {{ employee.startDate }}</div>
-          <div class="col text-end">{{ employee.role }}</div>
+          <div class="col text-end">Puesto: {{ employee.role }}</div>
         </div>
-      </div>
 
 
 
