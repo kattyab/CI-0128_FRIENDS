@@ -35,7 +35,7 @@ using System.Reflection;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-// Reports DI
+
 builder.Services.AddScoped<IEmployeePayrollListRepository, EmployeePayrollListRepository>();
 builder.Services.AddScoped<EmployeePayrollListService>();
 
