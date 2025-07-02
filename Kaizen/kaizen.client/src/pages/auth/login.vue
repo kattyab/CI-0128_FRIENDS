@@ -98,11 +98,15 @@
           //{ withCredentials: true }
           );
 
+
           const authRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/Login/authenticate`, { withCredentials: true });
           const role = authRes.data.role?.trim();
 
           if (role === 'Supervisor' || role === 'Empleado') {
             this.$router.push('/dashboardemployee');
+
+          } if (role === 'Dueño'){
+            this.$router.push('/dashboard-owner');
           } else {
             this.$router.push('/landing-page');
           }

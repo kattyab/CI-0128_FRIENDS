@@ -24,6 +24,11 @@
         <span class="text">Lista de Empresas</span>
       </router-link>
 
+      <router-link class="button" to="/employerlist">
+        <span class="material-icons">assignment_ind</span>
+        <span class="text">Lista de Empleadores</span>
+      </router-link>
+
       <div class="reports-section" ref="reports_section">
         <button class="button reports-toggle" @click="ToggleReports">
           <span class="material-icons">assessment</span>
