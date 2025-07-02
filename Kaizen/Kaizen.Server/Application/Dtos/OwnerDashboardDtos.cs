@@ -17,9 +17,9 @@ namespace Kaizen.Server.Application.Dtos.OwnerDashboard
 
     public class PayrollCostBreakdownDto
     {
-        public decimal Beneficios { get; set; }
-        public decimal Obligatorias { get; set; }
-        public decimal Cargas { get; set; }
-        public decimal Salarios { get; set; }
+        public decimal Benefits { get; set; }
+        public decimal ObligatoryDeductions { get; set; }
+        public decimal LaborCharges { get; set; }
+        public decimal Salaries { get; set; }
     }
 }

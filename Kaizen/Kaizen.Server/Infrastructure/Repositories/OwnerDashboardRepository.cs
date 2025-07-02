@@ -128,17 +128,17 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 {
                     if (await reader.ReadAsync())
                     {
-                        var beneficios = reader.GetDecimal(reader.GetOrdinal("TotalDeductionsBenefits"));
-                        var obligatorias = reader.GetDecimal(reader.GetOrdinal("TotalObligatoryDeductions"));
-                        var cargas = reader.GetDecimal(reader.GetOrdinal("TotalLaborCharges"));
+                        var benefits = reader.GetDecimal(reader.GetOrdinal("TotalDeductionsBenefits"));
+                        var obligatoryDeductions = reader.GetDecimal(reader.GetOrdinal("TotalObligatoryDeductions"));
+                        var laborCharges = reader.GetDecimal(reader.GetOrdinal("TotalLaborCharges"));
                         var total = reader.GetDecimal(reader.GetOrdinal("TotalMoneyPaid"));
-                        var salarios = total - (beneficios + obligatorias + cargas);
+                        var salaries = total - (benefits + obligatoryDeductions + laborCharges);
                         return new PayrollCostBreakdownDto
                         {
-                            Beneficios = beneficios,
-                            Obligatorias = obligatorias,
-                            Cargas = cargas,
-                            Salarios = salarios
+                            Benefits = benefits,
+                            ObligatoryDeductions = obligatoryDeductions,
+                            LaborCharges = laborCharges,
+                            Salaries = salaries
                         };
                     }
                 }
