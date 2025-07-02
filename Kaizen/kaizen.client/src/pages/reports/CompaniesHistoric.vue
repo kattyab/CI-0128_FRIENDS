@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-center my-4">Reporte de planillas por rango</h1>
+    <h1 class="text-center my-4">Reporte de planillas general</h1>
     <div class="mx-4 my-4 d-flex justify-content-between align-items-center">
       <div>
         <div class="mb-3 d-flex align-items-end gap-4">
@@ -29,8 +29,8 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Nombre de la empresa</th>
-            <th>Frecuencia de pago</th>
+            <th v-if="userRole === 'Superadmin'">Nombre de la empresa</th>
+            <th v-if="userRole === 'Superadmin'">Frecuencia de pago</th>
             <th>Periodo de pago</th>
             <th>Fecha de pago</th>
             <th>Salario Bruto</th>
@@ -42,8 +42,8 @@
         </thead>
         <tbody class="table-group-divider">
           <tr v-for="(item, index) in payrollData" :key="index">
-            <td>{{ item.companyName }}</td>
-            <td>{{ item.payrollMode }}</td>
+            <td v-if="userRole === 'Superadmin'">{{ item.companyName }}</td>
+            <td v-if="userRole === 'Superadmin'">{{ item.payrollMode }}</td>
             <td>{{ item.period }}</td>
             <td>{{ formatDate(item.executedOn) }}</td>
             <td>₡{{ formatNumber(item.totalBrutePaid) }}</td>
@@ -94,9 +94,14 @@
   import axios from "axios";
   import { formatDate } from "@/composables/formatDate";
   import { Modal } from "bootstrap";
+  import { computed } from "vue";
 
   const modalElement = ref(null);
   const modalObject = ref(null);
+  const userRole = ref(''); 
+
+
+
 
   const searchData = ref({
     employeeId: "",
@@ -104,10 +109,82 @@
     end: "",
   });
 
-  const data = ref({
-    companyName: "",
-    employees: [],
-  });
+  function exportDownload() {
+
+    if (payrollData.value.length === 0) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+
+    const headers = userRole.value === 'Superadmin'
+      ? [
+        "Nombre de la empresa",
+        "Frecuencia de pago",
+        "Periodo de pago",
+        "Fecha de pago",
+        "Salario Bruto",
+        "Cargas sociales empleador",
+        "Deducciones voluntarias",
+        "Deducciones obligatorias",
+        "Costo empleador"
+      ]
+      : [
+        "Periodo de pago",
+        "Fecha de pago",
+        "Salario Bruto",
+        "Cargas sociales empleador",
+        "Deducciones voluntarias",
+        "Deducciones obligatorias",
+        "Costo empleador"
+      ];
+
+
+    const rows = payrollData.value.map(item => {
+      return userRole.value === 'Superadmin'
+        ? [
+          item.companyName,
+          item.payrollMode,
+          item.period,
+          formatDate(item.executedOn),
+          item.totalBrutePaid,
+          item.totalLaborCharges,
+          item.totalDeductionsBenefits,
+          item.totalObligatoryDeductions,
+          item.totalMoneyPaid
+        ]
+        : [
+          item.period,
+          formatDate(item.executedOn),
+          item.totalBrutePaid,
+          item.totalLaborCharges,
+          item.totalDeductionsBenefits,
+          item.totalObligatoryDeductions,
+          item.totalMoneyPaid
+        ];
+    });
+
+    const csvContent =
+      [headers, ...rows]
+        .map(row =>
+          row
+            .map(field => `"${String(field).replace(/"/g, '""')}"`)
+            .join(",")
+        )
+        .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "reporte_planillas.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+
 
   const allReports = ref([]);
   const payrollData = ref([]);
@@ -124,6 +201,86 @@
     modalObject.value.hide();
   }
 
+  async function exportEmail() {
+
+    if (payrollData.value.length === 0) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    try {
+      const headers = userRole.value === 'Superadmin'
+        ? [
+          "Nombre de la empresa",
+          "Frecuencia de pago",
+          "Periodo de pago",
+          "Fecha de pago",
+          "Salario Bruto",
+          "Cargas sociales empleador",
+          "Deducciones voluntarias",
+          "Deducciones obligatorias",
+          "Costo empleador"
+        ]
+        : [
+          "Periodo de pago",
+          "Fecha de pago",
+          "Salario Bruto",
+          "Cargas sociales empleador",
+          "Deducciones voluntarias",
+          "Deducciones obligatorias",
+          "Costo empleador"
+        ];
+
+      const rows = payrollData.value.map(item => {
+        return userRole.value === 'Superadmin'
+          ? [
+            item.companyName,
+            item.payrollMode,
+            item.period,
+            formatDate(item.executedOn),
+            item.totalBrutePaid,
+            item.totalLaborCharges,
+            item.totalDeductionsBenefits,
+            item.totalObligatoryDeductions,
+            item.totalMoneyPaid
+          ]
+          : [
+            item.period,
+            formatDate(item.executedOn),
+            item.totalBrutePaid,
+            item.totalLaborCharges,
+            item.totalDeductionsBenefits,
+            item.totalObligatoryDeductions,
+            item.totalMoneyPaid
+          ];
+      });
+
+      const csvContent =
+        [headers, ...rows]
+          .map(row =>
+            row
+              .map(field => `"${String(field).replace(/"/g, '""')}"`)
+              .join(",")
+          )
+          .join("\n");
+
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reports/companieshistoric/email`, {
+        employeeId: searchData.value.employeeId,
+        start: searchData.value.start,
+        end: searchData.value.end,
+        csv: csvContent,
+      });
+
+      alert("Correo enviado exitosamente.");
+    } catch (error) {
+      console.error("Error al enviar correo:", error);
+      alert("Error al enviar el correo.");
+    }
+
+    closeExportModal();
+  }
+
+
   function search() {
     if (!searchData.value.start || !searchData.value.end) {
       alert("Por favor, seleccione un rango de fechas.");
@@ -136,24 +293,24 @@
     payrollData.value = allReports.value.filter((item) => {
       const period = item.period.trim();
 
-      // Caso 1: Mensual (ej: "09-2025")
+
       const isMonthly = /^\d{2}-\d{4}$/.test(period);
 
       if (isMonthly) {
         const [monthStr, yearStr] = period.split("-");
-        const month = parseInt(monthStr) - 1; // JS Date usa 0-index para meses
+        const month = parseInt(monthStr) - 1; 
         const year = parseInt(yearStr);
 
         const periodStart = new Date(year, month, 1);
-        const periodEnd = new Date(year, month + 1, 0); // último día del mes
+        const periodEnd = new Date(year, month + 1, 0); 
 
-        // Si el rango seleccionado toca el mes, se incluye
+
         return (
           end >= periodStart && start <= periodEnd
         );
       }
 
-      // Caso 2: Quincenal (ej: "16-07-2025 → 31-07-2025")
+
       const match = period.match(/^(\d{2}-\d{2}-\d{4})\s+→\s+(\d{2}-\d{2}-\d{4})$/);
 
       if (match) {
@@ -165,30 +322,62 @@
         const periodStart = new Date(fy, fm - 1, fd);
         const periodEnd = new Date(ty, tm - 1, td);
 
-        // El rango del usuario debe contener todo el periodo para ser válido
+
         return start <= periodStart && end >= periodEnd;
       }
 
-      // Si no coincide con ninguno de los formatos, se descarta
+
       return false;
     });
   }
 
 
 
-  // 📡 Cargar todos los reportes de planilla
+
   async function fetchReports() {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/GeneralPayrollReport`);
       allReports.value = res.data;
       payrollData.value = res.data;
     } catch (error) {
-      console.error("Error al obtener los reportes:", error);
-      alert("Error al cargar reportes.");
+      console.error("Error al cargar todos los reportes:", error);
+      alert("No se pudieron cargar los reportes.");
     }
   }
 
-  onMounted(() => {
-    fetchReports();
-    modalObject.value = new Modal(modalElement.value);
-  });</script>
+  async function fetchCompanyReport() {
+    try {
+      const companyRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/ReportMenu/company-id`, { withCredentials: true });
+      const companyPK = companyRes.data;
+
+      const reportRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/GeneralPayrollReport/company/${companyPK}`);
+      allReports.value = reportRes.data;
+      payrollData.value = reportRes.data;
+    } catch (error) {
+      console.error("Error al cargar los reportes filtrados por empresa:", error);
+      alert("No se pudieron cargar los reportes filtrados.");
+    }
+  }
+
+
+  onMounted(async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true });
+      userRole.value = res.data.role;
+
+      console.log("ROL ACTUAL:", userRole.value); 
+      if (userRole.value === 'Superadmin') {
+        await fetchReports();
+      } else if (userRole.value === 'Dueño') {
+        await fetchCompanyReport();
+      } else {
+        alert("No tiene permisos para acceder a los reportes.");
+      }
+
+      modalObject.value = new Modal(modalElement.value);
+    } catch (error) {
+      console.error("Error al autenticar usuario:", error);
+      alert("Error de autenticación.");
+    }
+  });
+</script>

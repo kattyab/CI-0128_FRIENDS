@@ -91,5 +91,30 @@ namespace Kaizen.Server.API.Controllers.Reports
 
             return this.Ok();
         }
+
+        [HttpPost("companieshistoric/email")]
+        public async Task<ActionResult> SendCompaniesHistoricEmail([FromBody] CsvPayloadDto payload)
+        {
+            try
+            {
+                if (!this._authService.IsAuthenticated())
+                {
+                    return this.Unauthorized();
+                }
+
+                if (string.IsNullOrWhiteSpace(payload.Csv))
+                {
+                    return this.BadRequest("El contenido CSV no puede estar vacío.");
+                }
+
+                await this._reportService.SendCompaniesHistoricEmail(payload.Csv);
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
     }
 }

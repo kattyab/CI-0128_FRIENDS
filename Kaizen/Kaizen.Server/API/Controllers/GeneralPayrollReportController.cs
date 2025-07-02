@@ -15,4 +15,12 @@ public class GeneralPayrollReportController(IGeneralPayrollReportRepository repo
         var reports = _repository.GetAllReports();
         return Ok(reports);
     }
+
+    [HttpGet("company/{companyPK:guid}")]
+    public IActionResult GetCompanyReport(Guid companyPK)
+    {
+        var reports = _repository.GetCompanyReport(companyPK);
+        return Ok(reports);
+    }
 }
+

@@ -82,6 +82,31 @@ public class ReportService : IReportService
 
         return payrolls;
     }
+    public async Task SendCompaniesHistoricEmail(string csvContent)
+    {
+        AuthUserDto user = this._authService.GetAuthUser();
+
+        string csvFileName = "reporte_companias_historico.csv";
+
+        ReportPayrollHistoricRangeEmail email = new()
+        {
+            Start = DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd"),
+            End = DateTime.Now.ToString("yyyy-MM-dd"),
+            EmployeeName = $"{user.Name} {user.LastName}",
+        };
+
+        email.To.Add(new($"{user.Name} {user.LastName}", user.Email));
+
+        email.Attachments.Add(new EmailAttachment
+        {
+            FileName = csvFileName,
+            ContentType = new("text", "csv"),
+            Content = Encoding.UTF8.GetBytes(csvContent)
+        });
+
+        await this._emailService.SendEmail(email);
+    }
+
 
     public async Task SendHistoricRangeEmail(Guid companyPK, HistoricRangeSearch historicRangeSearch)
     {
