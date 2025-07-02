@@ -15,7 +15,7 @@ using Kaizen.Server.Application.Interfaces.Payroll;
 namespace Kaizen.Tests.Services
 {
     [TestFixture]
-    public class ReportServiceTests_Extended
+    public class SendCompaniesHistoricEmailTest
     {
         private Mock<IAuthService> _mockAuthService;
         private Mock<ICompaniesRepository> _mockCompaniesRepository;
