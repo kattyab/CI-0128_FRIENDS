@@ -12,7 +12,7 @@ import {
 Chart.register(ArcElement, Tooltip, Legend)
 
 const chartData = ref({
-  labels: ['Benefits', 'Obligatory Deductions', 'Labor Charges', 'Salaries'],
+  labels: ['Beneficios', 'Deducciones Obligatorias', 'Cargas Sociales', 'Salarios'],
   datasets: [{
     data: [0, 0, 0, 0],
     backgroundColor: ['#7de2e2', '#0096c7', '#43779f', '#5fd0e6'],
