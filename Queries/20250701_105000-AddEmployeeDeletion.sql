@@ -1,0 +1,4 @@
+ALTER TABLE Employees
+ADD DeletedAt DATETIME NULL,
+    DeletedBy UNIQUEIDENTIFIER NULL,
+    CONSTRAINT FK_Employees_DeletedBy FOREIGN KEY (DeletedBy) REFERENCES Users(UserPK);

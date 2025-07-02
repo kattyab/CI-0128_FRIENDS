@@ -11,6 +11,9 @@ using Kaizen.Server.Application.Interfaces.Payroll;
 using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Application.Interfaces.Services;
 using Kaizen.Server.Application.Interfaces.Services.Auth;
+using Kaizen.Server.Application.Interfaces.Reports;
+using Kaizen.Server.Infrastructure.Repositories.Reports;
+using Kaizen.Server.Application.Services.Reports;
 using Kaizen.Server.Application.Services.ApiDeductions;
 using Kaizen.Server.Application.Services.BenefitDeductions;
 using Kaizen.Server.Application.Services.CCSS;
@@ -35,6 +38,9 @@ using System.Reflection;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IEmployeePayrollListRepository, EmployeePayrollListRepository>();
+builder.Services.AddScoped<EmployeePayrollListService>();
+
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddUserSecrets(Assembly.GetExecutingAssembly())
@@ -53,6 +59,8 @@ builder.Services.AddScoped<Kaizen.Server.Infrastructure.Repositories.PayrollRepo
 {
     var config = sp.GetRequiredService<IConfiguration>();
     var connStr = config.GetConnectionString("KaizenDb");
+    if (connStr == null)
+        throw new InvalidOperationException("Connection string 'KaizenDb' not found.");
     return new Kaizen.Server.Infrastructure.Repositories.PayrollRepository(connStr);
 });
 
@@ -109,6 +117,13 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IEmployeesService, EmployeesService>();
+
+builder.Services.AddScoped<IGeneralPayrollReportRepository, GeneralPayrollReportRepository>();
+
+builder.Services.AddScoped<IDeleteEmployerRepository, DeleteEmployerRepository>();
+
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));

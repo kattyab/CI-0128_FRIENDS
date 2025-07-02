@@ -252,5 +252,248 @@ namespace Kaizen.Server.Tests.Application.Services.Reports
             Assert.That(result.FondoPensionesComplementarias, Is.EqualTo(5.00m), "Fondo Pensiones rate should be 0.50%");
             Assert.That(result.INS, Is.EqualTo(10.00m), "INS rate should be 1.00%");
         }
+
+        //
+
+        [Test]
+        public void ExecuteEmployeeAsync_WithEmptyGuid_ShouldThrowArgumentException()
+        {
+            var emptyGuid = Guid.Empty;
+
+            var exception = Assert.ThrowsAsync<ArgumentException>(
+                async () => await _payrollReportsService.ExecuteEmployeeAsync(emptyGuid));
+
+            Assert.That(exception.Message, Does.Contain("Employee ID cannot be empty"));
+            Assert.That(exception.ParamName, Is.EqualTo("employeeId"));
+        }
+
+        [Test]
+        public async Task ExecuteEmployeeAsync_WithValidEmployeeId_ShouldReturnEmployeeReports()
+        {
+            var employeeId = _fixture.Create<Guid>();
+            var expectedReports = _fixture.CreateMany<EmployeePayrollReport>(2).ToList();
+
+            _mockReportsRepository
+                .Setup(x => x.GetEmployeePayrollReportsByEmployeeAsync(employeeId))
+                .ReturnsAsync(expectedReports);
+
+            var result = await _payrollReportsService.ExecuteEmployeeAsync(employeeId);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count(), Is.EqualTo(2));
+            _mockReportsRepository.Verify(x => x.GetEmployeePayrollReportsByEmployeeAsync(employeeId), Times.Once);
+        }
+
+        [Test]
+        public async Task ExecuteEmployeeAsync_WithEmptyResults_ShouldReturnEmptyList()
+        {
+            var employeeId = _fixture.Create<Guid>();
+            var expectedReports = new List<EmployeePayrollReport>();
+
+            _mockReportsRepository
+                .Setup(x => x.GetEmployeePayrollReportsByEmployeeAsync(employeeId))
+                .ReturnsAsync(expectedReports);
+
+            var result = await _payrollReportsService.ExecuteEmployeeAsync(employeeId);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ExecuteEmployeeAsync_WhenRepositoryThrowsException_ShouldPropagateException()
+        {
+            var employeeId = Guid.NewGuid();
+            _mockReportsRepository
+                .Setup(x => x.GetEmployeePayrollReportsByEmployeeAsync(employeeId))
+                .ThrowsAsync(new InvalidOperationException("Database error"));
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(
+                () => _payrollReportsService.ExecuteEmployeeAsync(employeeId));
+
+            Assert.That(exception.Message, Is.EqualTo("Database error"));
+        }
+
+        //
+        [Test]
+        public async Task CalculateOptionalDeductionsAsync_WhenValidReportHasOptionalDeductions_ReturnReportWithOptionalDeductions()
+        {
+            var report = _fixture.Create<EmployeePayrollReport>();
+            var payrollId = _fixture.Create<Guid>();
+            var expectedOptionalDeductions = _fixture.CreateMany<OptionalDeduction>(2).ToList();
+            var expectedTotal = expectedOptionalDeductions.Sum(d => d.Amount);
+
+            report.PayrollID = payrollId;
+
+            _mockReportsRepository
+                .Setup(x => x.GetOptionalDeductionsByPayrollAsync(payrollId))
+                .ReturnsAsync(expectedOptionalDeductions);
+
+            var result = await _payrollReportsService.CalculateOptionalDeductionsAsync(report);
+            
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.OptionalDeductions, Is.Not.Null);
+                Assert.That(result.TotalOptionalDeductions, Is.EqualTo(expectedTotal));
+            });
+            Assert.That(result.OptionalDeductions, Is.EqualTo(expectedOptionalDeductions));
+            Assert.That(result.OptionalDeductions, Has.Count.EqualTo(expectedOptionalDeductions.Count));
+        }
+
+        [Test]
+        public async Task CalculateOptionalDeductionsAsync_WhenValidReportDoesntHaveOptionalDeductions_ReturnReportWithOptionalDeductionsEmpty()
+        {
+            var report = _fixture.Create<EmployeePayrollReport>();
+            var payrollId = _fixture.Create<Guid>();
+            var expectedOptionalDeductions = _fixture.CreateMany<OptionalDeduction>(0).ToList();
+
+            report.PayrollID = payrollId;
+
+            _mockReportsRepository
+                .Setup(x => x.GetOptionalDeductionsByPayrollAsync(payrollId))
+                .ReturnsAsync(expectedOptionalDeductions);
+
+            var result = await _payrollReportsService.CalculateOptionalDeductionsAsync(report);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.OptionalDeductions, Is.Not.Null);
+                Assert.That(result.OptionalDeductions, Is.Empty);
+                Assert.That(result.TotalOptionalDeductions, Is.EqualTo(0m));
+            });
+            Assert.That(result.OptionalDeductions, Is.EqualTo(expectedOptionalDeductions));
+        }
+
+        [Test]
+        public void CalculateOptionalDeductionsAsync_WhenRepositoryThrowsException_ShouldPropagateException()
+        {
+            var report = _fixture.Create<EmployeePayrollReport>();
+            var payrollId = _fixture.Create<Guid>();
+            report.PayrollID = payrollId;
+
+            _mockReportsRepository
+                .Setup(x => x.GetOptionalDeductionsByPayrollAsync(payrollId))
+                .ThrowsAsync(new InvalidOperationException("Database error"));
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(
+                () => _payrollReportsService.CalculateOptionalDeductionsAsync(report));
+
+            Assert.That(exception.Message, Is.EqualTo("Database error"));
+        }
+
+        [Test]
+        public void CalculateObligatoryDeductions_WhenValidReport_ReturnReportWithCalculatedValues()
+        {
+            const decimal bruteSalary = 1000000m;
+            const decimal incomeTax = 100000m;
+
+            var report = _fixture.Build<EmployeePayrollReport>()
+                .With(r => r.BruteSalary, bruteSalary)
+                .With(r => r.IncomeTax, incomeTax)
+                .Create();
+
+            var expectedSEM = bruteSalary * 0.0550m;
+            var expectedIVM = bruteSalary * 0.0417m;
+            var expectedBancoPopular = bruteSalary * 0.0100m;
+            var expectedTotalObligatoryDeductions = expectedSEM + expectedIVM + expectedBancoPopular + incomeTax;
+
+
+            var result = _payrollReportsService.CalculateObligatoryDeductions(report);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.SEM, Is.EqualTo(expectedSEM));
+                Assert.That(result.IVM, Is.EqualTo(expectedIVM));
+                Assert.That(result.EmployeeAportacionBancoPopular
+                    , Is.EqualTo(expectedBancoPopular));
+                Assert.That(result.TotalObligatoryDeductions
+                    , Is.EqualTo(expectedTotalObligatoryDeductions));
+            });
+        }
+
+        [Test]
+        public void CalculateObligatoryDeductions_WhenNullReport_ThrowsArgumentNullException()
+        {
+            EmployeePayrollReport report = null;
+
+            var exception = Assert.Throws<ArgumentNullException>(
+            
+                () => _payrollReportsService.CalculateObligatoryDeductions(report));
+            
+            Assert.That(exception.ParamName, Is.EqualTo(nameof(report)));
+        }
+
+        [Test]
+        public void CalculateObligatoryDeductions_WhenValidReportWithZeroSalary_ReturnReportWithCalculatedValuesAsZero()
+        {
+            const decimal bruteSalary = 0m;
+            const decimal incomeTax = 0m;
+
+            var report = _fixture.Build<EmployeePayrollReport>()
+                .With(r => r.BruteSalary, bruteSalary)
+                .With(r => r.IncomeTax, incomeTax)
+                .Create();
+
+            var expectedSEM = bruteSalary * 0.0550m;
+            var expectedIVM = bruteSalary * 0.0417m;
+            var expectedBancoPopular = bruteSalary * 0.0100m;
+            var expectedTotalObligatoryDeductions = expectedSEM + expectedIVM + expectedBancoPopular + incomeTax;
+
+            var result = _payrollReportsService.CalculateObligatoryDeductions(report);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.SEM, Is.EqualTo(expectedSEM));
+                Assert.That(result.IVM, Is.EqualTo(expectedIVM));
+                Assert.That(result.EmployeeAportacionBancoPopular
+                    , Is.EqualTo(expectedBancoPopular));
+                Assert.That(result.TotalObligatoryDeductions
+                    , Is.EqualTo(expectedTotalObligatoryDeductions));
+            });
+        }
+
+        [Test]
+        public void CalculateObligatoryDeductions_WhenContractTypeIsServiciosProfesionales_ReturnReportWithCalculatedValuesAsZero()
+        {
+            const decimal bruteSalary = 1000000m;
+            const decimal incomeTax = 100000m;
+
+            var report = _fixture.Build<EmployeePayrollReport>()
+                .With(r => r.ContractType, "Servicios Profesionales")
+                .With(r => r.BruteSalary, bruteSalary)
+                .With(r => r.IncomeTax, incomeTax)
+                .With(r => r.SEM, 0m)
+                .With(r => r.IVM, 0m)
+                .With(r => r.EmployeeAportacionBancoPopular, 0m)
+                .With(r => r.TotalObligatoryDeductions, 0m)
+                .Create();
+
+            var expectedSEM = bruteSalary * 0.0550m;
+            var expectedIVM = bruteSalary * 0.0417m;
+            var expectedBancoPopular = bruteSalary * 0.0100m;
+            var expectedTotalObligatoryDeductions = expectedSEM + expectedIVM + expectedBancoPopular + incomeTax;
+
+            var result = _payrollReportsService.CalculateObligatoryDeductions(report);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.SEM, Is.Not.EqualTo(expectedSEM));
+                Assert.That(result.IVM, Is.Not.EqualTo(expectedIVM));
+                Assert.That(result.EmployeeAportacionBancoPopular
+                    , Is.Not.EqualTo(expectedBancoPopular));
+                Assert.That(result.TotalObligatoryDeductions
+                    , Is.Not.EqualTo(expectedTotalObligatoryDeductions));
+            });
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.SEM, Is.EqualTo(0m));
+                Assert.That(result.IVM, Is.EqualTo(0m));
+                Assert.That(result.EmployeeAportacionBancoPopular
+                    , Is.EqualTo(0m));
+                Assert.That(result.TotalObligatoryDeductions
+                    , Is.EqualTo(0m));
+            });
+        }
     }
 }

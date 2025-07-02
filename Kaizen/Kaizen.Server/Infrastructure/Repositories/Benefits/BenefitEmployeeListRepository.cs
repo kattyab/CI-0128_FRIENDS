@@ -17,7 +17,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
         }
 
         public async Task<List<BenefitEmployeeListDto>> GetEmployeeBenefitList(string email)
-        
+
         {
             var benefits = new List<BenefitEmployeeListDto>();
 
@@ -26,26 +26,27 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
 
             var query = @"
                 WITH EmployeeCompany AS (
-    SELECT 
+    SELECT
         e.EmpID,
         e.WorksFor AS CompanyPK,
         c.MaxBenefits
     FROM Users u
     INNER JOIN Employees e ON u.PersonPK = e.PersonPK
     INNER JOIN Companies c ON e.WorksFor = c.CompanyPK
-    WHERE u.Email = @Email
+    WHERE u.Email = @Email AND
+            e.IsDeleted = 0
 )
 
-SELECT 
+SELECT
     b.Id AS BenefitID,
     NULL AS APIId,
     b.Name,
-    CASE 
+    CASE
         WHEN b.IsFixed = 1 THEN 'Fixed'
         WHEN b.IsPercentage = 1 THEN 'Percentage'
         ELSE 'Other'
     END AS Type,
-    CASE 
+    CASE
         WHEN b.IsFixed = 1 THEN b.FixedValue
         WHEN b.IsPercentage = 1 THEN b.PercentageValue
         ELSE 0
@@ -59,7 +60,7 @@ LEFT JOIN Benefits b ON cb.BenefitID = b.ID
 
 UNION ALL
 
-SELECT 
+SELECT
     NULL AS BenefitID,
     adc.ID as APIId,
     adc.Name,

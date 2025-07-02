@@ -118,5 +118,58 @@ namespace Kaizen.Server.API.Controllers.Reports
 
             return Ok();
         }
+
+        [HttpPost("companieshistoric/email")]
+        public async Task<ActionResult> SendCompaniesHistoricEmail([FromBody] CsvPayloadDto payload)
+        {
+            try
+            {
+                if (!this._authService.IsAuthenticated())
+                {
+                    return this.Unauthorized();
+                }
+
+                if (string.IsNullOrWhiteSpace(payload.Csv))
+                {
+                    return this.BadRequest("El contenido CSV no puede estar vacío.");
+                }
+
+                await this._reportService.SendCompaniesHistoricEmail(payload.Csv);
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+
+        [HttpGet("employee/{employeeId:guid}")]
+        public async Task<ActionResult<IEnumerable<EmployeePayrollReport>>> GetEmployeePayrollReportsByEmployee(Guid employeeId)
+        {
+            try
+            {
+                var reports = await _payrollReportsService.ExecuteEmployeeAsync(employeeId);
+                
+                var reportsWithObligatoryDeductions = reports
+                    .Select(report => _payrollReportsService.CalculateObligatoryDeductions(report))
+                    .ToList();
+
+                var reportsWithAllDeductions = (await Task.WhenAll(
+                    reportsWithObligatoryDeductions.Select(report =>
+                        _payrollReportsService.CalculateOptionalDeductionsAsync(report))
+                )).ToList();
+
+                return Ok(reportsWithAllDeductions);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
