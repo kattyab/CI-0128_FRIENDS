@@ -70,7 +70,6 @@
           <router-link class="popup-button" :to="`/reports/employeeTotal`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas de Empleados</span>
           </router-link>
-          <button class="btn btn-primary" @click="deleteCompany">Borrar empresa</button>
         </div>
       </div>
     </div>
@@ -146,15 +145,6 @@
     } catch (error) {
       console.error("Error fetching company ID:", error)
       is_company_deleted.value = false
-    }
-  }
-
-  const deleteCompany = async () => {
-    try {
-      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/api/Companies/delete`)
-      console.log("deleting", response);
-    } catch (error) {
-      console.error("Error deleting company:", error);
     }
   }
 
