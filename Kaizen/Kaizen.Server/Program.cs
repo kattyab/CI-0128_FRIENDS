@@ -99,6 +99,9 @@ builder.Services.AddScoped<IDaysWorkedCalculator, DaysWorkedCalculator>();
 builder.Services.AddScoped<ISalaryCalculator, SalaryCalculator>();
 builder.Services.AddScoped<IDeductionAggregator, DeductionAggregator>();
 
+builder.Services.AddScoped<IEmployeeDashboardRepository, EmployeeDashboardRepository>();
+
+
 builder.Services.AddPayrollServices();
 builder.Services.AddReportsServices();
 

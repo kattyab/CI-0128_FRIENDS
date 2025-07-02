@@ -9,7 +9,7 @@
     <h5>Menu</h5>
 
     <div class="menu">
-      <router-link class="button" to="/landing-page">
+      <router-link class="button" to="/dashboardemployee">
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
       </router-link>
