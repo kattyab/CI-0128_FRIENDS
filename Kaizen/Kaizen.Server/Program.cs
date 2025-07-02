@@ -158,7 +158,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<GeneralPayrollRepository>();
 builder.Services.AddScoped<OwnerDashboardRepository>();
 
-// Register OwnerDashboardService
 builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
 
 var app = builder.Build();
