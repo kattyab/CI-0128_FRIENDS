@@ -10,7 +10,6 @@ namespace Kaizen.Server.API.Controllers
     {
         private readonly IDeleteEmployerRepository _repository = repository;
 
-        // GET: api/DeleteEmployer
         [HttpGet]
         public IActionResult GetEmployers()
         {
@@ -18,7 +17,6 @@ namespace Kaizen.Server.API.Controllers
             return Ok(result);
         }
 
-        // PUT: api/DeleteEmployer/{ownerPK}
         [HttpPut("{ownerPK:guid}")]
         public IActionResult SoftDeleteEmployer(Guid ownerPK)
         {
@@ -30,7 +28,6 @@ namespace Kaizen.Server.API.Controllers
             return Ok(new { message = "Soft delete realizado con éxito." });
         }
 
-        // DELETE: api/DeleteEmployer/{ownerPK}
         [HttpDelete("{ownerPK:guid}")]
         public IActionResult HardDeleteEmployer(Guid ownerPK)
         {
