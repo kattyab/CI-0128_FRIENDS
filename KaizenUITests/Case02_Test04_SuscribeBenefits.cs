@@ -36,7 +36,7 @@ namespace UIAutomationTest
 
     private void AsignarBeneficioEmpleado(string email, string password, (string beneficio, string dependientes)[] beneficios)
     {
-      _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
+      _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/auth/login");
       _wait.Until(d => d.FindElement(By.Id("username")));
       _driver.FindElement(By.Id("username")).Clear();
       _driver.FindElement(By.Id("username")).SendKeys(email);
@@ -45,7 +45,7 @@ namespace UIAutomationTest
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
       _wait.Until(d => d.Url.Contains("/landing-page"));
 
-      _driver.Navigate().GoToUrl("https://localhost:55281/benefits/subscribe");
+      _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/benefits/subscribe");
       _wait.Until(d => d.FindElement(By.TagName("h1")).Text.Contains("Beneficios"));
 
       foreach (var (beneficio, dependientes) in beneficios)

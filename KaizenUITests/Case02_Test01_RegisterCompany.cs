@@ -20,7 +20,7 @@ namespace UIAutomationTest
         [Test]
         public void CrearEmpresaSprint3_ConDosBeneficios_Mensual()
         {
-            _driver.Navigate().GoToUrl("https://localhost:55281/auth/register-company");
+            _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/auth/register-company");
 
             var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => driver.FindElement(By.Id("brandName")));
@@ -82,7 +82,7 @@ namespace UIAutomationTest
             StringAssert.Contains("Empresa y dueño registrados correctamente.", mensaje);
 
 
-            _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
+            _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/auth/login");
 
             wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => driver.FindElement(By.Id("username")));
@@ -97,7 +97,7 @@ namespace UIAutomationTest
             wait.Until(driver => driver.Url.Contains("/landing-page") || driver.FindElements(By.CssSelector("a.btn.btn-primary[href='/company/edit']")).Count > 0);
 
             if (!_driver.Url.Contains("/landing-page"))
-                _driver.Navigate().GoToUrl("https://localhost:55281/landing-page");
+                _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/landing-page");
 
             var editarBtn = wait.Until(driver =>
             {

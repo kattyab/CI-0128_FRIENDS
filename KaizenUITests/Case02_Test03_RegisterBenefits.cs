@@ -22,7 +22,7 @@ namespace UIAutomationTest
     [Test]
     public void CrearVariosBeneficios_DeberiaRegistrarCorrectamente()
     {
-      _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
+      _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/auth/login");
 
       _wait.Until(driver => driver.FindElement(By.Id("username")));
 
@@ -59,7 +59,7 @@ namespace UIAutomationTest
 
       foreach (var beneficio in beneficios)
       {
-        _driver.Navigate().GoToUrl("https://localhost:55281/benefits/create");
+        _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/benefits/create");
         _wait.Until(driver => driver.FindElement(By.Id("benefitName")));
 
         _driver.FindElement(By.Id("benefitName")).Clear();
