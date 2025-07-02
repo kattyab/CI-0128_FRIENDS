@@ -1,6 +1,7 @@
 using Kaizen.Server.API.Controllers;
 using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Infrastructure.Contexts;
 
 namespace Kaizen.Server.Application.Services.Payroll
 {
@@ -23,7 +24,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             _deductionAggregator = deductionAggregator;
         }
 
-        public async Task<PayrollSummary> CalculatePayrollAsync(EmployeePayroll employee, PayrollRequest request)
+        public async Task<PayrollSummary> CalculatePayrollAsync(EmployeePayroll employee, PayrollRequest request, PayrollTransactionContext context = null)
         {
             var daysWorked = _daysWorkedCalculator.Calculate(employee, request.Start, request.End);
             var isBiweekly = employee.PayrollTypeDescription.Equals(BiweeklyTypeDescription, StringComparison.OrdinalIgnoreCase);
@@ -34,7 +35,7 @@ namespace Kaizen.Server.Application.Services.Payroll
             var salaryForDeductions = _salaryCalculator.GetSalaryForDeductions(employee, proportional, isFullPeriod);
 
             var (api, benefit, ccss, income, total) = await _deductionAggregator.GetAllDeductionsAsync(
-                request.CompanyId, employee, proportional, isFullPeriod, salaryForDeductions);
+                request.CompanyId, employee, proportional, isFullPeriod, salaryForDeductions, context);
 
             return new PayrollSummary
             {

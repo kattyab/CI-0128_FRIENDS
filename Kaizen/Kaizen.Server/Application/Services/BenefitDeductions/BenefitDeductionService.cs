@@ -1,6 +1,7 @@
 using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Contexts;
 
 namespace Kaizen.Server.Application.Services.BenefitDeductions
 {
@@ -28,16 +29,16 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             _employeeRepo = employeeRepo;
         }
 
-        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID)
+        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, PayrollTransactionContext context = null)
         {
             if (_companyBenefits == null)
-                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID);
+                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID, context);
 
             if (_employeeData == null)
-                _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
+                _employeeData = await _employeeRepo.GetEmployeesByCompanyAsync(_companyID, context);
 
             if (_employeeChosenBenefits == null)
-                _employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
+                _employeeChosenBenefits = await _employeeRepo.GetChosenBenefitsByCompanyAsync(_companyID, context);
 
             if (!_employeeChosenBenefits.ContainsKey(employeeID) || !_employeeData.ContainsKey(employeeID))
                 return new List<BenefitDeductionResult>();
@@ -55,16 +56,16 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
                 .ToList();
         }
 
-        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, decimal proporcionalSalary)
+        public async Task<List<BenefitDeductionResult>> GetBenefitDeductionsForEmployeeAsync(Guid employeeID, decimal proporcionalSalary, PayrollTransactionContext context = null)
         {
             if (_companyBenefits == null)
-                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID);
+                _companyBenefits = await _benefitRepo.GetBenefitsByCompanyAsync(_companyID, context);
 
             if (_employeeData == null)
-                _employeeData = _employeeRepo.GetEmployeesByCompany(_companyID);
+                _employeeData = await _employeeRepo.GetEmployeesByCompanyAsync(_companyID, context);
 
             if (_employeeChosenBenefits == null)
-                _employeeChosenBenefits = _employeeRepo.GetChosenBenefitsByCompany(_companyID);
+                _employeeChosenBenefits = await _employeeRepo.GetChosenBenefitsByCompanyAsync(_companyID, context);
 
             if (!_employeeChosenBenefits.ContainsKey(employeeID) || !_employeeData.ContainsKey(employeeID))
                 return new List<BenefitDeductionResult>();
@@ -90,9 +91,9 @@ namespace Kaizen.Server.Application.Services.BenefitDeductions
             if (benefit.IsPercetange && benefit.PercentageValue.HasValue)
                 return Math.Round((benefit.PercentageValue.Value / _percentageDivider) * salary, _decimalPlacesToRound);
 
-
             return 0;
         }
+
         private static bool MeetsMinMonths(EmployeeDto emp, Benefit benefit)
         {
             var now = DateTime.Now;

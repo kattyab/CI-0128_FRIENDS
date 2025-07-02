@@ -1,5 +1,6 @@
 using Kaizen.Server.Application.Dtos.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.ApiDeductions;
+using Kaizen.Server.Infrastructure.Contexts;
 using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -14,7 +15,7 @@ public class CachedApiBenefitRepository : IApiBenefitRepository
         _memoryCache = cache;
     }
 
-    public Task<List<APIsDto>> GetBenefitsAsync(Guid companyId)
+    public Task<List<APIsDto>> GetBenefitsAsync(Guid companyId, PayrollTransactionContext context = null)
     {
         string cacheKey = $"benefits-{companyId}";
         return _memoryCache.GetOrCreateAsync(cacheKey, entry =>
@@ -24,7 +25,7 @@ public class CachedApiBenefitRepository : IApiBenefitRepository
         });
     }
 
-    public Task<List<EmployeeBenefitParameterDto>> GetParametersForCompanyAsync(Guid companyId)
+    public Task<List<EmployeeBenefitParameterDto>> GetParametersForCompanyAsync(Guid companyId, PayrollTransactionContext context = null)
     {
         string cacheKey = $"employee-params-{companyId}";
         return _memoryCache.GetOrCreateAsync(cacheKey, entry =>
