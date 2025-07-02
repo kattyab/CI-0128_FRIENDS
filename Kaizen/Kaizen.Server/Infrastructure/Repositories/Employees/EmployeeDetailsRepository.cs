@@ -18,7 +18,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
         public async Task<EmployeeDetailsDto?> GetByIdAsync(Guid empId)
         {
             const string query = @"
-                SELECT 
+                SELECT
                     e.EmpID,
                     p.Id,
                     p.Name AS FirstName,
@@ -42,7 +42,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
                     pp.Number AS PhoneNumber,
                     adc.Name AS ApiName,
                     b.Name AS BenefitName
-                FROM 
+                FROM
                     dbo.Employees e
                     INNER JOIN dbo.Persons p ON e.PersonPK = p.PersonPK
                     LEFT JOIN dbo.Users u ON p.PersonPK = u.PersonPK
@@ -51,8 +51,9 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
                     LEFT JOIN dbo.ApiDeductionConfigs adc ON ca.ApiID = adc.Id
                     LEFT JOIN dbo.ChosenBenefits cb ON e.EmpID = cb.EmployeeID
                     LEFT JOIN dbo.Benefits b ON cb.BenefitID = b.ID
-                WHERE 
-                    e.EmpID = @EmpID";
+                WHERE
+                    e.EmpID = @EmpID
+                    AND e.IsDeleted = 0";
 
             using var connection = new SqlConnection(_connectionString);
             using var adapter = new SqlDataAdapter();
@@ -182,8 +183,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
         private static async Task UpdatePersonAsync(Guid personPK, EmployeeDetailsDto dto, SqlConnection connection, SqlTransaction transaction)
         {
             const string query = @"
-                UPDATE dbo.Persons 
-                SET 
+                UPDATE dbo.Persons
+                SET
                     Id = @Id,
                     Name = @FirstName,
                     LastName = @LastName,
@@ -209,8 +210,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
         private static async Task UpdateEmployeeAsync(Guid empId, EmployeeDetailsDto dto, SqlConnection connection, SqlTransaction transaction)
         {
             const string query = @"
-                UPDATE dbo.Employees 
-                SET 
+                UPDATE dbo.Employees
+                SET
                     JobPosition = @JobPosition,
                     ContractType = @ContractType,
                     WorkHours = @WorkHours,
@@ -236,8 +237,8 @@ namespace Kaizen.Server.Infrastructure.Repositories.Employees
         private static async Task UpdateUserAsync(Guid personPK, EmployeeDetailsDto dto, SqlConnection connection, SqlTransaction transaction)
         {
             const string query = @"
-                UPDATE dbo.Users 
-                SET 
+                UPDATE dbo.Users
+                SET
                     Email = @Email,
                     Role = @Role,
                     Active = @Status

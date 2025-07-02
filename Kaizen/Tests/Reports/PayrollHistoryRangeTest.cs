@@ -79,7 +79,7 @@ namespace Tests.Services
                 new EmployeeDto { EmpID = Guid.NewGuid(), Name = "John", LastName = "Doe" }
             };
             _mockCompaniesRepository.Setup(r => r.GetCompany(companyId)).Returns(company);
-            _mockEmployeesRepository.Setup(r => r.GetEmployees(companyId)).Returns(employees);
+            _mockEmployeesRepository.Setup(r => r.GetEmployees(companyId, It.IsAny<bool>())).Returns(employees);
 
             var result = _service.GetHistoricRangeInitialDataAsync(companyId);
 
