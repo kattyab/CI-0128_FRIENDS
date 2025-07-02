@@ -97,6 +97,10 @@
 </template>
 
 <script setup>
+function formatNumber(num) {
+  if (num === null || num === undefined) return '';
+  return Number(num).toLocaleString('es-CR', { maximumFractionDigits: 0 });
+}
 function filterByName() {
   applyFilters();
 }
@@ -104,7 +108,7 @@ function filterByName() {
 function filterByDateRange(list) {
   const start = searchData.value.start;
   const end = searchData.value.end;
-  if (!start && !end) return list;
+  if (!start && !end) return [];
   return list.filter((item) => {
     if (!item.fechaPago) return false;
     const fechaPago = item.fechaPago.length === 10 ? item.fechaPago : String(item.fechaPago).slice(0, 10);
@@ -117,9 +121,14 @@ function filterByDateRange(list) {
 function applyFilters() {
   let filtered = [...payrollData.value];
   const name = searchData.value.name.trim().toLowerCase();
-  if (name) {
-    filtered = filtered.filter((item) => (item.employeeName || '').toLowerCase().includes(name));
+  const start = searchData.value.start;
+  const end = searchData.value.end;
+  // Solo mostrar datos si hay nombre y fechas
+  if (!name || !start || !end) {
+    payrollDataFiltered.value = [];
+    return;
   }
+  filtered = filtered.filter((item) => (item.employeeName || '').toLowerCase().includes(name));
   filtered = filterByDateRange(filtered);
   payrollDataFiltered.value = filtered;
 }
@@ -144,17 +153,11 @@ async function fetchPayrollData() {
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/reports/employee-total`, { withCredentials: true });
     payrollData.value = response.data;
     applyFilters();
-  } catch (e) {
+  } catch {
     payrollData.value = [];
     payrollDataFiltered.value = [];
     alert("Error al obtener los datos de planilla");
   }
-}
-
-
-function formatNumber(num) {
-  if (num === null || num === undefined) return "";
-  return Number(num).toLocaleString("es-CR", { maximumFractionDigits: 0 });
 }
 
 function openExportModal() {
@@ -174,6 +177,7 @@ function exportDownload() {
 function search() {
   applyFilters();
 }
+
 
 onMounted(() => {
   modalObject.value = new Modal(modalElement.value);
