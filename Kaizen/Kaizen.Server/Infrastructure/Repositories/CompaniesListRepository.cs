@@ -32,6 +32,7 @@ public class CompaniesListRepository(IConfiguration configuration)
             Persons p ON c.OwnerPK = p.PersonPK
         LEFT JOIN
             Employees e ON e.WorksFor = c.CompanyPK
+        WHERE e.IsDeleted = 0
         GROUP BY
             c.CompanyPK,
             c.CompanyID,
