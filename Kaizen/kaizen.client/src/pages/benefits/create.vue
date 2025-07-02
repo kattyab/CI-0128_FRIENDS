@@ -126,6 +126,7 @@
 <script>
   import { ref, reactive, onMounted } from 'vue';
   import axios from 'axios';
+  import { useRoute, useRouter } from "vue-router";
 
   export default {
     name: 'BenefitCreation',
@@ -154,6 +155,8 @@
       const formErrorMessage = ref('');
       const showSuccessMessage = ref(false);
       const successMessage = ref('');
+
+      const router = useRouter();
 
       onMounted(() => {
         axios.get(`${import.meta.env.VITE_API_URL}/api/login/authenticate`, { withCredentials: true })
@@ -400,9 +403,8 @@
     font-weight: bold;
   }
 
-  .form-error-message, .success-message{
+  .form-error-message, .success-message {
     border-radius: 10px;
     text-align: center;
   }
-
 </style>

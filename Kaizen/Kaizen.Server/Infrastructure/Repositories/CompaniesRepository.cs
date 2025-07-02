@@ -2,6 +2,7 @@ using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Companies;
 using Kaizen.Server.Application.Interfaces.Companies;
 using Kaizen.Server.Infrastructure.Contexts;
+using Kaizen.Server.Application.Interfaces.Repositories;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
