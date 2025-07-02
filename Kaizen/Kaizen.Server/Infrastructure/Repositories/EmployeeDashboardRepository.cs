@@ -42,7 +42,7 @@ public class EmployeeDashboardRepository : IEmployeeDashboardRepository
             FROM Users u
             JOIN Persons p ON u.PersonPK = p.PersonPK
             JOIN Employees e ON u.PersonPK = e.PersonPK
-            WHERE u.UserPK = @UserPK
+            WHERE u.UserPK = @UserPK AND e.IsDeleted = 0
         ),
         RecentPayrolls AS (
             SELECT pr.PayrollID, pr.PaidTo AS EmpID, pr.GeneralPayrollPK,
@@ -59,7 +59,8 @@ public class EmployeeDashboardRepository : IEmployeeDashboardRepository
                rp.IncomeTax, rp.CCSS, rp.BrutePaid, rp.NetPaid
         FROM UserInfo ui
         LEFT JOIN RecentPayrolls rp ON ui.EmpID = rp.EmpID AND rp.rn <= 3
-        ORDER BY rp.ExecutedOn DESC;";
+        ORDER BY rp.ExecutedOn DESC;
+        ";
 
         SqlParameter[] parameters = [new("@UserPK", SqlDbType.UniqueIdentifier) { Value = userPK }];
         using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, commandText, CommandType.Text, parameters);
@@ -87,7 +88,7 @@ public class EmployeeDashboardRepository : IEmployeeDashboardRepository
             SELECT e.EmpID
             FROM Users u
             JOIN Employees e ON u.PersonPK = e.PersonPK
-            WHERE u.UserPK = @UserPK
+            WHERE u.UserPK = @UserPK AND e.IsDeleted = 0
         ),
         RecentPayroll AS (
             SELECT TOP 1 PayrollID
@@ -97,7 +98,8 @@ public class EmployeeDashboardRepository : IEmployeeDashboardRepository
         )
         SELECT od.Name, od.Amount, od.PayrollID
         FROM OptionalDeductions od
-        WHERE od.PayrollID = (SELECT PayrollID FROM RecentPayroll);";
+        WHERE od.PayrollID = (SELECT PayrollID FROM RecentPayroll);
+        ";
 
         SqlParameter[] parameters = [new("@UserPK", SqlDbType.UniqueIdentifier) { Value = userPK }];
         using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, optionalQuery, CommandType.Text, parameters);
