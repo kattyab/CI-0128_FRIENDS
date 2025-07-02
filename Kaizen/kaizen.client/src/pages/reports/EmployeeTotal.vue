@@ -123,7 +123,6 @@ function applyFilters() {
   const name = searchData.value.name.trim().toLowerCase();
   const start = searchData.value.start;
   const end = searchData.value.end;
-  // Solo mostrar datos si hay nombre y fechas
   if (!name || !start || !end) {
     payrollDataFiltered.value = [];
     return;
@@ -166,12 +165,41 @@ function openExportModal() {
 function closeExportModal() {
   modalObject.value.hide();
 }
-function exportEmail() {
-  alert("Correo enviado (mock)");
+async function exportEmail() {
+  try {
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/reports/employee-total/email`, {
+      filters: searchData.value
+    }, { withCredentials: true });
+    alert("Correo enviado.");
+  } catch {
+    alert("Error al enviar correo.");
+  }
   closeExportModal();
 }
+
 function exportDownload() {
-  alert("Descarga iniciada (mock)");
+  const headers = [
+    'Nombre empleado', 'Cédula', 'Tipo de empleado', 'Periodo de pago', 'Fecha de pago', 'Salario bruto', 'Cargas sociales empleador', 'Deducciones voluntarias', 'Costo empleador'
+  ];
+  const rows = payrollDataFiltered.value.map(item => [
+    item.employeeName,
+    item.cedula,
+    item.tipoEmpleado,
+    item.periodoPago,
+    item.fechaPago,
+    item.salarioBruto,
+    item.cargasSociales,
+    item.deduccionesVoluntarias,
+    item.costoEmpleador
+  ]);
+  const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", "reporte_planilla_total.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   closeExportModal();
 }
 function search() {
