@@ -1,10 +1,11 @@
-﻿using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Infrastructure.Contexts;
 
 namespace Kaizen.Server.Application.Interfaces.BenefitDeductions
 {
     public interface IEmployeeDeductionRepository
     {
-        Dictionary<Guid, EmployeeDto> GetEmployeesByCompany(Guid companyID);
-        Dictionary<Guid, List<Guid>> GetChosenBenefitsByCompany(Guid companyID);
+        Task<Dictionary<Guid, EmployeeDto>> GetEmployeesByCompanyAsync(Guid companyID, PayrollTransactionContext context = null);
+        Task<Dictionary<Guid, List<Guid>>> GetChosenBenefitsByCompanyAsync(Guid companyID, PayrollTransactionContext context = null);
     }
 }

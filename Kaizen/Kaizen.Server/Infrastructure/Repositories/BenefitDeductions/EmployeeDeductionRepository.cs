@@ -1,6 +1,9 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Dtos;
+using Kaizen.Server.Infrastructure.Contexts;
+using System.Diagnostics;
+using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories
 {
@@ -13,9 +16,18 @@ namespace Kaizen.Server.Infrastructure.Repositories
             _connection = connection;
         }
 
-        public Dictionary<Guid, EmployeeDto> GetEmployeesByCompany(Guid companyID)
+        private static async Task EnsureOpenAsync(SqlConnection connection, string label)
+        {
+            if (connection.State != ConnectionState.Open)
+                await connection.OpenAsync();
+        }
+
+        public async Task<Dictionary<Guid, EmployeeDto>> GetEmployeesByCompanyAsync(Guid companyID, PayrollTransactionContext context = null)
         {
             var employees = new Dictionary<Guid, EmployeeDto>();
+            var connectionToUse = context?.Connection ?? _connection;
+            string label = context != null ? "PayrollTransactionContext" : "Default Repository Connection";
+            await EnsureOpenAsync(connectionToUse, label);
 
             const string sql = @"
                 SELECT EmpID, StartDate, BruteSalary
@@ -23,14 +35,14 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 WHERE WorksFor = @CompanyID;
             ";
 
-            using var command = new SqlCommand(sql, _connection);
+            using var command = context != null
+                ? new SqlCommand(sql, connectionToUse, context.Transaction)
+                : new SqlCommand(sql, connectionToUse);
+
             command.Parameters.AddWithValue("@CompanyID", companyID);
 
-            if (_connection.State != System.Data.ConnectionState.Open)
-                _connection.Open();
-
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
             {
                 var empID = reader.GetGuid(0);
                 employees[empID] = new EmployeeDto
@@ -40,12 +52,16 @@ namespace Kaizen.Server.Infrastructure.Repositories
                     BruteSalary = reader.GetDecimal(2)
                 };
             }
+
             return employees;
         }
 
-        public Dictionary<Guid, List<Guid>> GetChosenBenefitsByCompany(Guid companyID)
+        public async Task<Dictionary<Guid, List<Guid>>> GetChosenBenefitsByCompanyAsync(Guid companyID, PayrollTransactionContext context = null)
         {
             var chosenBenefits = new Dictionary<Guid, List<Guid>>();
+            var connectionToUse = context?.Connection ?? _connection;
+            string label = context != null ? "PayrollTransactionContext" : "Default Repository Connection";
+            await EnsureOpenAsync(connectionToUse, label);
 
             const string sql = @"
                 SELECT cb.EmployeeID, cb.BenefitID
@@ -54,14 +70,14 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 WHERE e.WorksFor = @CompanyID;
             ";
 
-            using var command = new SqlCommand(sql, _connection);
+            using var command = context != null
+                ? new SqlCommand(sql, connectionToUse, context.Transaction)
+                : new SqlCommand(sql, connectionToUse);
+
             command.Parameters.AddWithValue("@CompanyID", companyID);
 
-            if (_connection.State != System.Data.ConnectionState.Open)
-                _connection.Open();
-
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
             {
                 var employeeID = reader.GetGuid(0);
                 var benefitID = reader.GetGuid(1);
@@ -71,6 +87,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
 
                 chosenBenefits[employeeID].Add(benefitID);
             }
+
             return chosenBenefits;
         }
     }
