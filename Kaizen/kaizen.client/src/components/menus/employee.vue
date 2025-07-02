@@ -9,7 +9,7 @@
     <h5>Menu</h5>
 
     <div class="menu d-flex flex-column">
-      <router-link class="button" to="/landing-page">
+      <router-link class="button" to="/dashboardemployee">
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
       </router-link>
@@ -25,6 +25,7 @@
         <span class="material-icons">workspace_premium</span>
         <span class="text">Suscribir Beneficios</span>
       </router-link>
+
 
       <div class="reports-section" ref="reports_section">
         <button class="button reports-toggle" @click="ToggleReports">
@@ -236,7 +237,7 @@
           max-height: 0;
           overflow: hidden;
           transition: max-height 0.3s ease;
-          background-color: rgba(0, 60, 99, 0.05);
+          background-color: rgb(244, 246, 248);
 
           &.expanded {
             max-height: 200px;

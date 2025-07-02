@@ -54,13 +54,12 @@ namespace Kaizen.Server.Tests.Payroll
             _daysWorkedMock
                 .Setup(m => m.Calculate(It.IsAny<EmployeePayroll>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Callback<EmployeePayroll, DateTime, DateTime>((emp, start, end) =>
-                {})
+                { })
                 .Returns(30);
 
             _salaryCalcMock
-                .Setup(m => m.Calculate(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .Callback<decimal, int, bool>((salary, days, flag) =>
-                {})
+                .Setup(m => m.Calculate(It.IsAny<decimal>(), It.IsAny<int>(), peticion))
+                .Callback<decimal, int, PayrollRequest>((salary, days, request) => { })
                 .Returns((2000m, 2000m));
 
             _salaryCalcMock
@@ -78,14 +77,14 @@ namespace Kaizen.Server.Tests.Payroll
             decimal totalValue = 250m;
 
             _deductionAggMock
-                .Setup(m => m.GetAllDeductionsAsync(It.IsAny<Guid>(), It.IsAny<EmployeePayroll>(), It.IsAny<decimal>(), It.IsAny<bool>(), It.IsAny<decimal>()))
+                .Setup(m => m.GetAllDeductionsAsync(It.IsAny<Guid>(), It.IsAny<EmployeePayroll>(), It.IsAny<decimal>(), It.IsAny<bool>(), It.IsAny<decimal>(), null))
                 .ReturnsAsync((apiDict, benefitList, ccssValue, incomeValue, totalValue));
 
             // Act
             var resumen = await _calculator.CalculatePayrollAsync(empleado, peticion);
 
             _daysWorkedMock.Verify(m => m.Calculate(It.IsAny<EmployeePayroll>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.AtLeastOnce);
-            _salaryCalcMock.Verify(m => m.Calculate(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<bool>()), Times.AtLeastOnce);
+            _salaryCalcMock.Verify(m => m.Calculate(It.IsAny<decimal>(), It.IsAny<int>(), peticion), Times.AtLeastOnce);
 
             Assert.AreEqual(empleado.EmpID, resumen.EmployeeId);
             Assert.AreEqual(empleado.ContractType, resumen.ContractType);
@@ -124,7 +123,7 @@ namespace Kaizen.Server.Tests.Payroll
                 .Setup(m => m.Calculate(
                     empleado.BruteSalary,
                     15,
-                    true))
+                    peticion))
                 .Returns((1500m, 1500m));
 
             _salaryCalcMock
@@ -156,7 +155,8 @@ namespace Kaizen.Server.Tests.Payroll
                     empleado,
                     1500m,
                     true,
-                    1500m))
+                    1500m,
+                    null))
                 .ReturnsAsync((apiDict2, benefitList2, ccss2, income2, total2));
 
             var resumen = await _calculator.CalculatePayrollAsync(empleado, peticion);
@@ -202,7 +202,7 @@ namespace Kaizen.Server.Tests.Payroll
                 .Setup(m => m.Calculate(
                     empleado.BruteSalary,
                     10,
-                    false))
+                    peticion))
                 .Returns((1000m, 1000m));
 
             _salaryCalcMock
@@ -234,7 +234,8 @@ namespace Kaizen.Server.Tests.Payroll
                     empleado,
                     1000m,
                     false,
-                    800m))
+                    800m,
+                    null))
                 .ReturnsAsync((apiDict3, benefitList3, ccss3, income3, total3));
 
             var resumen = await _calculator.CalculatePayrollAsync(empleado, peticion);
@@ -249,7 +250,8 @@ namespace Kaizen.Server.Tests.Payroll
                 empleado,
                 1000m,
                 false,
-                800m),
+                800m,
+                null),
                 Times.Once);
 
             CollectionAssert.AreEqual(apiDict3, resumen.ApiDeductions);

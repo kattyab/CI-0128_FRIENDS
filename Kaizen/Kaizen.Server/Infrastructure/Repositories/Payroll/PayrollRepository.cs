@@ -2,6 +2,7 @@ using Kaizen.Server.Application.Dtos.Benefits;
 using Kaizen.Server.Application.Dtos.Payroll;
 using Kaizen.Server.Application.Dtos.Reports;
 using Kaizen.Server.Application.Interfaces.Payroll;
+using Kaizen.Server.Infrastructure.Contexts;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -30,7 +31,39 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
             _employeeRepository = employeeRepository;
         }
 
-        public async Task SavePayrollAsync(Guid companyId, List<PayrollSummary> summaries, string email)
+        public async Task SavePayrollAsync(Guid companyId, List<PayrollSummary> summaries, string email, PayrollTransactionContext context = null)
+        {
+            if (context != null)
+            {
+                await SavePayrollWithTransactionAsync(context, companyId, summaries, email);
+            }
+            else
+            {
+                await SavePayrollWithoutTransactionAsync(companyId, summaries, email);
+            }
+        }
+
+        private async Task SavePayrollWithTransactionAsync(PayrollTransactionContext context, Guid companyId, List<PayrollSummary> summaries, string email)
+        {
+            var generalPayrollId = Guid.NewGuid();
+
+            var executorPersonPk = await _employeeRepository.GetPersonPkByEmailAsync(email, context);
+
+            var generalData = _dataTransformer.BuildGeneralPayrollData(companyId, generalPayrollId, summaries, 0.2667m);
+            var payrollsTable = _dataTransformer.BuildPayrollsTable(generalPayrollId, summaries, executorPersonPk);
+            var deductionsTable = _dataTransformer.BuildOptionalDeductionsTable(summaries);
+
+            await ExecuteSavePayrollCommand(
+                context.Connection,
+                context.Transaction,
+                generalPayrollId,
+                companyId,
+                generalData,
+                payrollsTable,
+                deductionsTable);
+        }
+
+        private async Task SavePayrollWithoutTransactionAsync(Guid companyId, List<PayrollSummary> summaries, string email)
         {
             var connectionString = _configuration.GetConnectionString("KaizenDb");
             await using var sqlConnection = new SqlConnection(connectionString);
@@ -38,23 +71,23 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
 
             var generalPayrollId = Guid.NewGuid();
             var executorPersonPk = await _employeeRepository.GetPersonPkByEmailAsync(email);
-
             var generalData = _dataTransformer.BuildGeneralPayrollData(companyId, generalPayrollId, summaries, 0.2667m);
             var payrollsTable = _dataTransformer.BuildPayrollsTable(generalPayrollId, summaries, executorPersonPk);
             var deductionsTable = _dataTransformer.BuildOptionalDeductionsTable(summaries);
 
-            await ExecuteSavePayrollCommand(sqlConnection, generalPayrollId, companyId, generalData, payrollsTable, deductionsTable);
+            await ExecuteSavePayrollCommand(sqlConnection, null, generalPayrollId, companyId, generalData, payrollsTable, deductionsTable);
         }
 
         private static async Task ExecuteSavePayrollCommand(
             SqlConnection connection,
+            SqlTransaction transaction,
             Guid generalPayrollId,
             Guid companyId,
             GeneralPayrollData generalData,
             DataTable payrollsTable,
             DataTable deductionsTable)
         {
-            await using var sqlCommand = new SqlCommand("SaveFullPayroll", connection)
+            await using var sqlCommand = new SqlCommand("SaveFullPayroll", connection, transaction)
             {
                 CommandType = CommandType.StoredProcedure
             };

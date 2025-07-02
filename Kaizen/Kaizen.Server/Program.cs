@@ -20,14 +20,15 @@ using Kaizen.Server.Application.Services.Payroll;
 using Kaizen.Server.Infrastructure.Repositories;
 using Kaizen.Server.Infrastructure.Repositories.ApiDeductions;
 using Kaizen.Server.Infrastructure.Repositories.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Services.Payroll;
 using Kaizen.Server.Infrastructure.Repositories.Benefits;
 using Kaizen.Server.Infrastructure.Repositories.Employees;
 using Kaizen.Server.Infrastructure.Services;
 using Kaizen.Server.Infrastructure.Services.ApiDeductions;
 using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Infrastructure.Services.Reports;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
-using Kaizen.Server.Infrastructure.Services.Payroll;
 using Microsoft.Data.SqlClient;
 using System.Reflection;
 
@@ -104,12 +105,19 @@ builder.Services.AddScoped<IDaysWorkedCalculator, DaysWorkedCalculator>();
 builder.Services.AddScoped<ISalaryCalculator, SalaryCalculator>();
 builder.Services.AddScoped<IDeductionAggregator, DeductionAggregator>();
 
+builder.Services.AddScoped<IEmployeeDashboardRepository, EmployeeDashboardRepository>();
+
+
 builder.Services.AddPayrollServices();
+builder.Services.AddReportsServices();
 
 builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+
+builder.Services.AddScoped<IGeneralPayrollReportRepository, GeneralPayrollReportRepository>();
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));

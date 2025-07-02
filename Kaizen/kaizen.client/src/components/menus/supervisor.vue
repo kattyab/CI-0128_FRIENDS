@@ -9,7 +9,7 @@
     <h5>Menu</h5>
 
     <div class="menu">
-      <router-link class="button" to="/landing-page">
+      <router-link class="button" to="/dashboardemployee">
         <span class="material-icons">home</span>
         <span class="text">Inicio</span>
       </router-link>
@@ -219,7 +219,7 @@
           max-height: 0;
           overflow: hidden;
           transition: max-height 0.3s ease, transform 0.3s ease;
-          background-color: rgba(0, 60, 99, 0.05);
+          background-color: rgb(244, 246, 248);
 
           &.expanded {
             max-height: 400px;
