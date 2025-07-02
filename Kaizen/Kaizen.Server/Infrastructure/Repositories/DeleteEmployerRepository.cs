@@ -84,7 +84,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            using var transaction = connection.BeginTransaction(); // ReadCommitted por defecto
+            using var transaction = connection.BeginTransaction();
             try
             {
                 using var command = new SqlCommand(query, connection, transaction);
@@ -116,7 +116,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            using var transaction = connection.BeginTransaction(); // ReadCommitted por defecto
+            using var transaction = connection.BeginTransaction();
             try
             {
                 using var command = new SqlCommand(query, connection, transaction);
