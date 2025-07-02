@@ -157,6 +157,8 @@ public class EmployeesRepository(IConfiguration configuration) : IEmployeesRepos
     public void DeleteEmployee(Guid companyPK, Guid employeeId, Guid userId)
     {
         const string companyCommandText = @"
+            BEGIN TRAN DELETE_EMPLOYEE_TRANSACTION;
+
             UPDATE
                 Employees
             SET
@@ -165,7 +167,9 @@ public class EmployeesRepository(IConfiguration configuration) : IEmployeesRepos
                 DeletedAt = GETDATE()
             WHERE
                 WorksFor = @CompanyPK AND
-                EmpID = @EmpID";
+                EmpID = @EmpID
+
+            COMMIT TRAN DELETE_EMPLOYEE_TRANSACTION;";
 
         SqlParameter[] companyParameters =
         [
