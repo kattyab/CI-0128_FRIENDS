@@ -35,16 +35,10 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
         {
             if (context != null)
             {
-#if DEBUG
-                Console.WriteLine("Using provided transaction context for payroll saving.");
-#endif
                 await SavePayrollWithTransactionAsync(context, companyId, summaries, email);
             }
             else
             {
-#if DEBUG
-                Console.WriteLine("No transaction context provided, creating a new connection for payroll saving.");
-#endif
                 await SavePayrollWithoutTransactionAsync(companyId, summaries, email);
             }
         }

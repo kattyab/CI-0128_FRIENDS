@@ -20,10 +20,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
         {
             if (connection.State != ConnectionState.Open)
                 await connection.OpenAsync();
-
-#if DEBUG
-            Debug.WriteLine($"[DEBUG] Using connection from: {label}");
-#endif
         }
 
         public async Task<List<Benefit>> GetBenefitsByCompanyAsync(Guid companyID, PayrollTransactionContext context = null)

@@ -20,9 +20,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
             var employeeData = new List<EmployeePayroll>();
             if (context != null)
             {
-#if DEBUG
-                Console.WriteLine("Using provided transaction context for database operations.");
-#endif
                 var cmdText = @"
                 SELECT 
                     E.EmpID, E.BruteSalary, E.StartDate, E.FireDate, 
@@ -52,9 +49,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Payroll
             }
             else
             {
-#if DEBUG
-                Console.WriteLine("No transaction context provided, using direct database connection.");
-#endif
                 var connectionString = _configuration.GetConnectionString("KaizenDb");
                 await using var connection = new SqlConnection(connectionString);
                 await connection.OpenAsync();

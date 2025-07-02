@@ -20,10 +20,6 @@ public class ApiBenefitDeductionRepository : IApiBenefitRepository
     {
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync();
-
-#if DEBUG
-        Debug.WriteLine($"[DEBUG] Using connection from: {label}");
-#endif
     }
 
     public async Task<List<APIsDto>> GetBenefitsAsync(Guid companyId, PayrollTransactionContext context = null)

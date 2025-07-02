@@ -20,10 +20,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
         {
             if (connection.State != ConnectionState.Open)
                 await connection.OpenAsync();
-
-#if DEBUG
-            Debug.WriteLine($"[DEBUG] Using connection from: {label}");
-#endif
         }
 
         public async Task<Dictionary<Guid, EmployeeDto>> GetEmployeesByCompanyAsync(Guid companyID, PayrollTransactionContext context = null)
