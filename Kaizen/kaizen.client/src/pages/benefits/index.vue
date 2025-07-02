@@ -78,7 +78,6 @@
 
   onMounted(() => {
     fetchData();
-    checkCompanyStatus();
   });
 </script>
 
