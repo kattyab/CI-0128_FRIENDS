@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories
