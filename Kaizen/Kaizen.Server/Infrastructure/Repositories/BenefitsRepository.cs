@@ -38,7 +38,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 FROM
                     Benefits
                 WHERE
-                OfferedBy = @OfferedBy AND Benefits.Active = 1
+                OfferedBy = @OfferedBy AND Benefits.Active = 1 AND Benefits.IsOut = 0
 
                 UNION ALL
 
