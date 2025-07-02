@@ -46,7 +46,7 @@ onMounted(async () => {
   let companyPk = localStorage.getItem('companyPk')
   if (!companyPk) {
     try {
-      const pay = await fetch('/api/login/payroll-info', { credentials: 'include' })
+      const pay = await fetch('/api/Login/payroll-info', { credentials: 'include' })
       if (pay.ok) {
         const { companyId } = await pay.json()
         companyPk = companyId
