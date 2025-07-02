@@ -59,7 +59,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
-                    <button class="dropdown-item" type="button">Información de usuario</button>
+                    <button class="dropdown-item" type="button" @click="goToLandingPage">Información de usuario</button>
                   </li>
                   <li>
                     <button class="dropdown-item" type="button" @click="logout">
@@ -77,12 +77,21 @@
 </template>
 
 <script setup>
+
 import { ref, onMounted } from "vue";
 import { useLogout } from "@/composables/useLogout";
+import { useRouter } from 'vue-router';
 
 const { logout } = useLogout();
 
+
 const notifications = ref(null);
+
+const router = useRouter();
+
+function goToLandingPage() {
+  router.push({ name: 'Landing-page' });
+}
 
 async function fetchData() {
   try {
