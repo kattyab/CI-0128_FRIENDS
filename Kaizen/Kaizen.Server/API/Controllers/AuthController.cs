@@ -25,7 +25,7 @@ public class AuthController(IAuthService authService, UserInfoRepository userInf
         return Ok(userInfo);
     }
 
-    [HttpGet("isCompanyDeleted")]
+    [HttpGet("is-company-deleted")]
     public IActionResult GetIsCompanyDeleted()
     {
         if (!authService.IsAuthenticated())

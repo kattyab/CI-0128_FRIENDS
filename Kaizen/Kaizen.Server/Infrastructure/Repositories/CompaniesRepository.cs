@@ -1,17 +1,32 @@
 using Kaizen.Server.Application.Dtos;
 using Kaizen.Server.Application.Dtos.Companies;
+using Kaizen.Server.Application.Interfaces.Companies;
+using Kaizen.Server.Infrastructure.Contexts;
 using Kaizen.Server.Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Transactions;
 
 namespace Kaizen.Server.Infrastructure.Repositories;
 
-public class CompaniesRepository(IConfiguration configuration)
+public class CompaniesRepository : ICompaniesRepository
 {
-    private readonly string _connectionString =
-        configuration.GetConnectionString("KaizenDb")
-        ?? throw new InvalidOperationException(
-               "The connection string 'KaizenDb' is not defined in appsettings.json.");
+    private readonly string _connectionString;
+
+    public CompaniesRepository(IConfiguration configuration)
+    {
+        _connectionString = configuration.GetConnectionString("KaizenDb")
+            ?? throw new InvalidOperationException(
+                   "The connection string 'KaizenDb' is not defined in appsettings.json.");
+    }
+
+    private static async Task EnsureOpenAsync(SqlConnection connection)
+    {
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+    }
 
     public List<CompanyDto> GetCompanies()
     {
@@ -38,7 +53,7 @@ public class CompaniesRepository(IConfiguration configuration)
 
         List<CompanyDto> companies = [];
 
-        using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString, commandText, CommandType.Text);
+        using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, commandText, CommandType.Text);
 
         while (reader.Read())
         {
@@ -118,7 +133,7 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@CompanyPK", companyPK),
         ];
 
-        using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString, commandText, CommandType.Text, parameters);
+        using SqlDataReader reader = SqlHelper.ExecuteReader(_connectionString, commandText, CommandType.Text, parameters);
         if (reader.Read())
         {
             company = new()
@@ -177,7 +192,7 @@ public class CompaniesRepository(IConfiguration configuration)
                 new SqlParameter("@OwnerPK", company.OwnerPK),
             ];
 
-            using SqlDataReader ownerReader = SqlHelper.ExecuteReader(this._connectionString, ownerNameCommandText, CommandType.Text, parameters);
+            using SqlDataReader ownerReader = SqlHelper.ExecuteReader(_connectionString, ownerNameCommandText, CommandType.Text, parameters);
             if (ownerReader.Read())
             {
                 company.OwnerName = ownerReader.GetString(ownerReader.GetOrdinal("Name")) + " " +
@@ -197,7 +212,7 @@ public class CompaniesRepository(IConfiguration configuration)
                 new SqlParameter("@CompanyPK", company.CompanyPK),
             ];
 
-            using SqlDataReader phoneNumbersReader = SqlHelper.ExecuteReader(this._connectionString, phoneNumbersCommandText, CommandType.Text, parameters);
+            using SqlDataReader phoneNumbersReader = SqlHelper.ExecuteReader(_connectionString, phoneNumbersCommandText, CommandType.Text, parameters);
             List<string> phoneNumbers = [];
             while (phoneNumbersReader.Read())
             {
@@ -218,7 +233,7 @@ public class CompaniesRepository(IConfiguration configuration)
             [
                 new SqlParameter("@CompanyPK", company.CompanyPK),
             ];
-            using SqlDataReader emailsReader = SqlHelper.ExecuteReader(this._connectionString, emailsCommandText, CommandType.Text, parameters);
+            using SqlDataReader emailsReader = SqlHelper.ExecuteReader(_connectionString, emailsCommandText, CommandType.Text, parameters);
             List<string> emails = [];
             while (emailsReader.Read())
             {
@@ -232,7 +247,7 @@ public class CompaniesRepository(IConfiguration configuration)
         return company;
     }
 
-    internal void UpdateCompany(Guid companyPK, CompanyEditDto companyEditDto)
+    public void UpdateCompany(Guid companyPK, CompanyEditDto companyEditDto)
     {
         const string updateCompanyCommandText = @"
             UPDATE
@@ -269,7 +284,7 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@OtherSigns", companyEditDto.OtherSigns),
         ];
 
-        SqlHelper.ExecuteNonQuery(this._connectionString,
+        SqlHelper.ExecuteNonQuery(_connectionString,
             updateCompanyCommandText,
             CommandType.Text,
             updateCompanyParameters);
@@ -292,7 +307,7 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@PhoneNumbers", phoneNumbers)
         ];
 
-        SqlHelper.ExecuteNonQuery(this._connectionString,
+        SqlHelper.ExecuteNonQuery(_connectionString,
             deletePhoneNumbersCommandText,
             CommandType.Text,
             deletePhoneNumbersParameters);
@@ -315,7 +330,7 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@PhoneNumbers", phoneNumbers)
         ];
 
-        SqlHelper.ExecuteNonQuery(this._connectionString,
+        SqlHelper.ExecuteNonQuery(_connectionString,
             insertPhoneNumbersCommandText,
             CommandType.Text,
             insertPhoneNumbersParameters);
@@ -336,7 +351,7 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@CompanyPK", companyPK),
             new SqlParameter("@Emails", emails)
         ];
-        SqlHelper.ExecuteNonQuery(this._connectionString,
+        SqlHelper.ExecuteNonQuery(_connectionString,
             deleteEmailsCommandText,
             CommandType.Text,
             deleteEmailsParameters);
@@ -358,49 +373,60 @@ public class CompaniesRepository(IConfiguration configuration)
             new SqlParameter("@CompanyPK", companyPK),
             new SqlParameter("@Emails", emails)
         ];
-        SqlHelper.ExecuteNonQuery(this._connectionString,
+        SqlHelper.ExecuteNonQuery(_connectionString,
             insertEmailsCommandText,
             CommandType.Text,
             insertEmailsParameters);
     }
 
-
-    public void DeleteCompany(Guid companyPK)
+    public async Task<bool> IsTherePayrollAsync(Guid companyPK, TransactionContext context)
     {
-        using SqlConnection connection = new(this._connectionString);
-        connection.Open();
+        using var connectionToUse = context.Connection;
+        await EnsureOpenAsync(connectionToUse);
 
-        using SqlTransaction transaction = connection.BeginTransaction();
-        try
-        {
-            SqlParameter[] checkParameters = [
-                new SqlParameter("@CompanyPK", companyPK)
-            ];
+        SqlParameter[] checkParameters = [
+            new SqlParameter("@CompanyPK", companyPK),
+            new SqlParameter("@IsTherePayroll", SqlDbType.Bit) { Direction = ParameterDirection.Output }
+        ];
 
-            using SqlCommand checkCommand = new("sp_IsTherePayroll", connection, transaction);
-            checkCommand.CommandType = CommandType.StoredProcedure;
-            checkCommand.Parameters.AddRange(checkParameters);
+        using SqlCommand checkCommand = new("sp_IsTherePayroll", connectionToUse, context.Transaction);
+        checkCommand.CommandType = CommandType.StoredProcedure;
+        checkCommand.Parameters.AddRange(checkParameters);
 
-            object result = checkCommand.ExecuteScalar();
-            bool hasPayroll = Convert.ToBoolean(result);
+        await checkCommand.ExecuteNonQueryAsync();
 
-            string deleteStoredProcedure = hasPayroll ? "sp_SoftDeleteCompany" : "sp_FullDeleteCompany";
+        return Convert.ToBoolean(checkParameters[1].Value);
+    }
 
-            SqlParameter[] deleteParameters = [
-                new SqlParameter("@CompanyPK", companyPK)
-            ];
+    public async Task SoftDeleteCompanyAsync(Guid companyPK, TransactionContext context)
+    {
+        using var connectionToUse = context.Connection;
+        await EnsureOpenAsync(connectionToUse);
 
-            using SqlCommand deleteCommand = new(deleteStoredProcedure, connection, transaction);
-            deleteCommand.CommandType = CommandType.StoredProcedure;
-            deleteCommand.Parameters.AddRange(deleteParameters);
+        SqlParameter[] deleteParameters = [
+            new SqlParameter("@CompanyPK", companyPK)
+        ];
 
-            deleteCommand.ExecuteNonQuery();
+        using SqlCommand deleteCommand = new("sp_SoftDeleteCompany", connectionToUse, context.Transaction);
+        deleteCommand.CommandType = CommandType.StoredProcedure;
+        deleteCommand.Parameters.AddRange(deleteParameters);
 
-            transaction.Commit();
-        }
-        catch
-        {
-            transaction.Rollback();
-        }
+        deleteCommand.ExecuteNonQuery();
+    }
+
+    public async Task FullDeleteCompanyAsync(Guid companyPK, TransactionContext context)
+    {
+        using var connectionToUse = context.Connection;
+        await EnsureOpenAsync(connectionToUse);
+
+        SqlParameter[] deleteParameters = [
+            new SqlParameter("@CompanyPK", companyPK)
+        ];
+
+        using SqlCommand deleteCommand = new("sp_FullDeleteCompany", connectionToUse, context.Transaction);
+        deleteCommand.CommandType = CommandType.StoredProcedure;
+        deleteCommand.Parameters.AddRange(deleteParameters);
+
+        deleteCommand.ExecuteNonQuery();
     }
 }

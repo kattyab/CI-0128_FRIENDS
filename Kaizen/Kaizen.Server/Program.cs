@@ -3,6 +3,7 @@ using Kaizen.Server.Application.Interfaces.ApiDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.Benefits;
 using Kaizen.Server.Application.Interfaces.CCSS;
+using Kaizen.Server.Application.Interfaces.Companies;
 using Kaizen.Server.Application.Interfaces.Employees;
 using Kaizen.Server.Application.Interfaces.IncomeTax;
 using Kaizen.Server.Application.Interfaces.Payroll;
@@ -23,6 +24,7 @@ using Kaizen.Server.Infrastructure.Services;
 using Kaizen.Server.Infrastructure.Services.ApiDeductions;
 using Kaizen.Server.Infrastructure.Services.Auth;
 using Kaizen.Server.Infrastructure.Services.CCSS;
+using Kaizen.Server.Infrastructure.Services.Companies;
 using Kaizen.Server.Infrastructure.Services.IncomeTax;
 using Kaizen.Server.Infrastructure.Services.Payroll;
 using Microsoft.Data.SqlClient;
@@ -95,6 +97,9 @@ builder.Services.AddScoped<IPayrollSummaryCalculator, PayrollSummaryCalculator>(
 builder.Services.AddScoped<IDaysWorkedCalculator, DaysWorkedCalculator>();
 builder.Services.AddScoped<ISalaryCalculator, SalaryCalculator>();
 builder.Services.AddScoped<IDeductionAggregator, DeductionAggregator>();
+
+builder.Services.AddScoped<ICompaniesRepository, CompaniesRepository>();
+builder.Services.AddScoped<ICompaniesService, CompaniesService>();
 
 builder.Services.AddPayrollServices();
 
