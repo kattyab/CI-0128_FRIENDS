@@ -1,6 +1,9 @@
 using Kaizen.Server.Application.Dtos.BenefitDeductions;
 using Kaizen.Server.Application.Interfaces.BenefitDeductions;
+using Kaizen.Server.Infrastructure.Contexts;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
+using System.Data;
 
 namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
 {
@@ -13,8 +16,18 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
             _connection = connection;
         }
 
-        public async Task<List<Benefit>> GetBenefitsByCompanyAsync(Guid companyID)
+        private static async Task EnsureOpenAsync(SqlConnection connection, string label)
         {
+            if (connection.State != ConnectionState.Open)
+                await connection.OpenAsync();
+        }
+
+        public async Task<List<Benefit>> GetBenefitsByCompanyAsync(Guid companyID, PayrollTransactionContext context = null)
+        {
+            var connectionToUse = context?.Connection ?? _connection;
+            string label = context?.Connection != null ? "PayrollTransactionContext" : "Default Repository Connection";
+            await EnsureOpenAsync(connectionToUse, label);
+
             var benefits = new List<Benefit>();
             const string sql = @"
         SELECT 
@@ -26,10 +39,11 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
             using var command = new SqlCommand(sql, _connection);
             command.Parameters.AddWithValue("@CompanyID", companyID);
 
-            if (_connection.State != System.Data.ConnectionState.Open)
-            {
-                await _connection.OpenAsync();
-            }
+            using var command = context != null
+                ? new SqlCommand(sql, connectionToUse, context.Transaction)
+                : new SqlCommand(sql, connectionToUse);
+
+            command.Parameters.AddWithValue("@CompanyID", companyID);
 
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
@@ -49,6 +63,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.BenefitDeductions
                     IsByService = reader.GetBoolean(10)
                 });
             }
+
             return benefits;
         }
     }
