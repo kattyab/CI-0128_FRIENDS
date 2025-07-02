@@ -53,7 +53,6 @@ onMounted(async () => {
         if (companyPk) localStorage.setItem('companyPk', companyPk)
       }
     } catch {
-      //
     }
   }
   if (!companyPk) return
