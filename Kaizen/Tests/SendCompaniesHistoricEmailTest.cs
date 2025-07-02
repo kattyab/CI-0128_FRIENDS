@@ -49,7 +49,6 @@ namespace Kaizen.Tests.Services
         [Test]
         public async Task SendCompaniesHistoricEmail_ShouldSendEvenIfCsvIsEmpty()
         {
-
             string csvContent = "";
             var user = new AuthUserDto { Name = "Ana", LastName = "Morales", Email = "ana@example.com" };
 
@@ -57,12 +56,11 @@ namespace Kaizen.Tests.Services
             ReportPayrollHistoricRangeEmail capturedEmail = null;
 
             _mockEmailService
-                .Setup(x => x.SendEmail(It.IsAny<ReportPayrollHistoricRangeEmail>()))
-                .Callback<ReportPayrollHistoricRangeEmail>(email => capturedEmail = email)
+                .Setup(x => x.SendEmail(It.IsAny<Email>()))
+                .Callback<Email>(email => capturedEmail = (ReportPayrollHistoricRangeEmail)email)
                 .Returns(Task.CompletedTask);
 
             await _reportService.SendCompaniesHistoricEmail(csvContent);
-
 
             Assert.NotNull(capturedEmail);
             Assert.That(Encoding.UTF8.GetString(capturedEmail.Attachments[0].Content), Is.EqualTo(""));
@@ -99,7 +97,7 @@ namespace Kaizen.Tests.Services
             string csvContent = "a,b,c";
 
             _mockAuthService.Setup(x => x.GetAuthUser()).Returns(user);
-            _mockEmailService.Setup(x => x.SendEmail(It.IsAny<ReportPayrollHistoricRangeEmail>()))
+            _mockEmailService.Setup(x => x.SendEmail(It.IsAny<Email>()))
                              .ThrowsAsync(new InvalidOperationException("SMTP failure"));
 
             var ex = Assert.ThrowsAsync<InvalidOperationException>(() => _reportService.SendCompaniesHistoricEmail(csvContent));
@@ -116,8 +114,8 @@ namespace Kaizen.Tests.Services
 
             ReportPayrollHistoricRangeEmail captured = null;
             _mockEmailService
-                .Setup(x => x.SendEmail(It.IsAny<ReportPayrollHistoricRangeEmail>()))
-                .Callback<ReportPayrollHistoricRangeEmail>(email => captured = email)
+                .Setup(x => x.SendEmail(It.IsAny<Email>()))
+                .Callback<Email>(email => captured = (ReportPayrollHistoricRangeEmail)email)
                 .Returns(Task.CompletedTask);
 
             await _reportService.SendCompaniesHistoricEmail(csvContent);

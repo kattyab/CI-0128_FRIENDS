@@ -84,8 +84,8 @@ public class ReportService : IReportService
     }
     public async Task SendCompaniesHistoricEmail(string csvContent)
     {
-        if (string.IsNullOrWhiteSpace(csvContent))
-            throw new ArgumentException("CSV content cannot be null or empty", nameof(csvContent));
+        if (csvContent == null)
+            throw new ArgumentException("CSV content cannot be null", nameof(csvContent));
 
         AuthUserDto user = this._authService.GetAuthUser();
 
