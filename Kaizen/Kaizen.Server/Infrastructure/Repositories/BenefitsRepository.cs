@@ -23,48 +23,44 @@ namespace Kaizen.Server.Infrastructure.Repositories
             const string getBenefitsCommandText = @"
                 SELECT
                     ID,
-                    NULL AS ApiID,
+                    0 AS ApiID,
                     Name,
                     MinWorkDurationMonths,
                     IsFixed,
                     FixedValue,
                     IsPercentage,
                     PercentageValue,
-                    0 AS IsAPI,
                     IsFullTime,
                     IsPartTime,
                     IsByHours,
-                    IsByService,
-                    NULL AS Endpoint
+                    IsByService
                 FROM
                     Benefits
                 WHERE
-                    OfferedBy = @OfferedBy
+                OfferedBy = @OfferedBy
 
                 UNION ALL
 
                 SELECT
                     NULL AS ID,
-                    adc.Id AS ApiID,
-                    adc.Name,
+                Id AS ApiID,
+                    Name,
                     0 AS MinWorkDurationMonths,
-                    0 AS IsFixed,
+                    CAST(0 AS BIT) AS IsFixed,
                     NULL AS FixedValue,
-                    0 AS IsPercentage,
+                    CAST(0 AS BIT) AS IsPercentage,
                     NULL AS PercentageValue,
-                    1 AS IsAPI,
-                    1 AS IsFullTime,
-                    1 AS IsPartTime,
-                    1 AS IsByHours,
-                    1 AS IsByService,
-                    adc.Endpoint
-               FROM
-                    ApiDeductionConfigs adc
-               JOIN
-                    OffersAPIs oa ON adc.Id = oa.ApiConfigId
-               WHERE
-                    oa.CompanyPK = @OfferedBy
-";
+                    CAST(1 AS BIT) AS IsFullTime,
+                    CAST(1 AS BIT) AS IsPartTime,
+                    CAST(1 AS BIT) AS IsByHours,
+                    CAST(1 AS BIT) AS IsByService
+                FROM
+                    ApiDeductionConfigs
+                INNER JOIN
+                    OffersAPIs oa ON ApiDeductionConfigs.Id = oa.ApiConfigId
+                WHERE
+	                CompanyPK = @OfferedBy
+            ";                  
 
             SqlParameter[] getBenefitsParameters = [
                 new SqlParameter("@OfferedBy", companyPK)
@@ -80,30 +76,24 @@ namespace Kaizen.Server.Infrastructure.Repositories
             {
                 BenefitDto benefit = new()
                 {
+                    ApiID = reader.GetInt32(reader.GetOrdinal("ApiID")),
                     ID = reader.IsDBNull(reader.GetOrdinal("ID"))
-                        ? null
+                        ? (Guid?)null
                         : reader.GetGuid(reader.GetOrdinal("ID")),
-                    ApiID = reader.IsDBNull(reader.GetOrdinal("ApiID"))
-                        ? null
-                        : (int?)reader.GetInt32(reader.GetOrdinal("ApiID")),
                     Name = reader.GetString(reader.GetOrdinal("Name")),
                     MinWorkDurationMonths = reader.GetInt32(reader.GetOrdinal("MinWorkDurationMonths")),
-                    IsFixed = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsFixed"))),
+                    IsFixed = reader.GetBoolean(reader.GetOrdinal("IsFixed")),
                     FixedValue = reader.IsDBNull(reader.GetOrdinal("FixedValue"))
                         ? null
-                        : (decimal?)reader.GetDecimal(reader.GetOrdinal("FixedValue")),
-                    IsPercentage = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsPercentage"))),
+                        : reader.GetDecimal(reader.GetOrdinal("FixedValue")),
+                    IsPercentage = reader.GetBoolean(reader.GetOrdinal("IsPercentage")),
                     PercentageValue = reader.IsDBNull(reader.GetOrdinal("PercentageValue"))
                         ? null
-                        : (decimal?)reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
-                    IsAPI = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsAPI"))),
-                    IsFullTime = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsFullTime"))),
-                    IsPartTime = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsPartTime"))),
-                    IsByHours = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsByHours"))),
-                    IsByService = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsByService"))),
-                    Endpoint = reader.IsDBNull(reader.GetOrdinal("Endpoint"))
-                        ? null
-                        : reader.GetString(reader.GetOrdinal("Endpoint"))
+                        : reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
+                    IsFullTime = reader.GetBoolean(reader.GetOrdinal("IsFullTime")),
+                    IsPartTime = reader.GetBoolean(reader.GetOrdinal("IsPartTime")),
+                    IsByHours = reader.GetBoolean(reader.GetOrdinal("IsByHours")),
+                    IsByService = reader.GetBoolean(reader.GetOrdinal("IsByService")),
                 };
 
                 benefits.Add(benefit);
@@ -111,7 +101,6 @@ namespace Kaizen.Server.Infrastructure.Repositories
             return benefits;
         }
 
-        // GetBenefit for GUID
         public BenefitDto? GetBenefit(Guid guid, Guid companyPK)
         {
             BenefitDto? benefit = null;
@@ -120,20 +109,16 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 SELECT
                 TOP 1
                     ID,
-                    NULL AS ApiID,
                     Name,
                     MinWorkDurationMonths,
                     IsFixed,
                     FixedValue,
                     IsPercentage,
                     PercentageValue,
-                    0 AS IsAPI,
                     IsFullTime,
                     IsPartTime,
                     IsByHours,
-                    IsByService,
-                    NULL AS Endpoint,
-                    0 AS IsAPIActive
+                    IsByService
                 FROM
                     Benefits
                 WHERE
@@ -154,116 +139,24 @@ namespace Kaizen.Server.Infrastructure.Repositories
             {
                 benefit = new()
                 {
-                    ID = reader.IsDBNull(reader.GetOrdinal("ID"))
-                        ? null
-                        : reader.GetGuid(reader.GetOrdinal("ID")),
-                    ApiID = reader.IsDBNull(reader.GetOrdinal("ApiID"))
-                        ? null
-                        : (int?)reader.GetInt32(reader.GetOrdinal("ApiID")),
+                    ID = reader.GetGuid(reader.GetOrdinal("ID")),
                     Name = reader.GetString(reader.GetOrdinal("Name")),
                     MinWorkDurationMonths = reader.GetInt32(reader.GetOrdinal("MinWorkDurationMonths")),
-                    IsFixed = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsFixed"))),
+                    IsFixed = reader.GetBoolean(reader.GetOrdinal("IsFixed")),
                     FixedValue = reader.IsDBNull(reader.GetOrdinal("FixedValue"))
                         ? null
-                        : (decimal?)reader.GetDecimal(reader.GetOrdinal("FixedValue")),
-                    IsPercentage = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsPercentage"))),
+                        : reader.GetDecimal(reader.GetOrdinal("FixedValue")),
+                    IsPercentage = reader.GetBoolean(reader.GetOrdinal("IsPercentage")),
                     PercentageValue = reader.IsDBNull(reader.GetOrdinal("PercentageValue"))
                         ? null
-                        : (decimal?)reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
-                    IsAPI = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsAPI"))),
-                    IsFullTime = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsFullTime"))),
-                    IsPartTime = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsPartTime"))),
-                    IsByHours = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsByHours"))),
-                    IsByService = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsByService"))),
-                    Endpoint = reader.IsDBNull(reader.GetOrdinal("Endpoint"))
-                        ? null
-                        : reader.GetString(reader.GetOrdinal("Endpoint")),
-                    IsAPIActive = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsAPIActive")))
+                        : reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
+                    IsFullTime = reader.GetBoolean(reader.GetOrdinal("IsFullTime")),
+                    IsPartTime = reader.GetBoolean(reader.GetOrdinal("IsPartTime")),
+                    IsByHours = reader.GetBoolean(reader.GetOrdinal("IsByHours")),
+                    IsByService = reader.GetBoolean(reader.GetOrdinal("IsByService")),
                 };
 
                 benefit.IsSubscribed = this.GetIfBenefitIsSubscribed(benefit.ID);
-            }
-
-            return benefit;
-        }
-
-        // GetBenefit for INT
-        public BenefitDto? GetBenefit(int id, Guid companyPK)
-        {
-            BenefitDto? benefit = null;
-
-            const string getBenefitCommandText = @"
-                SELECT
-                TOP 1
-                    NULL AS ID,
-                    adc.Id AS ApiID,
-                    Name,
-                    0 AS MinWorkDurationMonths,
-                    0 AS IsFixed,
-                    NULL AS FixedValue,
-                    0 AS IsPercentage,
-                    NULL AS PercentageValue,
-                    1 AS IsAPI,
-                    1 AS IsFullTime,
-                    1 AS IsPartTime,
-                    1 AS IsByHours,
-                    1 AS IsByService,
-                    adc.Endpoint,
-                    CASE 
-                        WHEN EXISTS (
-                            SELECT 1 
-                            FROM OffersAPIs oa 
-                            WHERE oa.CompanyPK = @OfferedBy
-                                AND oa.ApiConfigId = @ID
-                        ) THEN 1 
-                        ELSE 0 
-                    END AS IsAPIActive
-                FROM
-                    ApiDeductionConfigs adc
-                WHERE
-                    adc.Id = @ID";
-
-            SqlParameter[] getBenefitParameters = [
-                new SqlParameter("@ID", id),
-                new SqlParameter("@OfferedBy", companyPK)
-            ];
-
-            using SqlDataReader reader = SqlHelper.ExecuteReader(this._connectionString,
-                getBenefitCommandText,
-                CommandType.Text,
-                getBenefitParameters);
-
-            if (reader.Read())
-            {
-                benefit = new()
-                {
-                    ID = reader.IsDBNull(reader.GetOrdinal("ID"))
-                        ? null
-                        : reader.GetGuid(reader.GetOrdinal("ID")),
-                    ApiID = reader.IsDBNull(reader.GetOrdinal("ApiID"))
-                        ? null
-                        : (int?)reader.GetInt32(reader.GetOrdinal("ApiID")),
-                    Name = reader.GetString(reader.GetOrdinal("Name")),
-                    MinWorkDurationMonths = reader.GetInt32(reader.GetOrdinal("MinWorkDurationMonths")),
-                    IsFixed = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsFixed"))),
-                    FixedValue = reader.IsDBNull(reader.GetOrdinal("FixedValue"))
-                        ? null
-                        : (decimal?)reader.GetDecimal(reader.GetOrdinal("FixedValue")),
-                    IsPercentage = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsPercentage"))),
-                    PercentageValue = reader.IsDBNull(reader.GetOrdinal("PercentageValue"))
-                        ? null
-                        : (decimal?)reader.GetDecimal(reader.GetOrdinal("PercentageValue")),
-                    IsAPI = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsAPI"))),
-                    IsFullTime = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsFullTime"))),
-                    IsPartTime = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsPartTime"))),
-                    IsByHours = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsByHours"))),
-                    IsByService = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsByService"))),
-                    Endpoint = reader.IsDBNull(reader.GetOrdinal("Endpoint"))
-                        ? null
-                        : reader.GetString(reader.GetOrdinal("Endpoint")),
-                    IsAPIActive = Convert.ToBoolean(reader.GetValue(reader.GetOrdinal("IsAPIActive")))
-                };
-                benefit.IsSubscribed = true; // Disables edit.
             }
 
             return benefit;
@@ -332,10 +225,25 @@ namespace Kaizen.Server.Infrastructure.Repositories
                 CommandType.Text,
                 deleteBenefitParameters);
         }
-
-        private bool GetIfBenefitIsSubscribed(Guid benefitID)
+        public void DeleteBenefit(int id, Guid CompanyPK)
         {
-            if (benefitID == null) { return false; }
+            const string deleteBenefitCommandText = @"
+                DELETE OffersAPIs
+                WHERE ApiConfigId = @ID
+                AND CompanyPK = @CompanyPK;";
+
+            SqlParameter[] deleteBenefitParameters = [
+                new SqlParameter("@ID", id),
+                new SqlParameter("@CompanyPK", CompanyPK),
+            ];
+
+            SqlHelper.ExecuteNonQuery(this._connectionString,
+                deleteBenefitCommandText,
+                CommandType.Text,
+                deleteBenefitParameters);
+        }
+        private bool GetIfBenefitIsSubscribed(Guid? benefitID)
+        {
             const string checkSubscriptionCommandText = @"
                 SELECT CASE WHEN EXISTS (
                     SELECT 1 FROM ChosenBenefits WHERE BenefitID = @BenefitID
