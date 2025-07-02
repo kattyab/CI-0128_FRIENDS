@@ -53,7 +53,7 @@ onMounted(async () => {
         if (companyPk) localStorage.setItem('companyPk', companyPk)
       }
     } catch {
-      // Ignored
+      //
     }
   }
   if (!companyPk) return
@@ -121,7 +121,7 @@ onMounted(async () => {
   justify-content: center;
   margin-top: 2rem;
   width: 100%;
-  margin-bottom: 3rem; 
+  margin-bottom: 3rem;
 }
 .dashboard-btn {
   background: #003c63;

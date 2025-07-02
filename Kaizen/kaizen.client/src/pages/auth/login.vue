@@ -95,7 +95,6 @@
             password: this.password
           });
 
-          // Redirige según el rol
           if (response.data && response.data.role === 'Dueño') {
             this.$router.push('/dashboard-owner');
           } else {

@@ -12,7 +12,7 @@ import {
 Chart.register(ArcElement, Tooltip, Legend)
 
 const chartData = ref({
-  labels: ['Beneficios', 'Deducciones obligatorias', 'Cargas Sociales', 'Salarios'],
+  labels: ['Benefits', 'Obligatory Deductions', 'Labor Charges', 'Salaries'],
   datasets: [{
     data: [0, 0, 0, 0],
     backgroundColor: ['#7de2e2', '#0096c7', '#43779f', '#5fd0e6'],
@@ -81,10 +81,10 @@ onMounted(async () => {
       { params: { companyPk } }
     )
     const dataset = sanitize([
-      toNumber(data.beneficios),
-      toNumber(data.obligatorias),
-      toNumber(data.cargas),
-      toNumber(data.salarios)
+      toNumber(data.benefits),
+      toNumber(data.obligatoryDeductions),
+      toNumber(data.laborCharges),
+      toNumber(data.salaries)
     ])
     chartData.value = {
       ...chartData.value,
