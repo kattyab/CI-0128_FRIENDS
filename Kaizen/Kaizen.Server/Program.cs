@@ -97,6 +97,9 @@ builder.Services.AddScoped<IDaysWorkedCalculator, DaysWorkedCalculator>();
 builder.Services.AddScoped<ISalaryCalculator, SalaryCalculator>();
 builder.Services.AddScoped<IDeductionAggregator, DeductionAggregator>();
 
+builder.Services.AddScoped<IEmployeeDashboardRepository, EmployeeDashboardRepository>();
+
+
 builder.Services.AddPayrollServices();
 builder.Services.AddReportsServices();
 
@@ -104,6 +107,9 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+
+builder.Services.AddScoped<IGeneralPayrollReportRepository, GeneralPayrollReportRepository>();
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));

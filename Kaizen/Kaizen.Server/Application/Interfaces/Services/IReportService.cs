@@ -7,4 +7,6 @@ public interface IReportService
     HistoricRangeInitialDto GetHistoricRangeInitialDataAsync(Guid companyId);
     Task<List<HistoricRangePayroll>> GetHistoricRangePayroll(Guid companyPK, HistoricRangeSearch historicRangeSearch);
     Task SendHistoricRangeEmail(Guid companyPK, HistoricRangeSearch historicRangeSearch);
+    Task SendCompaniesHistoricEmail(string csvContent);
+
 }
