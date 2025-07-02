@@ -82,7 +82,6 @@ onMounted(async () => {
         if (companyPk) localStorage.setItem('companyPk', companyPk)
       }
     } catch {
-      // Ignored
     }
   }
   if (!companyPk) return console.error('companyPk no encontrado')
