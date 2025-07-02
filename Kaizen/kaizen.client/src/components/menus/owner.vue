@@ -8,7 +8,7 @@
 
     <h5>Menu</h5>
 
-    <div class="menu d-flex flex-column" v-if="company_pk">
+    <div class="menu d-flex flex-column" v-if="company_pk && !is_company_deleted">
       <router-link class="button" to="/landing-page">
         <span class="material-icons">apartment</span>
         <span class="text">Inicio</span>
@@ -69,6 +69,7 @@
           <router-link class="popup-button" :to="`/reports/companyemployees/${company_pk}`" @click="CloseReportsPopup">
             <span class="text">Reporte de Planillas de Empleados</span>
           </router-link>
+          <button class="btn btn-primary" @click="deleteCompany">Borrar empresa</button>
         </div>
       </div>
     </div>
@@ -84,6 +85,8 @@
   const reports_section = ref(null)
   const company_pk = ref(null)
   const minimum_resolution = 768
+
+  const is_company_deleted = ref(null)
 
   const ToggleMenu = () => {
     if (window.innerWidth > minimum_resolution) {
@@ -134,11 +137,32 @@
     }
   }
 
+  const fetchIsCompanyDeleted = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/is-company-deleted`)
+      console.log(response);
+      is_company_deleted.value = response.data
+    } catch (error) {
+      console.error("Error fetching company ID:", error)
+      is_company_deleted.value = false
+    }
+  }
+
+  const deleteCompany = async () => {
+    try {
+      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/api/Companies/delete`)
+      console.log("deleting", response);
+    } catch (error) {
+      console.error("Error deleting company:", error);
+    }
+  }
+
   onMounted(() => {
     window.addEventListener('resize', handleResize)
     document.addEventListener('click', handleClickOutside)
     handleResize()
     fetchCompanyId()
+    fetchIsCompanyDeleted()
   })
 
   onBeforeUnmount(() => {

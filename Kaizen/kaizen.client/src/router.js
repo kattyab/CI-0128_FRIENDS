@@ -80,7 +80,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (requiresCompanyActive) {
-      const isCompanyDeleted = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/isCompanyDeleted`, { withCredentials: true });
+      const isCompanyDeleted = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/is-company-deleted`, { withCredentials: true });
 
       if (isCompanyDeleted) {
         return next('/unauthorized');
