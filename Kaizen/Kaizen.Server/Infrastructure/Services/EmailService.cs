@@ -71,21 +71,42 @@ public class EmailService : IEmailService
     private async Task Send(MimeMessage mailMessage)
     {
         using var client = new SmtpClient();
+
         try
         {
-            await client.ConnectAsync(this.emailConfiguration.Hostname, this.emailConfiguration.Port, SecureSocketOptions.Auto);
-            await client.AuthenticateAsync(this.emailConfiguration.Username, this.emailConfiguration.Password);
+            logger.LogInformation("Connecting to SMTP {Host}:{Port} with SSL: {SslOption}",
+                emailConfiguration.Hostname,
+                emailConfiguration.Port,
+                emailConfiguration.Port == 465 ? "True (SSL)" : "False (STARTTLS)");
+
+            SecureSocketOptions socketOption = emailConfiguration.Port == 465
+                ? SecureSocketOptions.SslOnConnect
+                : SecureSocketOptions.StartTls;
+
+            await client.ConnectAsync(emailConfiguration.Hostname, emailConfiguration.Port, socketOption);
+
+            logger.LogInformation("Authenticating as {Username}", emailConfiguration.Username);
+
+            await client.AuthenticateAsync(emailConfiguration.Username, emailConfiguration.Password);
+
+            logger.LogInformation("Sending email to {Recipients}", string.Join(", ", mailMessage.To));
+
             await client.SendAsync(mailMessage);
+
+            logger.LogInformation("Email sent successfully.");
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Could not send email");
+            logger.LogError(ex, "Could not send email");
             throw;
         }
         finally
         {
-            await client.DisconnectAsync(true);
-            client.Dispose();
+            if (client.IsConnected)
+            {
+                await client.DisconnectAsync(true);
+            }
         }
     }
+
 }
