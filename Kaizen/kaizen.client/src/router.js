@@ -11,6 +11,7 @@ const router = createRouter({
         { path: '', name: 'Home', component: () => import('./pages/home.vue'), meta: { public: true } },
         { path: 'about', name: 'About', component: () => import('./pages/about.vue'), meta: { public: true } },
         { path: 'landing-page', name: 'Landing-page', component: () => import('./pages/landing-page.vue'), meta: { requiresAuth: true } },
+        { path: 'dashboard-owner', name: 'dashboard-owner', component: () => import('./pages/dashboards/owner.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] }},
         { path: 'unauthorized', name: 'Unauthorized', component: () => import('./pages/errors/403.vue'), meta: { public: true } },
         { path: 'company/edit', name: 'Company Edit', component: () => import('./pages/company/edit.vue'), meta: { requiresAuth: true, requiredRoles: ['Dueño'] } },
         { path: 'companies', name: 'Companies Index', component: () => import('./pages/companies/index.vue'), meta: { requiresAuth: true, requiredRoles: ['Superadmin'] } },
@@ -86,7 +87,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     next();
-  } catch (err) {
+  } catch {
     next('/auth/login');
   }
 });

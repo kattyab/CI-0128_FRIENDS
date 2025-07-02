@@ -9,7 +9,7 @@
     <h5>Menu</h5>
 
     <div class="menu d-flex flex-column">
-      <router-link class="button" to="/landing-page">
+      <router-link class="button" to="/dashboard-owner">
         <span class="material-icons">apartment</span>
         <span class="text">Inicio</span>
       </router-link>
