@@ -157,19 +157,26 @@ public class EmployeesRepository(IConfiguration configuration) : IEmployeesRepos
     public void DeleteEmployee(Guid companyPK, Guid employeeId, Guid userId)
     {
         const string companyCommandText = @"
-            BEGIN TRAN DELETE_EMPLOYEE_TRANSACTION;
+            BEGIN TRANSACTION;
 
-            UPDATE
-                Employees
+            UPDATE Employees
             SET
                 IsDeleted = 1,
                 DeletedBy = @DeletedBy,
                 DeletedAt = GETDATE()
             WHERE
                 WorksFor = @CompanyPK AND
-                EmpID = @EmpID
+                EmpID = @EmpID;
 
-            COMMIT TRAN DELETE_EMPLOYEE_TRANSACTION;";
+            UPDATE Users
+            SET Active = 0
+            WHERE PersonPK = (
+                SELECT PersonPK
+                FROM Employees
+                WHERE EmpID = @EmpID
+            );
+
+            COMMIT TRANSACTION;";
 
         SqlParameter[] companyParameters =
         [
