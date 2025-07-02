@@ -108,6 +108,9 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeDetailsRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
+builder.Services.AddScoped<IGeneralPayrollReportRepository, GeneralPayrollReportRepository>();
+
+
 builder.Services.AddScoped<IBenefitsService, BenefitsService>();
 
 builder.Services.AddMediatR(cfg =>
