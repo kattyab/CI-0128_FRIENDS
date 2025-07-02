@@ -150,15 +150,12 @@
 
   async function deleteBenefit(item) {
     try {
-      // Determine which endpoint and ID to use based on item type
       let endpoint, id;
 
       if (item.apiID) {
-        // For API benefits, use the API delete endpoint
         endpoint = `${import.meta.env.VITE_API_URL}/api/benefits/api/${item.apiID}`;
         id = item.apiID;
       } else {
-        // For regular benefits, use the standard delete endpoint
         endpoint = `${import.meta.env.VITE_API_URL}/api/benefits/${item.id}`;
         id = item.id;
       }
@@ -170,7 +167,6 @@
       console.log(`Benefit deleted successfully (${item.isAPI ? 'API' : 'Regular'} - ID: ${id})`);
       showSuccess("El beneficio fue eliminado exitosamente.");
 
-      // Refresh the data after successful deletion
       await fetchData();
     } catch (error) {
       console.error("Error deleting benefit:", error);
@@ -186,7 +182,6 @@
         closeDeleteModal();
       } catch (error) {
         console.error("Failed to delete benefit:", error);
-        // Error message is already shown in deleteBenefit function
       }
     }
   }

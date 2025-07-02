@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using Kaizen.Server.Application.Interfaces.Repositories;
+using Kaizen.Server.Infrastructure.Services;
+using Kaizen.Server.Application.Interfaces.Services;
 
 namespace Tests.BenefitsControllerTests
 {
@@ -20,20 +22,23 @@ namespace Tests.BenefitsControllerTests
     private Mock<IAuthService> _mockAuthService;
     private Mock<IBenefitsRepository> _mockBenefitsRepository;
     private BenefitsController _controller;
+    private Mock<IBenefitsService>? _benefitsService;   
 
     [SetUp]
-    public void Setup()
-    {
-      _configuration = new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-        .AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true)
-        .AddEnvironmentVariables()
-        .Build();
-      _mockAuthService = new Mock<IAuthService>();
-      _mockBenefitsRepository = new Mock<IBenefitsRepository>();
-      _controller = new BenefitsController(_mockAuthService.Object, _mockBenefitsRepository.Object);
-    }
+        public void Setup()
+        {
+            _configuration = new ConfigurationBuilder()
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true)
+              .AddEnvironmentVariables()
+              .Build();
+            _mockAuthService = new Mock<IAuthService>();
+            _mockBenefitsRepository = new Mock<IBenefitsRepository>();
+            _benefitsService = new Mock<IBenefitsService>();
+            _controller = new BenefitsController(_mockAuthService.Object, _mockBenefitsRepository.Object, _benefitsService.Object);
+        }
 
+  
     [Test]
     public void Index_UnauthenticatedUser_ReturnsUnauthorized()
     {
