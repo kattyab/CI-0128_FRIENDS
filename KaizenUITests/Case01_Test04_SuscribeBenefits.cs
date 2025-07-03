@@ -64,7 +64,7 @@ namespace UIAutomationTest
 
         _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
-                System.Threading.Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(500);
 
                 var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
         var fila = filas.FirstOrDefault(f => f.Text.Contains(beneficio));
