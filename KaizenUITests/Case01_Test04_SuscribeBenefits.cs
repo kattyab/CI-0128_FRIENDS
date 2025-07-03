@@ -64,6 +64,7 @@ namespace UIAutomationTest
 
         _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
+                // we could try with less
                 System.Threading.Thread.Sleep(500);
 
                 var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
