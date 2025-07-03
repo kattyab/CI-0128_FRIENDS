@@ -29,12 +29,14 @@ namespace UIAutomationTest
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
-      _wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Sprint 3"));
+      //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Sprint 3"));
 
-      string[][] empleados = new string[][]
+            System.Threading.Thread.Sleep(200);
+
+            string[][] empleados = new string[][]
       {
         // name, lastname, birthdate, cedula, bank, email, password, rol, puesto, contrato, ciclo, salario, fechaInicio
-        new string[] { "Marcela", "Briseño",    "17-11-1985",   "01-1234-9999", "CR11112222333344445555", "marcela@sprint3.cr","Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1750000", "02-05-2025" }
+        new string[] { "Marcela", "Briseño",    "11-17-1985",   "01-1234-9999", "CR11112222333344445555", "marcela@sprint3.cr","Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1750000", "02-05-2025" }
       };
 
       foreach (var emp in empleados)

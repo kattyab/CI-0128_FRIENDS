@@ -24,12 +24,12 @@ namespace UIAutomationTest
     public void AsignarBeneficiosAEmpleados()
     {
       AsignarBeneficioEmpleado(
-          "belen.vargas@empresapi.cr", "Password1*",
+          "belen@sprint3.cr", "Password1*",
           new (string beneficio, string dependientes)[] { ("Capacitación", null), ("Seguro de vida", null) }
       );
 
       AsignarBeneficioEmpleado(
-          "juan.vasquez@empresapi.cr", "Password1*",
+          "juanv@sprint3.cr", "Password1*",
           new (string beneficio, string dependientes)[] { ("Nutrición", null), ("MediSeguro", "1") }
       );
     }
@@ -43,7 +43,7 @@ namespace UIAutomationTest
       _driver.FindElement(By.Id("password")).Clear();
       _driver.FindElement(By.Id("password")).SendKeys(password);
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
-      _wait.Until(d => d.Url.Contains("/landing-page"));
+      _wait.Until(d => d.Url.Contains("/dashboardemployee"));
 
       _driver.Navigate().GoToUrl("https://localhost:55281/benefits/subscribe");
       _wait.Until(d => d.FindElement(By.TagName("h1")).Text.Contains("Beneficios"));
@@ -53,7 +53,9 @@ namespace UIAutomationTest
         var suscribirBtn = _driver.FindElement(By.XPath("//button[contains(.,'Suscribir beneficio')]"));
         suscribirBtn.Click();
 
-        _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
+                System.Threading.Thread.Sleep(500);
+
+                _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
         var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
         var fila = filas.FirstOrDefault(f => f.Text.Contains(beneficio));
