@@ -37,8 +37,8 @@ namespace UIAutomationTest
          "juan@empresapi.cr", "Password1*",
          new (string beneficio, string dependientes)[] {
        ("Seguro de vida", null),
-       ("MediSeguro", null),
-       ("Asociación solidarista", null)
+       ("MediSeguro", "1"),
+       ("Asociación solidarista", "Empresa PI")
          }
       );
     }
@@ -59,12 +59,14 @@ namespace UIAutomationTest
 
       foreach (var (beneficio, dependientes) in beneficios)
       {
-        var suscribirBtn = _driver.FindElement(By.XPath("//button[contains(.,'Suscribir beneficio')]"));
+                var suscribirBtn = _driver.FindElement(By.XPath("//button[contains(.,'Suscribir beneficio')]"));
         suscribirBtn.Click();
 
         _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
-        var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
+                System.Threading.Thread.Sleep(1000);
+
+                var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
         var fila = filas.FirstOrDefault(f => f.Text.Contains(beneficio));
         Assert.IsNotNull(fila, $"No se encontró el beneficio '{beneficio}' para el usuario {email}");
 
@@ -76,14 +78,21 @@ namespace UIAutomationTest
 
         _wait.Until(d => d.FindElement(By.CssSelector(".modal-content .alert-info")));
 
-        if (dependientes != null && beneficio.ToLower().Contains("seguro"))
+                if (dependientes != null && beneficio.ToLower().Contains("seguro"))
+                {
+                    var dependentsInput = _driver.FindElement(By.Id("dependents"));
+                    dependentsInput.Clear();
+                    dependentsInput.SendKeys(dependientes);
+                }
+
+                if (dependientes != null && beneficio.ToLower().Contains("solidarista"))
         {
-          var dependentsInput = _driver.FindElement(By.Id("dependents"));
-          dependentsInput.Clear();
-          dependentsInput.SendKeys(dependientes);
+            var dependentsInput = _driver.FindElement(By.Id("assocName"));
+            dependentsInput.Clear();
+            dependentsInput.SendKeys(dependientes);
         }
 
-        var confirmarBtn = _driver.FindElement(By.XPath("//button[contains(.,'Confirmar Suscripción')]"));
+                var confirmarBtn = _driver.FindElement(By.XPath("//button[contains(.,'Confirmar Suscripción')]"));
         confirmarBtn.Click();
 
         _wait.Until(d =>
