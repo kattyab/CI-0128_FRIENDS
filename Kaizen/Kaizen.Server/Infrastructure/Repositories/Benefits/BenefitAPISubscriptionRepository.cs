@@ -39,12 +39,6 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
                     if (!await reader.ReadAsync())
                         throw new InvalidOperationException("Employee not found with the provided email.");
 
-                    var isDeleted = reader.GetBoolean("IsDeleted");
-                    if (isDeleted)
-                    {
-                        return;
-                    }
-
                     employeeId = reader.GetGuid("EmpId");
                 }
 

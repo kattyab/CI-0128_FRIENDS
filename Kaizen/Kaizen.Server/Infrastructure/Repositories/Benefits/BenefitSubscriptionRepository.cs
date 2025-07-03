@@ -22,7 +22,7 @@ namespace Kaizen.Server.Infrastructure.Repositories.Benefits
         SELECT c.IsDeleted 
         FROM Benefits b
         INNER JOIN Companies c ON b.OfferedBy = c.CompanyPK
-        WHERE b.BenefitId = @BenefitId";
+        WHERE b.ID = @BenefitId";
 
             using var validationCommand = new SqlCommand(validationQuery, connection);
             validationCommand.Parameters.AddWithValue("@BenefitId", benefitId);
