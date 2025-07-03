@@ -66,7 +66,7 @@ namespace UIAutomationTest
             _driver.FindElement(By.Id("ownerEmail")).SendKeys("carlos@empresapi.cr");
             _driver.FindElement(By.Id("ownerPassword")).SendKeys("PasswordSeguro123");
 
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(100);
 
             var submitBtn = _driver.FindElement(By.CssSelector("form button[type='submit']"));
             ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitBtn);

@@ -24,20 +24,21 @@ namespace UIAutomationTest
     {
       _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
 
+      System.Threading.Thread.Sleep(100);
       // Iniciar sesión como administrador
-      _driver.FindElement(By.Id("username")).SendKeys("carlos@empresapi.cr");
+            _driver.FindElement(By.Id("username")).SendKeys("carlos@empresapi.cr");
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
             //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Empresa PI"));
-      System.Threading.Thread.Sleep(1000);
+      System.Threading.Thread.Sleep(100);
 
             string[][] empleados = new string[][]
       {
         // name, lastname, birthdate, cedula, bank, email, password, rol, puesto, contrato, ciclo, salario, fechaInicio
-        new string[] { "Pedro", "Vargas", "01-16-2000", "01-1234-0001", "CR11112222333344445555", "pedro@empresapi.cr", "Password1*", "Empleado", "Desarrollador", "Tiempo Completo", "Mensual", "500000", "01-04-2025" },
-        new string[] { "Ana", "Salas", "12-23-1992", "01-1234-0002", "CR11112222333344445555", "ana@empresapi.cr", "Password1*", "Empleado", "Diseñadora", "Tiempo Completo", "Mensual", "1000000", "01-04-2025" },
-        new string[] { "Juan", "Solano", "11-17-1985", "01-1234-0003", "CR11112222333344445555", "juan@empresapi.cr", "Password1*", "Empleado", "Líder Técnico", "Tiempo Completo", "Mensual", "4000000", "01-04-2025" }
+        new string[] { "Pedro", "Vargas", "16-01-2000", "01-1234-0001", "CR11112222333344445555", "pedro@empresapi.cr", "Password1*", "Empleado", "Desarrollador", "Tiempo Completo", "Mensual", "500000", "01-04-2025" },
+        new string[] { "Ana", "Salas", "23-12-1992", "01-1234-0002", "CR11112222333344445555", "ana@empresapi.cr", "Password1*", "Empleado", "Diseñadora", "Tiempo Completo", "Mensual", "1000000", "01-04-2025" },
+        new string[] { "Juan", "Solano", "17-11-1985", "01-1234-0003", "CR11112222333344445555", "juan@empresapi.cr", "Password1*", "Empleado", "Líder Técnico", "Tiempo Completo", "Mensual", "4000000", "04-01-2025" }
 
       };
 
@@ -45,14 +46,16 @@ namespace UIAutomationTest
       {
         _driver.Navigate().GoToUrl("https://localhost:55281/employees/register");
 
-        System.Threading.Thread.Sleep(1000);
+        System.Threading.Thread.Sleep(100);
 
         _driver.FindElement(By.Id("name")).SendKeys(emp[0]);
         _driver.FindElement(By.Id("lastname")).SendKeys(emp[1]);
         _driver.FindElement(By.Id("personid")).SendKeys(emp[3]);
 
         ClickRadioLabelByForValue("Hombre");
-        _driver.FindElement(By.Id("birthdate")).SendKeys(emp[2]);
+                System.Threading.Thread.Sleep(100);
+                _driver.FindElement(By.Id("birthdate")).Clear();
+                _driver.FindElement(By.Id("birthdate")).SendKeys(emp[2]);
         _driver.FindElement(By.Id("province")).SendKeys("San José");
         _driver.FindElement(By.Id("canton")).SendKeys("Montes de Oca");
         _driver.FindElement(By.Id("othersigns")).SendKeys("Cerca de la empresa");
@@ -72,8 +75,8 @@ namespace UIAutomationTest
         var submitBtn = _driver.FindElement(By.CssSelector("form button[type='submit']"));
         ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitBtn);
         ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", submitBtn);
-
-        _wait.Until(d => d.FindElement(By.CssSelector(".modal-content")));
+                System.Threading.Thread.Sleep(100);
+                _wait.Until(d => d.FindElement(By.CssSelector(".modal-content")));
         var modalBtn = _driver.FindElement(By.CssSelector(".modal button[type='button']"));
         ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", modalBtn);
         ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", modalBtn);

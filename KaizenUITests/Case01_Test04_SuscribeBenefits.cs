@@ -65,7 +65,7 @@ namespace UIAutomationTest
         _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
                 // we could try with less
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(100);
 
                 var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
         var fila = filas.FirstOrDefault(f => f.Text.Contains(beneficio));
@@ -108,7 +108,7 @@ namespace UIAutomationTest
         var aceptarBtn = _driver.FindElement(By.XPath("//button[contains(.,'Aceptar')]"));
         aceptarBtn.Click();
 
-        System.Threading.Thread.Sleep(1000);
+        System.Threading.Thread.Sleep(100);
       }
     }
 

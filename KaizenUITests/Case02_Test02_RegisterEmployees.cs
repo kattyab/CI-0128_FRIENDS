@@ -23,28 +23,28 @@ namespace UIAutomationTest
     public void CrearEmpleadosEmpresaPI_DeberiaRegistrarEmpleadosCorrectamente()
     {
       _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
-
-      // Iniciar sesión como administrador
-      _driver.FindElement(By.Id("username")).SendKeys("maria@sprint3.cr");
+            System.Threading.Thread.Sleep(100);
+            // Iniciar sesión como administrador
+            _driver.FindElement(By.Id("username")).SendKeys("maria@sprint3.cr");
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
             //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Sprint 3"));
 
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(100);
 
             string[][] empleados = new string[][]
       {
         // name, lastname, birthdate, cedula, bank, email, password, rol, puesto, contrato, ciclo, salario, fechaInicio
-        new string[] { "Belén",   "Vargas",     "11-28-2000",   "01-9876-5432", "CR11112222333344445555", "belen@sprint3.cr",  "Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1500000", "01-04-2025" },
-        new string[] { "Juan",    "Vásquez",    "12-23-1991",   "01-9876-5431", "CR11112222333344445555", "juanv@sprint3.cr",  "Password1*", "Empleado", "Contador",      "Tiempo Completo", "Mensual", "2200000", "01-04-2025" }
+        new string[] { "Belén",   "Vargas",     "28-11-2000",   "01-9876-5432", "CR11112222333344445555", "belen@sprint3.cr",  "Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1500000", "01-04-2025" },
+        new string[] { "Juan",    "Vásquez",    "23-12-1991",   "01-9876-5431", "CR11112222333344445555", "juanv@sprint3.cr",  "Password1*", "Empleado", "Contador",      "Tiempo Completo", "Mensual", "2200000", "01-04-2025" }
       };
 
       foreach (var emp in empleados)
       {
         _driver.Navigate().GoToUrl("https://localhost:55281/employees/register");
 
-        System.Threading.Thread.Sleep(1000);
+        System.Threading.Thread.Sleep(100);
 
         _driver.FindElement(By.Id("name")).SendKeys(emp[0]);
         _driver.FindElement(By.Id("lastname")).SendKeys(emp[1]);

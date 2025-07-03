@@ -51,7 +51,7 @@ namespace UIAutomationTest
         var suscribirBtn = _driver.FindElement(By.XPath("//button[contains(.,'Suscribir beneficio')]"));
         suscribirBtn.Click();
 
-                System.Threading.Thread.Sleep(200);
+                System.Threading.Thread.Sleep(100);
 
                 _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
@@ -96,7 +96,7 @@ namespace UIAutomationTest
         var aceptarBtn = _driver.FindElement(By.XPath("//button[contains(.,'Aceptar')]"));
         aceptarBtn.Click();
 
-        System.Threading.Thread.Sleep(1000);
+        System.Threading.Thread.Sleep(100);
       }
     }
 

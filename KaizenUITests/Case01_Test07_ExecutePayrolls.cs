@@ -32,7 +32,7 @@ namespace UIAutomationTest
 
       //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Empresa PI"));
 
-             System.Threading.Thread.Sleep(500);
+             System.Threading.Thread.Sleep(100);
 
             _driver.Navigate().GoToUrl("https://localhost:55281/payroll");
 

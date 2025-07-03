@@ -24,26 +24,27 @@ namespace UIAutomationTest
     {
       _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
 
-      // Iniciar sesión como administrador
+            // Iniciar sesión como administrador
+      System.Threading.Thread.Sleep(100);
       _driver.FindElement(By.Id("username")).SendKeys("maria@sprint3.cr");
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
       //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Sprint 3"));
 
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(100);
 
             string[][] empleados = new string[][]
       {
         // name, lastname, birthdate, cedula, bank, email, password, rol, puesto, contrato, ciclo, salario, fechaInicio
-        new string[] { "Marcela", "Briseño",    "11-17-1985",   "01-1234-9999", "CR11112222333344445555", "marcela@sprint3.cr","Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1750000", "02-05-2025" }
+        new string[] { "Marcela", "Briseño",    "17-11-1985",   "01-1234-9999", "CR11112222333344445555", "marcela@sprint3.cr","Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1750000", "0-05-2025" }
       };
 
       foreach (var emp in empleados)
       {
         _driver.Navigate().GoToUrl("https://localhost:55281/employees/register");
 
-        System.Threading.Thread.Sleep(1000);
+        System.Threading.Thread.Sleep(100);
 
         _driver.FindElement(By.Id("name")).SendKeys(emp[0]);
         _driver.FindElement(By.Id("lastname")).SendKeys(emp[1]);
