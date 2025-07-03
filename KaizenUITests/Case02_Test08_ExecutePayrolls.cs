@@ -22,7 +22,7 @@ namespace UIAutomationTest
     [Test]
     public void CrearEmpresaPI_DeberiaRegistrarConExito()
     {
-      _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/auth/login");
+      _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
 
       _wait.Until(driver => driver.FindElement(By.Id("username")));
 
@@ -32,7 +32,7 @@ namespace UIAutomationTest
 
       _wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Empresa PI"));
 
-      _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/payroll");
+      _driver.Navigate().GoToUrl("https://localhost:55281/payroll");
 
       _wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Procesar planilla"));
 

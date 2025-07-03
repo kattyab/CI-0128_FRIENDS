@@ -8,7 +8,7 @@
 
     <h5>Menu</h5>
 
-    <div class="menu d-flex flex-column" v-if="company_pk && !is_company_deleted">
+    <div class="menu d-flex flex-column">
       <router-link class="button" to="/dashboard-owner">
         <span class="material-icons">apartment</span>
         <span class="text">Inicio</span>
@@ -86,8 +86,6 @@
   const company_pk = ref(null)
   const minimum_resolution = 768
 
-  const is_company_deleted = ref(null)
-
   const ToggleMenu = () => {
     if (window.innerWidth > minimum_resolution) {
       is_expanded.value = !is_expanded.value
@@ -133,18 +131,6 @@
       company_pk.value = response.data
     } catch (error) {
       console.error("Error fetching company ID:", error)
-      company_pk.value = null
-    }
-  }
-
-  const fetchIsCompanyDeleted = async () => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/Auth/is-company-deleted`)
-      console.log(response);
-      is_company_deleted.value = response.data
-    } catch (error) {
-      console.error("Error fetching company ID:", error)
-      is_company_deleted.value = false
     }
   }
 
@@ -153,7 +139,6 @@
     document.addEventListener('click', handleClickOutside)
     handleResize()
     fetchCompanyId()
-    fetchIsCompanyDeleted()
   })
 
   onBeforeUnmount(() => {

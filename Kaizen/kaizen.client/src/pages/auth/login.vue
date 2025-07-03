@@ -105,8 +105,6 @@
 
           } if (role === 'Dueño'){
             this.$router.push('/dashboard-owner');
-          } else {
-            this.$router.push('/landing-page');
           }
         }
         catch (err) {

@@ -22,7 +22,7 @@ namespace UIAutomationTest
     [Test]
     public void CrearEmpleadosEmpresaPI_DeberiaRegistrarEmpleadosCorrectamente()
     {
-      _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/auth/login");
+      _driver.Navigate().GoToUrl("https://localhost:55281/auth/login");
 
       // Iniciar sesión como administrador
       _driver.FindElement(By.Id("username")).SendKeys("maria@sprint3.cr");
@@ -39,7 +39,7 @@ namespace UIAutomationTest
 
       foreach (var emp in empleados)
       {
-        _driver.Navigate().GoToUrl("https://ci-0128-friends.onrender.com/#/employees/register");
+        _driver.Navigate().GoToUrl("https://localhost:55281/employees/register");
 
         System.Threading.Thread.Sleep(1000);
 
