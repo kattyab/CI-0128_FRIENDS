@@ -44,8 +44,8 @@ namespace Kaizen.Server.Infrastructure.Repositories
                             INSERT INTO Owners (OwnerPK, IsDeleted)
                             VALUES (@PersonPK, 0);
 
-                            INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns)
-                            VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns);
+                            INSERT INTO Companies (CompanyPK, CompanyID, OwnerPK, CompanyName, BrandName, Type, FoundationDate, MaxBenefits, WebPage, Logo, Description, PO, Province, Canton, Distrito, OtherSigns, PayrollType)
+                            VALUES (@CompanyPK, @CompanyID, @OwnerPK, @CompanyName, @BrandName, @Type, @FoundationDate, @MaxBenefits, @WebPage, @Logo, @Description, @PO, @Province, @Canton, @District, @OtherSigns, @PayrollType);
 
                             UPDATE Users
                             SET CompanyPK = @CompanyPK
@@ -86,6 +86,7 @@ namespace Kaizen.Server.Infrastructure.Repositories
                             cmd.Parameters.Add("@Canton", SqlDbType.NVarChar, 50).Value = company.Canton;
                             cmd.Parameters.Add("@District", SqlDbType.NVarChar, 50).Value = company.District;
                             cmd.Parameters.Add("@OtherSigns", SqlDbType.NVarChar, 200).Value = company.OtherSigns;
+                            cmd.Parameters.Add("@PayrollType", SqlDbType.NVarChar, 200).Value = company.PayrollType;
 
                             await cmd.ExecuteNonQueryAsync();
                         }
