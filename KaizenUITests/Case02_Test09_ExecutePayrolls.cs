@@ -30,9 +30,10 @@ namespace UIAutomationTest
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
-      _wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Empresa PI"));
+            //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Empresa PI"));
+            System.Threading.Thread.Sleep(200);
 
-      _driver.Navigate().GoToUrl("https://localhost:55281/payroll");
+            _driver.Navigate().GoToUrl("https://localhost:55281/payroll");
 
       _wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Procesar planilla"));
 

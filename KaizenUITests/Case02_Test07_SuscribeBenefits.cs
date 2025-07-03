@@ -27,7 +27,7 @@ namespace UIAutomationTest
           "marcela@sprint3.cr", "Password1*",
           new (string beneficio, string dependientes)[] {
             ("Salario escolar", null),
-            ("Asociación solidarista", null)
+            ("Asociación solidarista", "Sprint 3")
           }
       );
     }
@@ -41,7 +41,7 @@ namespace UIAutomationTest
       _driver.FindElement(By.Id("password")).Clear();
       _driver.FindElement(By.Id("password")).SendKeys(password);
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
-      _wait.Until(d => d.Url.Contains("/landing-page"));
+      _wait.Until(d => d.Url.Contains("/dashboardemployee"));
 
       _driver.Navigate().GoToUrl("https://localhost:55281/benefits/subscribe");
       _wait.Until(d => d.FindElement(By.TagName("h1")).Text.Contains("Beneficios"));
@@ -51,7 +51,9 @@ namespace UIAutomationTest
         var suscribirBtn = _driver.FindElement(By.XPath("//button[contains(.,'Suscribir beneficio')]"));
         suscribirBtn.Click();
 
-        _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
+                System.Threading.Thread.Sleep(200);
+
+                _wait.Until(d => d.FindElements(By.CssSelector("table.table-hover tbody tr")).Any());
 
         var filas = _driver.FindElements(By.CssSelector("table.table-hover tbody tr"));
         var fila = filas.FirstOrDefault(f => f.Text.Contains(beneficio));
@@ -72,7 +74,14 @@ namespace UIAutomationTest
           dependentsInput.SendKeys(dependientes);
         }
 
-        var confirmarBtn = _driver.FindElement(By.XPath("//button[contains(.,'Confirmar Suscripción')]"));
+                if (dependientes != null && beneficio.ToLower().Contains("solidarista"))
+                {
+                    var dependentsInput = _driver.FindElement(By.Id("assocName"));
+                    dependentsInput.Clear();
+                    dependentsInput.SendKeys(dependientes);
+                }
+
+                var confirmarBtn = _driver.FindElement(By.XPath("//button[contains(.,'Confirmar Suscripción')]"));
         confirmarBtn.Click();
 
         _wait.Until(d =>
