@@ -30,7 +30,7 @@ namespace UIAutomationTest
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
-      _wait.Until(driver => driver.Url.Contains("/landing-page"));
+      _wait.Until(driver => driver.Url.Contains("/dashboard-owner"));
 
       var beneficios = new[]
       {

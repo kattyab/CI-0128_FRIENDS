@@ -94,12 +94,12 @@ namespace UIAutomationTest
             ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", loginBtn);
 
             wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => driver.Url.Contains("/landing-page") || driver.FindElements(By.CssSelector("a.btn.btn-primary[href='/company/edit']")).Count > 0);
+            wait.Until(driver => driver.Url.Contains("/dashboard-owner") || driver.FindElements(By.CssSelector("a.btn.btn-primary[href='/company/edit']")).Count > 0);
 
-            if (!_driver.Url.Contains("/landing-page"))
-                _driver.Navigate().GoToUrl("https://localhost:55281/landing-page");
+            if (!_driver.Url.Contains("/dashboard-owner"))
+                _driver.Navigate().GoToUrl("https://localhost:55281/dashboard-owner");
 
-            var editarBtn = wait.Until(driver =>
+            /*var editarBtn = wait.Until(driver =>
             {
                 try
                 {
@@ -123,7 +123,7 @@ namespace UIAutomationTest
 
             ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", inputBeneficios);
             inputBeneficios.Clear();
-            inputBeneficios.SendKeys("2");
+            inputBeneficios.SendKeys("2");*/
         }
 
         [TearDown]

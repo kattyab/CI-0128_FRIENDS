@@ -37,7 +37,7 @@ namespace UIAutomationTest
          "juan@empresapi.cr", "Password1*",
          new (string beneficio, string dependientes)[] {
        ("Seguro de vida", null),
-       ("MediSeguro", "1"),
+       ("MediSeguro", "2"),
        ("Asociación solidarista", "Empresa PI")
          }
       );

@@ -30,7 +30,7 @@ namespace UIAutomationTest
 
       AsignarBeneficioEmpleado(
           "juan.vasquez@empresapi.cr", "Password1*",
-          new (string beneficio, string dependientes)[] { ("Nutrición", null), ("MediSeguro", null) }
+          new (string beneficio, string dependientes)[] { ("Nutrición", null), ("MediSeguro", "1") }
       );
     }
 

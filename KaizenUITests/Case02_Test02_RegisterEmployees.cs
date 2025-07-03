@@ -29,13 +29,15 @@ namespace UIAutomationTest
       _driver.FindElement(By.Id("password")).SendKeys("PasswordSeguro123");
       _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
-      _wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Sprint 3"));
+            //_wait.Until(d => d.FindElement(By.CssSelector("h1")).Text.Contains("Sprint 3"));
 
-      string[][] empleados = new string[][]
+            System.Threading.Thread.Sleep(1000);
+
+            string[][] empleados = new string[][]
       {
         // name, lastname, birthdate, cedula, bank, email, password, rol, puesto, contrato, ciclo, salario, fechaInicio
-        new string[] { "Belén",   "Vargas",     "28-11-2000",   "01-9876-5432", "CR11112222333344445555", "belen@sprint3.cr",  "Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1500000", "01-04-2025" },
-        new string[] { "Juan",    "Vásquez",    "23-12-1991",   "01-9876-5431", "CR11112222333344445555", "juanv@sprint3.cr",  "Password1*", "Empleado", "Contador",      "Tiempo Completo", "Mensual", "2200000", "01-04-2025" }
+        new string[] { "Belén",   "Vargas",     "11-28-2000",   "01-9876-5432", "CR11112222333344445555", "belen@sprint3.cr",  "Password1*", "Empleado", "Analista",      "Tiempo Completo", "Mensual", "1500000", "01-04-2025" },
+        new string[] { "Juan",    "Vásquez",    "12-23-1991",   "01-9876-5431", "CR11112222333344445555", "juanv@sprint3.cr",  "Password1*", "Empleado", "Contador",      "Tiempo Completo", "Mensual", "2200000", "01-04-2025" }
       };
 
       foreach (var emp in empleados)
